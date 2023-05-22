@@ -3,29 +3,28 @@ package cchase.platformergame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 
 public class GameScreen extends ScreenAdapter
 {
     PlatformerGame  game;
-    PlatformerInput input = new PlatformerInput();
-
     private SpriteBatch batch;
-    private Texture image;
     World world;
     Player player;
 
     float x = 100f;
     float y = 300f;
+    float tileSize = 32;
+
 
 
     public GameScreen(PlatformerGame game)
     {
         this.game = game;
         batch = new SpriteBatch();
-        //image = new Texture(Gdx.files.internal("debugSquare.png"));
         player = new Player(x,y);
+
         world = new World(player);
     }
 
@@ -41,24 +40,26 @@ public class GameScreen extends ScreenAdapter
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Begin the sprite batch
-        //batch.begin();
+        world.WorldUpdate(player); // Removing this results in a null crash. idk
+        world.render();
 
-        //batch.draw(image, x, y);
+
+        // Begin the sprite batch
+        batch.begin();
+
+        player.render(batch); // Render the player
 
         // End the sprite batch
-        //batch.end();
-        world.render();
-        world.update();
+        batch.end();
 
-        input.update();
-
+        player.update(delta); // Update the player's position
     }
 
     @Override
     public void dispose()
     {
         batch.dispose();
-        image.dispose();
+        player.dispose();
+        world.dispose();
     }
 }

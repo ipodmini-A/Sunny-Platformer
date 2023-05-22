@@ -2,53 +2,77 @@ package cchase.platformergame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
-public class World {
-
+public class World
+{
     private TiledMap tiledMap;
     private TiledMapRenderer tiledMapRenderer;
     private OrthographicCamera camera;
+    int objectLayerId;
+    Player player;
+    float tileSize = 32;
+    private MapLayer collisionLayer;
+    private TiledMap map;
+    private TmxMapLoader loader;
+    private OrthogonalTiledMapRenderer mapRenderer;
 
-    private Player player;
-
-    public World(Player p) {
-        tiledMap = new TmxMapLoader().load("test1.tmx");
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
-
+    public World(Player player)
+    {
+        loader = new TmxMapLoader();
+        map = loader.load("test1.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
-
-        // Create the player at a specific position on top of the world
-        player = p;
     }
 
-    public void update()
+    public void WorldUpdate(Player player)
     {
-        player.update();
-        checkCollision();
+        this.player = player;
     }
 
-    private void checkCollision() {
-        MapLayer collisionLayer = tiledMap.getLayers().get("collision");
-        for (MapObject object : collisionLayer.getObjects())
+
+    /**
+     * checkCollisions()
+     *
+     * A basic method that is used to test for collisions
+     * Using MapLayer, the collision layer is gathered. It then iterates through the objects to see if each object had some
+     * form of interaction.
+     * Currently in progress
+     * TODO: See if the iteration can be changed.
+     * TODO: Calculate a way to allow for the method to jump.
+     */
+    public void checkCollisions()
+    {
+        // Get the collision object layer
+        MapLayer collisionLayer = map.getLayers().get("collision");
+        MapObjects objects = collisionLayer.getObjects();
+
+        // Iterate through all objects in the collision layer
+        for (MapObject object : objects)
         {
             if (object instanceof RectangleMapObject)
             {
-                Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
-                if (player.getBounds().overlaps(rectangle))
+                RectangleMapObject rectObject = (RectangleMapObject) object;
+
+                // Check if the player's bounding box overlaps with the object's rectangle
+                Rectangle rect = rectObject.getRectangle();
+                if (player.getBounds().overlaps(rect))
                 {
-                    // Adjust player position to be on top of the collision object
-                    player.getBounds().y = rectangle.y + rectangle.height;
+                    System.out.println("Collision occurred");
+                    player.setVelocity(player.getVelocity().x, 0); // Stop the player's movement
+                    break;
                 }
             }
         }
@@ -56,17 +80,14 @@ public class World {
 
     public void render()
     {
-        tiledMapRenderer.setView(camera);
-        tiledMapRenderer.render();
-
-        SpriteBatch batch = new SpriteBatch();
-        batch.begin();
-        player.render(batch);
-        batch.end();
+        checkCollisions();
+        mapRenderer.setView(camera);
+        mapRenderer.render();
     }
 
-    public void dispose() {
+    public void dispose()
+    {
         tiledMap.dispose();
-        player.dispose();
+        map.dispose();
     }
 }
