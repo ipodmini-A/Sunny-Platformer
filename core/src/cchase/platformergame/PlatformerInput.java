@@ -6,12 +6,19 @@ public class PlatformerInput
 {
 
     private boolean jumpPressed;
+    private boolean upPressed;
     private boolean leftPressed;
     private boolean rightPressed;
+    private boolean downPressed;
 
     public boolean isJumpPressed()
     {
         return jumpPressed;
+    }
+
+    public boolean isUpPressed()
+    {
+        return upPressed;
     }
 
     public boolean isLeftPressed()
@@ -24,11 +31,17 @@ public class PlatformerInput
         return rightPressed;
     }
 
+    public boolean isDownPressed()
+    {
+        return downPressed;
+    }
+
     public void update()
     {
-        jumpPressed = Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                || Gdx.input.isKeyJustPressed(Input.Keys.UP);
+        jumpPressed = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
+        upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
         leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
         rightPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+        downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
     }
 }
