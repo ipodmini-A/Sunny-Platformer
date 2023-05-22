@@ -13,6 +13,7 @@ public class GameScreen extends ScreenAdapter
 
     private SpriteBatch batch;
     private Texture image;
+    World world;
 
     float x = 100f;
     float y = 100f;
@@ -23,6 +24,7 @@ public class GameScreen extends ScreenAdapter
         this.game = game;
         batch = new SpriteBatch();
         image = new Texture(Gdx.files.internal("debugSquare.png"));
+        world = new World();
 
     }
 
@@ -65,6 +67,7 @@ public class GameScreen extends ScreenAdapter
 
         // End the sprite batch
         batch.end();
+        world.render();
 
         input.update();
 
