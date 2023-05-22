@@ -2,6 +2,7 @@ package cchase.platformergame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -17,37 +18,55 @@ public class World {
     private TiledMapRenderer tiledMapRenderer;
     private OrthographicCamera camera;
 
-    public World() {
-        // Load the TiledMap from the Tiled Map Editor file
+    private Player player;
+
+    public World(Player p) {
         tiledMap = new TmxMapLoader().load("test1.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        // Create an OrthographicCamera and position it
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
+
+        // Create the player at a specific position on top of the world
+        player = p;
     }
 
-    public void render() {
-        // Set the camera's projection matrix
+    public void update()
+    {
+        player.update();
+        checkCollision();
+    }
+
+    private void checkCollision() {
+        MapLayer collisionLayer = tiledMap.getLayers().get("collision");
+        for (MapObject object : collisionLayer.getObjects())
+        {
+            if (object instanceof RectangleMapObject)
+            {
+                Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
+                if (player.getBounds().overlaps(rectangle))
+                {
+                    // Adjust player position to be on top of the collision object
+                    player.getBounds().y = rectangle.y + rectangle.height;
+                }
+            }
+        }
+    }
+
+    public void render()
+    {
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
 
-        // Perform collision detection
-
-        MapLayer collisionLayer = tiledMap.getLayers().get("collision");
-        for (MapObject object : collisionLayer.getObjects()) {
-            if (object instanceof RectangleMapObject) {
-                Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
-                // Perform collision checks with the player or other game objects
-                // Implement your collision logic here
-            }
-        }
-
+        SpriteBatch batch = new SpriteBatch();
+        batch.begin();
+        player.render(batch);
+        batch.end();
     }
 
-    public void dispose()
-    {
+    public void dispose() {
         tiledMap.dispose();
+        player.dispose();
     }
 }

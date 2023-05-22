@@ -14,18 +14,19 @@ public class GameScreen extends ScreenAdapter
     private SpriteBatch batch;
     private Texture image;
     World world;
+    Player player;
 
     float x = 100f;
-    float y = 100f;
+    float y = 300f;
 
 
     public GameScreen(PlatformerGame game)
     {
         this.game = game;
         batch = new SpriteBatch();
-        image = new Texture(Gdx.files.internal("debugSquare.png"));
-        world = new World();
-
+        //image = new Texture(Gdx.files.internal("debugSquare.png"));
+        player = new Player(x,y);
+        world = new World(player);
     }
 
     @Override
@@ -41,33 +42,14 @@ public class GameScreen extends ScreenAdapter
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Begin the sprite batch
-        batch.begin();
+        //batch.begin();
 
-        if (input.isUpPressed())
-        {
-            y = y + 1;
-        }
-
-        if (input.isDownPressed())
-        {
-            y = y - 1;
-        }
-
-        if (input.isLeftPressed())
-        {
-            x = x - 1;
-        }
-
-        if (input.isRightPressed())
-        {
-            x = x + 1;
-        }
-
-        batch.draw(image, x, y);
+        //batch.draw(image, x, y);
 
         // End the sprite batch
-        batch.end();
+        //batch.end();
         world.render();
+        world.update();
 
         input.update();
 
