@@ -67,7 +67,6 @@ public class World
 
                 // Check if the player's bounding box overlaps with the object's rectangle
                 Rectangle rect = rectObject.getRectangle();
-                if (player.getBounds().)
                 if (player.getBounds().overlaps(rect))
                 {
                     player.setGrounded(true);
