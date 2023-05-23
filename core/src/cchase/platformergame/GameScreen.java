@@ -15,7 +15,6 @@ public class GameScreen extends ScreenAdapter
 
     float x = 100f;
     float y = 300f;
-    float tileSize = 32;
 
 
 

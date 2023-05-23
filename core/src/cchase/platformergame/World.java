@@ -16,8 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class World
 {
-    private TiledMap tiledMap;
-    private TiledMapRenderer tiledMapRenderer;
+    private TiledMapRenderer tiledMapRenderer; // What does this do?
     private OrthographicCamera camera;
     int objectLayerId;
     Player player;
@@ -68,10 +67,12 @@ public class World
 
                 // Check if the player's bounding box overlaps with the object's rectangle
                 Rectangle rect = rectObject.getRectangle();
+                if (player.getBounds().)
                 if (player.getBounds().overlaps(rect))
                 {
-                    System.out.println("Collision occurred");
-                    player.setVelocity(player.getVelocity().x, 0); // Stop the player's movement
+                    player.setGrounded(true);
+                    //System.out.println(player.isGrounded());
+                    //player.setVelocity(player.getVelocity().x, (50)); // Stop the player's movement
                     break;
                 }
             }
@@ -87,7 +88,7 @@ public class World
 
     public void dispose()
     {
-        tiledMap.dispose();
+        mapRenderer.dispose();
         map.dispose();
     }
 }
