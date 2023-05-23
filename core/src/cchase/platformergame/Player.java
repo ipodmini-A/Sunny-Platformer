@@ -21,6 +21,10 @@ public class Player
     private float gravity;
     private PlatformerInput platformerInput;
     private boolean grounded;
+    private boolean touchingLeftWall;
+    private boolean touchingRightWall;
+    private boolean touchingWall;
+    private boolean touchingCeiling;
 
     public Player(float x, float y)
     {
@@ -30,6 +34,10 @@ public class Player
         position = new Vector2(x, y);
         velocity = new Vector2();
         grounded = false;
+        touchingCeiling = false;
+        touchingLeftWall = false;
+        touchingRightWall = false;
+        touchingWall = false;
         platformerInput = new PlatformerInput();
         bounds = new Rectangle(position.x, position.y, sprite.getWidth(), sprite.getHeight());
         bounds.setSize(sprite.getWidth(), sprite.getHeight()); // Update the bounds size
@@ -42,13 +50,13 @@ public class Player
             velocity.x -= 5;
         }
 
-        if (platformerInput.isRightPressed()) {
+        if (platformerInput.isRightPressed())
+        {
             velocity.x += 5;
         }
 
         if (platformerInput.isUpPressed())
         {
-
             jump();
             //velocity.y += 5;
         }
@@ -94,6 +102,16 @@ public class Player
         return position;
     }
 
+    public void setVelocityX(float x)
+    {
+        velocity.x = x;
+    }
+
+    public void setVelocityY(float y)
+    {
+        velocity.y = y;
+    }
+
     public void setVelocity(float x, float y)
     {
         velocity.set(x, y);
@@ -109,31 +127,42 @@ public class Player
         return bounds;
     }
 
-    public void update(float delta)
-    {
+    public void update(float delta) {
         input();
+
         // Apply gravity
-        if (grounded)
-        {
-            velocity.set(velocity.x,0);
-            //velocity.add(0, 0);
-        }else
-        {
+        if (grounded) {
+            velocity.set(velocity.x, 0);
+        } else {
             velocity.add(0, GRAVITY * delta);
         }
 
         // Update position based on velocity
+        float oldX = position.x;
+        float oldY = position.y;
         position.add(velocity.x * delta, velocity.y * delta);
 
         // Check if the player is grounded
         grounded = position.y <= 0;
 
         // Reset vertical velocity if grounded
-        if (grounded)
-        {
+        if (grounded) {
             velocity.y = 0;
         }
+
+        // Check if the player is trying to move into a wall
+        if ((velocity.x < 0 && touchingWall)) {
+            velocity.x = 0; // Stop the player's horizontal movement
+            position.x = oldX; // Reset the player's position to the previous x-coordinate
+        }
+
+        // Check if the player is trying to move into the ceiling
+        if (velocity.y > 0 && touchingCeiling) {
+            velocity.y = 0; // Stop the player's vertical movement
+            position.y = oldY; // Reset the player's position to the previous y-coordinate
+        }
     }
+
 
     public boolean isGrounded()
     {
@@ -143,6 +172,46 @@ public class Player
     public void setGrounded(boolean grounded)
     {
         this.grounded = grounded;
+    }
+
+    public boolean isTouchingWall()
+    {
+        return touchingWall;
+    }
+
+    public void setTouchingWall(boolean touchingWall)
+    {
+        this.touchingWall = touchingWall;
+    }
+
+    public boolean isTouchingLeftWall()
+    {
+        return touchingLeftWall;
+    }
+
+    public void setTouchingLeftWall(boolean touchingLeftWall)
+    {
+        this.touchingLeftWall = touchingLeftWall;
+    }
+
+    public boolean isTouchingRightWall()
+    {
+        return touchingRightWall;
+    }
+
+    public void setTouchingRightWall(boolean touchingRightWall)
+    {
+        this.touchingRightWall = touchingRightWall;
+    }
+
+    public boolean isTouchingCeiling()
+    {
+        return touchingCeiling;
+    }
+
+    public void setTouchingCeiling(boolean touchingCeiling)
+    {
+        this.touchingCeiling = touchingCeiling;
     }
 
     public void dispose()
