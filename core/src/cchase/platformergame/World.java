@@ -71,7 +71,9 @@ public class World
                 // Check if the player's bounding box overlaps with the object's rectangle
                 Rectangle rect = rectObject.getRectangle();
 
-                if (player.getBounds().overlaps(rect)) {
+                if (player.getBounds().overlaps(rect))
+                {
+                    // TODO: Fix collision issue. Maybe increase the objects hit box by a small amount.
                     // Check the relative position of the object with respect to the player
                     float playerBottom = player.getPosition().y;
                     float playerTop = player.getPosition().y + player.getBounds().getHeight();
@@ -84,24 +86,31 @@ public class World
                     float objectRight = rect.x + rect.width;
 
                     // Check for ground collision
-                    if (playerBottom < objectTop && playerTop > objectTop) {
+                    if (playerBottom < objectTop && playerTop > objectTop)
+                    {
+
                         isTouchingGround = true;
+                        player.setVelocity(player.getVelocity().x, 0);
+                        player.setPosition(player.getPosition().x, player.getPosition().y + 5);
                     }
 
                     // Check for left wall collision
-                    if (playerRight > objectLeft && playerLeft < objectLeft) {
+                    if (playerRight > objectLeft && playerLeft < objectLeft)
+                    {
                         isTouchingLeftWall = true;
                         isTouchingWall = true;
                     }
 
                     // Check for right wall collision
-                    if (playerLeft < objectRight && playerRight > objectRight) {
+                    if (playerLeft < objectRight && playerRight > objectRight)
+                    {
                         isTouchingRightWall = true;
                         isTouchingWall = true;
                     }
 
                     // Check for ceiling collision
-                    if (playerTop > objectBottom && playerBottom < objectBottom) {
+                    if (playerTop > objectBottom && playerBottom < objectBottom)
+                    {
                         isTouchingCeiling = true;
                     }
                 }

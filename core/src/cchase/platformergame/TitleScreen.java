@@ -35,7 +35,7 @@ public class TitleScreen extends ScreenAdapter
         Gdx.gl.glClearColor(0, .25f, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.begin();
-        game.font.draw(game.batch, "Welcome to Card Game!", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .75f);
+        game.font.draw(game.batch, "Welcome to a generic platformer!", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .75f);
         game.font.draw(game.batch, "Currently in development. There is no win condition.", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .5f);
         game.font.draw(game.batch, "Press space to play.", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .25f);
         game.batch.end();

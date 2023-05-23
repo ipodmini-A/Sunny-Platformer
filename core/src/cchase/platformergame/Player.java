@@ -18,13 +18,13 @@ public class Player
     private Vector2 position;
     private Vector2 velocity;
     private Rectangle bounds;
-    private float gravity;
     private PlatformerInput platformerInput;
     private boolean grounded;
     private boolean touchingLeftWall;
     private boolean touchingRightWall;
     private boolean touchingWall;
     private boolean touchingCeiling;
+    private boolean flying;
 
     public Player(float x, float y)
     {
@@ -38,6 +38,7 @@ public class Player
         touchingLeftWall = false;
         touchingRightWall = false;
         touchingWall = false;
+        flying = false;
         platformerInput = new PlatformerInput();
         bounds = new Rectangle(position.x, position.y, sprite.getWidth(), sprite.getHeight());
         bounds.setSize(sprite.getWidth(), sprite.getHeight()); // Update the bounds size
@@ -55,15 +56,20 @@ public class Player
             velocity.x += 5;
         }
 
-        if (platformerInput.isUpPressed())
+        if (platformerInput.isUpPressed() && !flying)
         {
             jump();
-            //velocity.y += 5;
+        } else
+        {
+            velocity.y += 5;
         }
 
-        if (platformerInput.isDownPressed()) {
+        if (platformerInput.isDownPressed())
+        {
             velocity.y -= 5;
         }
+        flying = platformerInput.isDebugPressed();
+        System.out.println(flying);
 
         bounds.setPosition(position.x, position.y); // Update the bounds with the new position
     }
@@ -130,28 +136,24 @@ public class Player
     public void update(float delta) {
         input();
 
-        // Apply gravity
-        if (grounded) {
-            velocity.set(velocity.x, 0);
-        } else {
-            velocity.add(0, GRAVITY * delta);
-        }
-
         // Update position based on velocity
         float oldX = position.x;
         float oldY = position.y;
         position.add(velocity.x * delta, velocity.y * delta);
 
-        // Check if the player is grounded
-        grounded = position.y <= 0;
-
-        // Reset vertical velocity if grounded
-        if (grounded) {
+        // Apply gravity
+        if (grounded)
+        {
             velocity.y = 0;
+            position.y = oldY;
+        } else
+        {
+            velocity.add(0, GRAVITY * delta);
         }
 
         // Check if the player is trying to move into a wall
-        if ((velocity.x < 0 && touchingWall)) {
+        if ((velocity.x < 0 && touchingWall))
+        {
             velocity.x = 0; // Stop the player's horizontal movement
             position.x = oldX; // Reset the player's position to the previous x-coordinate
         }
