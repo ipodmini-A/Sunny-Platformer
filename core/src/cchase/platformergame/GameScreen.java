@@ -42,16 +42,13 @@ public class GameScreen extends ScreenAdapter
         world.WorldUpdate(player); // Removing this results in a null crash. idk
         world.render();
 
-
         // Begin the sprite batch
         batch.begin();
 
-        player.render(batch); // Render the player
+        player.render(batch,delta); // Render the player
 
         // End the sprite batch
         batch.end();
-
-        player.update(delta); // Update the player's position
     }
 
     @Override

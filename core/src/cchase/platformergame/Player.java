@@ -2,6 +2,7 @@ package cchase.platformergame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,6 +13,7 @@ public class Player
 {
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed
     private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
+    private static float SCALE = 1f;
 
     private Texture texture;
     private Sprite sprite;
@@ -25,12 +27,10 @@ public class Player
     private boolean touchingWall;
     private boolean touchingCeiling;
     private boolean flying;
+    private OrthographicCamera camera;
 
     public Player(float x, float y)
     {
-        texture = new Texture("debugSquare.png");
-        sprite = new Sprite(texture, (int) x, (int) y, 32, 32);
-        System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
         position = new Vector2(x, y);
         velocity = new Vector2();
         grounded = false;
@@ -40,8 +40,14 @@ public class Player
         touchingWall = false;
         flying = false;
         platformerInput = new PlatformerInput();
-        bounds = new Rectangle(position.x, position.y, sprite.getWidth(), sprite.getHeight());
-        bounds.setSize(sprite.getWidth(), sprite.getHeight()); // Update the bounds size
+        bounds = new Rectangle(position.x, position.y, 32, 32);
+        bounds.setSize(32, 32); // Update the bounds size
+
+        texture = new Texture("debugSquare.png");
+        sprite = new Sprite(texture);
+        sprite.setSize(bounds.getWidth(),bounds.getHeight());
+
+        System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
 
     public void input()
@@ -70,13 +76,12 @@ public class Player
         }
         flying = platformerInput.isDebugPressed();
         System.out.println(flying);
-
-        bounds.setPosition(position.x, position.y); // Update the bounds with the new position
     }
 
-    public void render(SpriteBatch spriteBatch)
+    public void render(SpriteBatch spriteBatch,float delta)
     {
-        sprite.setPosition(position.x, position.y);
+        input();
+        update(delta);
         sprite.draw(spriteBatch);
     }
 
@@ -133,9 +138,29 @@ public class Player
         return bounds;
     }
 
-    public void update(float delta) {
-        input();
+    public void updateCamera(OrthographicCamera camera)
+    {
+        this.camera = camera;
+    }
 
+    /**
+     * Spaghetti code :^)
+     *
+     * Updates the player each frame, which in this case is delta.
+     *
+     * First thing that is checked is input, next bounding box and sprite is edited.
+     * TODO: Refactor sprite so that it doesn't look horrible
+     *
+     * Afterwards, collision code is checked.
+     *
+     * @param delta
+     */
+    public void update(float delta)
+    {
+        bounds.setPosition(position.x, position.y); // Update the bounds with the new position
+        sprite.setBounds(getPosition().x, getPosition().y, bounds.width, bounds.height);
+        //sprite.setBounds(getPosition().x, getPosition().y, getBounds().getWidth(), getBounds().getHeight());
+        sprite.setSize(bounds.width * SCALE, bounds.height * SCALE);
         // Update position based on velocity
         float oldX = position.x;
         float oldY = position.y;
@@ -214,6 +239,11 @@ public class Player
     public void setTouchingCeiling(boolean touchingCeiling)
     {
         this.touchingCeiling = touchingCeiling;
+    }
+
+    public void setSCALE(float f)
+    {
+        SCALE = f;
     }
 
     public void dispose()
