@@ -40,7 +40,7 @@ public class GameScreen extends ScreenAdapter
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         world.WorldUpdate(player); // Removing this results in a null crash. idk
-        world.render();
+        world.render(delta);
 
         player.render(batch,delta); // Render the player
 

@@ -6,7 +6,7 @@
   <object id="6" x="544" y="384" width="192" height="128"/>
   <object id="7" x="352" y="288" width="128" height="32"/>
   <object id="8" x="672" y="256" width="64" height="128"/>
-  <object id="9" x="0" y="256" width="64" height="160"/>
+  <object id="9" x="0" y="256" width="64" height="128"/>
  </objectgroup>
  <layer id="1" name="tiles" width="30" height="20">
   <data encoding="csv">

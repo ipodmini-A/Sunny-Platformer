@@ -3,24 +3,27 @@ package cchase.platformergame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 
 public class World
 {
     //private TiledMapRenderer mapRenderer; // What does this do?
+    private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
+    private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
     private static final float SCALE = 2f;
+    private static float FRICTION = 3f;
     private OrthographicCamera camera;
     int objectLayerId;
     Player player;
@@ -31,7 +34,17 @@ public class World
     private MapLayer collisionLayer;
     private MapObjects objects;
     private boolean debug = true;
+
+    private Pool<Rectangle> rectPool = new Pool<Rectangle>() {
+        @Override
+        protected Rectangle newObject () {
+            return new Rectangle();
+        }
+    };
+    private Array<Rectangle> tiles = new Array<Rectangle>();
     private ShapeRenderer debugRenderer;
+    private BitmapFont debugFont;
+    private SpriteBatch debugBatch;
 
     public World(Player player)
     {
@@ -48,6 +61,8 @@ public class World
 
         player.setSCALE(SCALE);
         debugRenderer = new ShapeRenderer();
+        debugFont = new BitmapFont();
+        debugBatch = new SpriteBatch();
     }
 
     public void WorldUpdate(Player player)
@@ -66,55 +81,63 @@ public class World
      * TODO: See if the iteration can be changed.
      * TODO: Calculate a way to allow for the method to jump.
      */
-    public void checkCollisions()
+    public void checkCollisions(float delta)
     {
+
         boolean isTouchingGround = false;
         boolean isTouchingLeftWall = false;
         boolean isTouchingRightWall = false;
         boolean isTouchingWall = false;
         boolean isTouchingCeiling = false;
 
+        float playerBottom;
+        float playerTop;
+        float playerLeft;
+        float playerRight;
+
+        float objectBottom;
+        float objectTop;
+        float objectLeft;
+        float objectRight;
         // Iterate through all objects in the collision layer
         for (MapObject object : objects)
         {
+
             if (object instanceof RectangleMapObject)
             {
                 RectangleMapObject rectObject = (RectangleMapObject) object;
                 // Check if the player's bounding box overlaps with the object's rectangle
                 Rectangle rect = rectObject.getRectangle();
 
+                // TODO: Fix collision issue. Maybe increase the objects hit box by a small amount.
+                // Check the relative position of the object with respect to the player
+                playerBottom = player.getPosition().y;
+                playerTop = player.getPosition().y + player.getHeight();
+                playerLeft = player.getPosition().x;
+                playerRight = player.getPosition().x + player.getWidth();
+
+                objectBottom = rect.y;
+                objectTop = rect.y + rect.height;
+                objectLeft = rect.x;
+                objectRight = rect.x + rect.width;
+
+
                 if (player.getBounds().overlaps(rect))
                 {
-                    // TODO: Fix collision issue. Maybe increase the objects hit box by a small amount.
-                    // Check the relative position of the object with respect to the player
-                    float playerBottom = player.getPosition().y;
-                    float playerTop = player.getPosition().y + player.getHeight();
-                    float playerLeft = player.getPosition().x;
-                    float playerRight = player.getPosition().x + player.getWidth();
-
-                    float objectBottom = rect.y;
-                    float objectTop = rect.y + rect.height;
-                    float objectLeft = rect.x;
-                    float objectRight = rect.x + rect.width;
-
                     // Check for ground collision
-                    if (playerBottom <= objectTop && playerTop > objectTop)
+                    if (playerBottom <= objectTop && playerTop > objectTop + 16f) // +16f
                     {
                         //TODO
-                        // What is happening here, is that Gravity from the Player class is constantly
-                        // pushing down the player, while this code is trying to push the player up
-                        // out of the world. The result is a jittery mess, while also being the
-                        // desirable solution.
-                        // Work on a better collision method.
+                        // When colliding with a corner, the player will jut to the top of the corner and get stuck
+                        // Work out a solution to end this.
+                        //TODO: Move Collision from player to World.
                         isTouchingGround = true;
-                        //player.setPosition(player.getPosition().x,player.getPosition().y + 1);
-                        player.setVelocity(player.getVelocity().x, 0);
+                        player.getVelocity().y = 0;
+                        player.getPosition().y = objectTop;
                     }
 
-
                     // Check for left wall collision
-                    if (playerRight > objectLeft && playerLeft < objectLeft)
-                    {
+                    if (playerRight > objectLeft && playerLeft < objectLeft) {
                         isTouchingLeftWall = true;
                         isTouchingWall = true;
                     }
@@ -135,16 +158,67 @@ public class World
             }
         }
 
+        //player.getPosition().x = newPlayerX;
+        //player.getPosition().y = newPlayerY;
+
+        float oldX = player.getPosition().x;
+        float oldY = player.getPosition().y;
+
+        // Apply gravity
+        if (isTouchingGround)
+        {
+            //player.getVelocity().y = 0;
+            //player.getPosition().y = oldY;
+        } else
+        {
+            player.getVelocity().add(0, GRAVITY * delta);
+        }
+
+        // Check if the player is trying to move into a wall
+        if ((player.getVelocity().x <= 0)  && (isTouchingRightWall) && !isTouchingGround)
+        {
+            player.getVelocity().x = 0; // Stop the player's horizontal movement
+            //player.getVelocity().x = oldX; // Reset the player's position to the previous x-coordinate
+        }
+
+        if (((player.getVelocity().x > 0)  && isTouchingLeftWall) && !isTouchingGround)
+        {
+            player.getVelocity().x = 0; // Stop the player's horizontal movement
+            //player.getPosition().x = oldX; // Reset the player's position to the previous x-coordinate
+        }
+
+        // Check if the player is trying to move into the ceiling
+        if (player.getVelocity().y > 0 && isTouchingCeiling)
+        {
+            player.getVelocity().y = 0; // Stop the player's vertical movement
+            player.getVelocity().y = oldY; // Reset the player's position to the previous y-coordinate
+        }
+
+        if (player.getVelocity().x > 0)
+        {
+            player.getVelocity().sub(FRICTION,0);
+        }
+
+        if (player.getVelocity().x < 0)
+        {
+            player.getVelocity().add(FRICTION,0);
+        }
+
+        player.getPosition().add(player.getVelocity().x * delta, player.getVelocity().y * delta);
+
+
+        //System.out.println(isTouchingWall);
         // Update the player's collision status
         player.setGrounded(isTouchingGround);
         player.setTouchingLeftWall(isTouchingLeftWall);
         player.setTouchingRightWall(isTouchingRightWall);
         player.setTouchingWall(isTouchingWall);
         player.setTouchingCeiling(isTouchingCeiling);
+        //System.out.println(isTouchingRightWall);
+        System.out.println(isTouchingGround);
     }
 
-
-    public void render()
+    public void render(float delta)
     {
         // Update the camera's view
         camera.update();
@@ -154,7 +228,7 @@ public class World
         camera.position.y = player.getPosition().y + player.getHeight() / SCALE;
         player.updateCamera(camera);
 
-        checkCollisions();
+        checkCollisions(delta);
         mapRenderer.setView(camera);
         mapRenderer.render();
 
@@ -164,6 +238,12 @@ public class World
 
     private void renderDebug ()
     {
+
+        debugBatch.begin();
+        debugFont.draw(debugBatch, "Velocity: " + player.getVelocity(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .95f);
+        debugFont.draw(debugBatch, "Position: " + player.getPosition(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
+        debugBatch.end();
+
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
 
@@ -181,6 +261,7 @@ public class World
                         rectObject.getRectangle().getWidth(),rectObject.getRectangle().getHeight());
             }
         }
+
         debugRenderer.end();
     }
 

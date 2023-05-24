@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Player
 {
-    private static final float GRAVITY = -1000f; // Adjust the gravity value as needed
+    private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
     private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
     private static final float HEIGHT = 32f;
     private static final float WIDTH = 32f;
@@ -99,6 +99,7 @@ public class Player
     {
         if (grounded)
         {
+            position.y += 1;
             velocity.y = JUMP_VELOCITY;
             grounded = false;
         }
@@ -135,6 +136,7 @@ public class Player
      * Updates the player each frame, which in this case is delta.
      *
      * First thing that is checked is input, next bounding box and sprite is edited.
+     * UPDATE: All code relating to collision was moved to World.java.
      * TODO: Refactor sprite so that it doesn't look horrible
      *
      * Afterwards, collision code is checked.
@@ -149,35 +151,8 @@ public class Player
                 WIDTH,
                 HEIGHT);
         // Update position based on velocity
-        float oldX = position.x;
-        float oldY = position.y;
         bounds.setPosition(position.x, position.y); // Update the bounds with the new position
-        position.add(velocity.x * delta, velocity.y * delta);
-
-
-        // Apply gravity
-        if (grounded)
-        {
-            velocity.y = 0;
-            position.y = oldY + 0.5f;
-        } else
-        {
-            velocity.add(0, GRAVITY * delta);
-        }
-
-        // Check if the player is trying to move into a wall
-        if ((velocity.x < 0 && touchingWall))
-        {
-            velocity.x = 0; // Stop the player's horizontal movement
-            position.x = oldX; // Reset the player's position to the previous x-coordinate
-        }
-
-        // Check if the player is trying to move into the ceiling
-        if (velocity.y > 0 && touchingCeiling)
-        {
-            velocity.y = 0; // Stop the player's vertical movement
-            position.y = oldY; // Reset the player's position to the previous y-coordinate
-        }
+        //position.add(velocity.x * delta, velocity.y * delta);
     }
 
 
@@ -250,12 +225,21 @@ public class Player
         this.position = position;
     }
 
+    public void setPositionX(float x)
+    {
+        position.x = x;
+    }
+
+    public void setPositionY(float y)
+    {
+        position.y = y;
+    }
+
     public void dispose()
     {
         texture.dispose();
         spriteBatch.dispose();
     }
-
 
 }
 
