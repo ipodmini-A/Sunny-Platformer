@@ -88,9 +88,9 @@ public class World
                     // TODO: Fix collision issue. Maybe increase the objects hit box by a small amount.
                     // Check the relative position of the object with respect to the player
                     float playerBottom = player.getPosition().y;
-                    float playerTop = player.getPosition().y + player.getBounds().getHeight();
+                    float playerTop = player.getPosition().y + player.getHeight();
                     float playerLeft = player.getPosition().x;
-                    float playerRight = player.getPosition().x + player.getBounds().getWidth();
+                    float playerRight = player.getPosition().x + player.getWidth();
 
                     float objectBottom = rect.y;
                     float objectTop = rect.y + rect.height;
@@ -143,23 +143,17 @@ public class World
         player.setTouchingCeiling(isTouchingCeiling);
     }
 
-    public void cameraUpdate()
-    {
-        // Set the camera's position to follow the player, considering half of the screen size
-        camera.position.x = player.getPosition().x + player.getBounds().width / 2f;
-        camera.position.y = player.getPosition().y + player.getBounds().height / 2f;
-        player.updateCamera(camera);
-
-        //camera.setToOrtho(false, player.getPosition().x, player.getPosition().y);
-
-        // Update the camera's view
-        camera.update();
-    }
-
 
     public void render()
     {
-        cameraUpdate();
+        // Update the camera's view
+        camera.update();
+
+        // Set the camera's position to follow the player, considering half of the screen size
+        camera.position.x = player.getPosition().x + player.getWidth() / SCALE;
+        camera.position.y = player.getPosition().y + player.getHeight() / SCALE;
+        player.updateCamera(camera);
+
         checkCollisions();
         mapRenderer.setView(camera);
         mapRenderer.render();
@@ -174,7 +168,8 @@ public class World
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
 
         debugRenderer.setColor(Color.RED);
-        debugRenderer.rect(player.getPosition().x, player.getPosition().y, player.getBounds().getWidth(), player.getBounds().getHeight());
+        debugRenderer.rect(player.getPosition().x, player.getPosition().y, player.getWidth(), player.getHeight());
+        //System.out.println("debugRender X:" + player.getPosition().x + " debugRender Y:" + player.getPosition().y);
 
         debugRenderer.setColor(Color.YELLOW);
         for (MapObject object : objects)

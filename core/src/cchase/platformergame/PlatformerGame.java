@@ -32,8 +32,8 @@ public class PlatformerGame extends Game
 		float screenWidth = Gdx.graphics.getWidth();
 		float screenHeight = Gdx.graphics.getHeight();
 
-		float targetWidth = 800.0f; // Your desired game width
-		float targetHeight = 600.0f; // Your desired game height
+		float targetWidth = 1280.0f; // Your desired game width
+		float targetHeight = 720.0f; // Your desired game height
 
 		camera = new OrthographicCamera(targetWidth, targetHeight);
 		viewport = new ScalingViewport(Scaling.fit, targetWidth, targetHeight, camera);

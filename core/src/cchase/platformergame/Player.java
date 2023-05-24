@@ -13,6 +13,8 @@ public class Player
 {
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed
     private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
+    private static final float HEIGHT = 32f;
+    private static final float WIDTH = 32f;
     private static float SCALE = 1f;
 
     private Texture texture;
@@ -28,6 +30,7 @@ public class Player
     private boolean touchingCeiling;
     private boolean flying;
     private OrthographicCamera camera;
+    private SpriteBatch spriteBatch;
 
     public Player(float x, float y)
     {
@@ -40,12 +43,13 @@ public class Player
         touchingWall = false;
         flying = false;
         platformerInput = new PlatformerInput();
-        bounds = new Rectangle(position.x, position.y, 32, 32);
-        bounds.setSize(32, 32); // Update the bounds size
+        bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
+        bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
 
+        spriteBatch = new SpriteBatch();
         texture = new Texture("debugSquare.png");
         sprite = new Sprite(texture);
-        sprite.setSize(bounds.getWidth(),bounds.getHeight());
+        sprite.setSize(WIDTH,HEIGHT);
 
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
@@ -53,7 +57,8 @@ public class Player
     public void input()
     {
         platformerInput.update();
-        if (platformerInput.isLeftPressed()) {
+        if (platformerInput.isLeftPressed())
+        {
             velocity.x -= 5;
         }
 
@@ -75,27 +80,19 @@ public class Player
             velocity.y -= 5;
         }
         flying = platformerInput.isDebugPressed();
-        System.out.println(flying);
+        //System.out.println(flying);
     }
 
     public void render(SpriteBatch spriteBatch,float delta)
     {
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
         input();
-        update(delta);
         sprite.draw(spriteBatch);
-    }
-
-    public void setPosition(float x, float y)
-    {
-        position.x = x;
-        position.y = y;
-        bounds.setPosition(x, y); // Update the bounds position
-    }
-
-    public void setPosition(Vector2 position)
-    {
-        this.position = position;
-        bounds.setPosition(position.x, position.y); // Update the bounds position
+        update(delta);
+        spriteBatch.end();
+        //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
+        //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
     }
 
     public void jump()
@@ -107,20 +104,9 @@ public class Player
         }
     }
 
-
     public Vector2 getPosition()
     {
         return position;
-    }
-
-    public void setVelocityX(float x)
-    {
-        velocity.x = x;
-    }
-
-    public void setVelocityY(float y)
-    {
-        velocity.y = y;
     }
 
     public void setVelocity(float x, float y)
@@ -157,20 +143,23 @@ public class Player
      */
     public void update(float delta)
     {
-        bounds.setPosition(position.x, position.y); // Update the bounds with the new position
-        sprite.setBounds(getPosition().x, getPosition().y, bounds.width, bounds.height);
-        //sprite.setBounds(getPosition().x, getPosition().y, getBounds().getWidth(), getBounds().getHeight());
-        sprite.setSize(bounds.width * SCALE, bounds.height * SCALE);
+        sprite.setBounds(
+                position.x,
+                position.y,
+                WIDTH,
+                HEIGHT);
         // Update position based on velocity
         float oldX = position.x;
         float oldY = position.y;
+        bounds.setPosition(position.x, position.y); // Update the bounds with the new position
         position.add(velocity.x * delta, velocity.y * delta);
+
 
         // Apply gravity
         if (grounded)
         {
             velocity.y = 0;
-            position.y = oldY;
+            position.y = oldY + 0.5f;
         } else
         {
             velocity.add(0, GRAVITY * delta);
@@ -184,7 +173,8 @@ public class Player
         }
 
         // Check if the player is trying to move into the ceiling
-        if (velocity.y > 0 && touchingCeiling) {
+        if (velocity.y > 0 && touchingCeiling)
+        {
             velocity.y = 0; // Stop the player's vertical movement
             position.y = oldY; // Reset the player's position to the previous y-coordinate
         }
@@ -246,9 +236,24 @@ public class Player
         SCALE = f;
     }
 
+    public float getHeight()
+    {
+        return HEIGHT;
+    }
+
+    public float getWidth()
+    {
+        return WIDTH;
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position = position;
+    }
+
     public void dispose()
     {
         texture.dispose();
+        spriteBatch.dispose();
     }
 
 
