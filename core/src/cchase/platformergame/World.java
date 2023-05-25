@@ -168,9 +168,12 @@ public class World
                 }
             }
         }
-        if (!touchingGround)
+        if (touchingGround)
         {
-            //isTouchingGround = false;
+            isTouchingGround = true;
+        }else
+        {
+            isTouchingGround = false;
         }
 
         //player.getPosition().x = newPlayerX;
