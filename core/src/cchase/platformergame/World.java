@@ -50,6 +50,7 @@ public class World
     boolean isTouchingRightWall = false;
     boolean isTouchingWall = false;
     boolean isTouchingCeiling = false;
+    boolean collisionOccurred = false;
 
     public World(Player player)
     {
@@ -85,25 +86,27 @@ public class World
      * Currently in progress
      * TODO: See if the iteration can be changed.
      * TODO: Calculate a way to allow for the method to jump.
+     * TODO: Refactor
      */
     public void checkCollisions(float delta)
     {
 
-        float playerBottom;
-        float playerTop;
-        float playerLeft;
-        float playerRight;
+        float playerBottom = 0;
+        float playerTop = 0;
+        float playerLeft = 0;
+        float playerRight = 0;
 
-        float objectBottom;
-        float objectTop;
-        float objectLeft;
-        float objectRight;
+        float objectBottom = 0;
+        float objectTop = 0;
+        float objectLeft = 0;
+        float objectRight = 0;
         // Iterate through all objects in the collision layer
         boolean touchingGround = false;
         for (MapObject object : objects)
         {
             if (object instanceof RectangleMapObject)
             {
+
                 RectangleMapObject rectObject = (RectangleMapObject) object;
                 // Check if the player's bounding box overlaps with the object's rectangle
                 Rectangle rect = rectObject.getRectangle();
@@ -120,13 +123,12 @@ public class World
                 objectLeft = rect.x;
                 objectRight = rect.x + rect.width;
 
-
                 if (player.getBounds().overlaps(rect))
                 {
                     // Check for ground collision
                     if (playerBottom <= objectTop + 5f && playerTop > objectTop + 16f) // +16f
                     {
-                        System.out.println("Overlapping");
+                        //System.out.println("Overlapping");
 
                         //TODO
                         // When colliding with a corner, the player will jut to the top of the corner and get stuck
@@ -134,21 +136,27 @@ public class World
                         //TODO: Move Collision from player to World.
                         if (!(playerRight > objectLeft) || !(playerLeft < objectRight - 5f))
                         {
-                            player.getVelocity().y = 0;
+                            //player.getVelocity().y = 0;
                             //player.getPosition().y = objectTop;
                         }else
                         {
-                            player.getVelocity().y = 0;
+                            //player.getVelocity().y = 0;
                             player.getPosition().y = objectTop;
                             isTouchingGround = true;
                             touchingGround = true;
                         }
                     }
 
+                    if (playerBottom + 5f >= objectTop)
+                    {
+                        collisionOccurred = true;
+                    }
+
                     // Check for left wall collision
                     if (playerRight > objectLeft && playerLeft < objectLeft) {
                         isTouchingLeftWall = true;
                         isTouchingWall = true;
+                        collisionOccurred = true;
                     }
 
                     // Check for right wall collision
@@ -156,22 +164,46 @@ public class World
                     {
                         isTouchingRightWall = true;
                         isTouchingWall = true;
+                        collisionOccurred = true;
                     }
 
                     // Check for ceiling collision
                     if (playerTop > objectBottom && playerBottom < objectBottom)
                     {
                         isTouchingCeiling = true;
-                        player.getVelocity().y = 0;
+                        collisionOccurred = true;
+                        //player.getVelocity().y = 0;
                         //player.getPosition().y = objectTop;
                     }
+                } else
+                {
+                    collisionOccurred = false;
                 }
             }
         }
+
         if (!touchingGround && player.getVelocity().y > 1)
         {
             isTouchingGround = false;
         }
+        if (!isTouchingLeftWall)
+        {
+            isTouchingLeftWall = false;
+        }
+        if (!isTouchingRightWall)
+        {
+            isTouchingRightWall = false;
+        }
+        if (!isTouchingLeftWall || !isTouchingRightWall)
+        {
+            isTouchingWall = false;
+        }
+        if (!isTouchingCeiling)
+        {
+            isTouchingCeiling = false;
+        }
+
+
 
         //player.getPosition().x = newPlayerX;
         //player.getPosition().y = newPlayerY;
@@ -182,7 +214,7 @@ public class World
         // Apply gravity
         if (isTouchingGround)
         {
-            //player.getVelocity().y = 0;
+            player.getVelocity().y = 0;
             //player.getPosition().y = oldY;
         } else
         {
@@ -193,20 +225,20 @@ public class World
         if ((player.getVelocity().x <= 0)  && (isTouchingRightWall) && !isTouchingGround)
         {
             player.getVelocity().x = 0; // Stop the player's horizontal movement
-            //player.getVelocity().x = oldX; // Reset the player's position to the previous x-coordinate
+            player.getVelocity().x = oldX; // Reset the player's position to the previous x-coordinate
         }
 
         if (((player.getVelocity().x > 0)  && isTouchingLeftWall) && !isTouchingGround)
         {
             player.getVelocity().x = 0; // Stop the player's horizontal movement
-            //player.getPosition().x = oldX; // Reset the player's position to the previous x-coordinate
+            player.getPosition().x = oldX; // Reset the player's position to the previous x-coordinate
         }
 
         // Check if the player is trying to move into the ceiling
         if (player.getVelocity().y > 0 && isTouchingCeiling)
         {
             player.getVelocity().y = 0; // Stop the player's vertical movement
-            player.getVelocity().y = oldY; // Reset the player's position to the previous y-coordinate
+            //player.getVelocity().y = oldY; // Reset the player's position to the previous y-coordinate
         }
 
         if (player.getVelocity().x > 0)
@@ -246,7 +278,8 @@ public class World
         player.setTouchingWall(isTouchingWall);
         player.setTouchingCeiling(isTouchingCeiling);
         //System.out.println(isTouchingRightWall);
-        System.out.println(isTouchingGround);
+        System.out.println(isTouchingRightWall);
+        //System.out.println(collisionOccurred);
     }
 
     public void render(float delta)
