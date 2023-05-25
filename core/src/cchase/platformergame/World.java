@@ -45,6 +45,11 @@ public class World
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
     private SpriteBatch debugBatch;
+    boolean isTouchingGround = false;
+    boolean isTouchingLeftWall = false;
+    boolean isTouchingRightWall = false;
+    boolean isTouchingWall = false;
+    boolean isTouchingCeiling = false;
 
     public World(Player player)
     {
@@ -84,12 +89,6 @@ public class World
     public void checkCollisions(float delta)
     {
 
-        boolean isTouchingGround = false;
-        boolean isTouchingLeftWall = false;
-        boolean isTouchingRightWall = false;
-        boolean isTouchingWall = false;
-        boolean isTouchingCeiling = false;
-
         float playerBottom;
         float playerTop;
         float playerLeft;
@@ -100,9 +99,9 @@ public class World
         float objectLeft;
         float objectRight;
         // Iterate through all objects in the collision layer
+        boolean touchingGround = false;
         for (MapObject object : objects)
         {
-
             if (object instanceof RectangleMapObject)
             {
                 RectangleMapObject rectObject = (RectangleMapObject) object;
@@ -127,13 +126,23 @@ public class World
                     // Check for ground collision
                     if (playerBottom <= objectTop && playerTop > objectTop + 16f) // +16f
                     {
+                        System.out.println("Overlapping");
+
                         //TODO
                         // When colliding with a corner, the player will jut to the top of the corner and get stuck
                         // Work out a solution to end this.
                         //TODO: Move Collision from player to World.
-                        isTouchingGround = true;
-                        player.getVelocity().y = 0;
-                        player.getPosition().y = objectTop;
+                        if (!(playerRight > objectLeft + 5f) || !(playerLeft < objectRight - 5f))
+                        {
+                            player.getVelocity().y = 0;
+                            //player.getPosition().y = objectTop;
+                        }else
+                        {
+                            player.getVelocity().y = 0;
+                            player.getPosition().y = objectTop;
+                            isTouchingGround = true;
+                            touchingGround = true;
+                        }
                     }
 
                     // Check for left wall collision
@@ -153,9 +162,15 @@ public class World
                     if (playerTop > objectBottom && playerBottom < objectBottom)
                     {
                         isTouchingCeiling = true;
+                        player.getVelocity().y = 0;
+                        //player.getPosition().y = objectTop;
                     }
                 }
             }
+        }
+        if (!touchingGround)
+        {
+            //isTouchingGround = false;
         }
 
         //player.getPosition().x = newPlayerX;
@@ -204,7 +219,13 @@ public class World
             player.getVelocity().add(FRICTION,0);
         }
 
-        player.getPosition().add(player.getVelocity().x * delta, player.getVelocity().y * delta);
+        if (isTouchingGround)
+        {
+            player.getPosition().x += player.getVelocity().x * delta;
+        } else
+        {
+            player.getPosition().add(player.getVelocity().x * delta, player.getVelocity().y * delta);
+        }
 
 
         //System.out.println(isTouchingWall);

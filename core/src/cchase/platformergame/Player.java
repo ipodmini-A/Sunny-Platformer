@@ -6,16 +6,21 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+
+import java.util.HashMap;
 
 public class Player
 {
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
-    private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
-    private static final float HEIGHT = 32f;
-    private static final float WIDTH = 32f;
+    private static final float JUMP_VELOCITY = 450f; // Adjust the jump velocity as needed
+    private static final float HEIGHT = 64f;
+    private static final float WIDTH = 64f;
     private static float SCALE = 1f;
+    final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
 
     private Texture texture;
     private Sprite sprite;
@@ -31,6 +36,12 @@ public class Player
     private boolean flying;
     private OrthographicCamera camera;
     private SpriteBatch spriteBatch;
+    private TextureAtlas textureAtlas;
+    enum State
+    {
+        STANDING, WALKING, JUMPING
+    }
+    private State state;
 
     public Player(float x, float y)
     {
@@ -45,10 +56,14 @@ public class Player
         platformerInput = new PlatformerInput();
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
+        state = State.STANDING;
 
+        textureAtlas = new TextureAtlas("sprites.txt");
         spriteBatch = new SpriteBatch();
         texture = new Texture("debugSquare.png");
         sprite = new Sprite(texture);
+
+        addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
@@ -86,10 +101,22 @@ public class Player
     public void render(SpriteBatch spriteBatch,float delta)
     {
         spriteBatch.setProjectionMatrix(camera.combined);
+        this.spriteBatch = spriteBatch;
         spriteBatch.begin();
         input();
-        sprite.draw(spriteBatch);
+        //sprite.draw(spriteBatch);
         update(delta);
+        if (state == State.STANDING)
+        {
+            drawSprite("standing", position.x, position.y);
+        } else if (state == State.WALKING)
+        {
+            drawSprite("running", position.x, position.y);
+        } else if ( state == State.JUMPING)
+        {
+            drawSprite("jumping", position.x, position.y);
+        }
+        //drawSprite("standing", position.x, position.y);
         spriteBatch.end();
         //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
         //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
@@ -153,6 +180,36 @@ public class Player
         // Update position based on velocity
         bounds.setPosition(position.x, position.y); // Update the bounds with the new position
         //position.add(velocity.x * delta, velocity.y * delta);
+        if (grounded && velocity.x == 0)
+        {
+            state = State.STANDING;
+        }else if (grounded && velocity.x != 0)
+        {
+            state = State.WALKING;
+        }else if (!grounded)
+        {
+            state = State.JUMPING;
+        }
+    }
+
+    private void addSprites()
+    {
+        Array<TextureAtlas.AtlasRegion> regions = textureAtlas.getRegions();
+
+        for (TextureAtlas.AtlasRegion region : regions) {
+            Sprite sprite = textureAtlas.createSprite(region.name);
+
+            sprites.put(region.name, sprite);
+        }
+    }
+
+    private void drawSprite(String name, float x, float y)
+    {
+        Sprite sprite = sprites.get(name);
+
+        sprite.setBounds(x,y,WIDTH,HEIGHT);
+
+        sprite.draw(spriteBatch);
     }
 
 
@@ -238,6 +295,7 @@ public class Player
     public void dispose()
     {
         texture.dispose();
+        textureAtlas.dispose();
         spriteBatch.dispose();
     }
 
