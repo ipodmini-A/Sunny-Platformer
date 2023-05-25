@@ -124,7 +124,7 @@ public class World
                 if (player.getBounds().overlaps(rect))
                 {
                     // Check for ground collision
-                    if (playerBottom <= objectTop && playerTop > objectTop + 16f) // +16f
+                    if (playerBottom <= objectTop + 5f && playerTop > objectTop + 16f) // +16f
                     {
                         System.out.println("Overlapping");
 
@@ -132,7 +132,7 @@ public class World
                         // When colliding with a corner, the player will jut to the top of the corner and get stuck
                         // Work out a solution to end this.
                         //TODO: Move Collision from player to World.
-                        if (!(playerRight > objectLeft + 5f) || !(playerLeft < objectRight - 5f))
+                        if (!(playerRight > objectLeft) || !(playerLeft < objectRight - 5f))
                         {
                             player.getVelocity().y = 0;
                             //player.getPosition().y = objectTop;
@@ -168,10 +168,7 @@ public class World
                 }
             }
         }
-        if (touchingGround)
-        {
-            isTouchingGround = true;
-        }else
+        if (!touchingGround && player.getVelocity().y > 1)
         {
             isTouchingGround = false;
         }
@@ -229,6 +226,16 @@ public class World
         {
             player.getPosition().add(player.getVelocity().x * delta, player.getVelocity().y * delta);
         }
+
+        /*
+        if (player.getVelocity().x <= 2f)
+        {
+            player.getVelocity().x = 0;
+        }else if (player.getVelocity().x >= -2f)
+        {
+            player.getVelocity().x = 0;
+        }
+        */
 
 
         //System.out.println(isTouchingWall);

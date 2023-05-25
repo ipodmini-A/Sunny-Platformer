@@ -42,6 +42,7 @@ public class Player
         STANDING, WALKING, JUMPING
     }
     private State state;
+    private boolean facingRight = false;
 
     public Player(float x, float y)
     {
@@ -85,9 +86,6 @@ public class Player
         if (platformerInput.isUpPressed() && !flying)
         {
             jump();
-        } else
-        {
-            velocity.y += 5;
         }
 
         if (platformerInput.isDownPressed())
@@ -106,6 +104,13 @@ public class Player
         input();
         //sprite.draw(spriteBatch);
         update(delta);
+        if (velocity.x < 0)
+        {
+            facingRight = true;
+        } else if (velocity.x > 0)
+        {
+            facingRight = false;
+        }
         if (state == State.STANDING)
         {
             drawSprite("standing", position.x, position.y);
@@ -207,9 +212,18 @@ public class Player
     {
         Sprite sprite = sprites.get(name);
 
+
         sprite.setBounds(x,y,WIDTH,HEIGHT);
 
+        if (facingRight && sprite.isFlipX())
+        {
+            sprite.flip(true,false);
+        } else if (!facingRight && !sprite.isFlipX())
+        {
+            sprite.flip(true, false);
+        }
         sprite.draw(spriteBatch);
+
     }
 
 
