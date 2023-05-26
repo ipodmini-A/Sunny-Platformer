@@ -11,9 +11,12 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
@@ -90,18 +93,20 @@ public class World
      */
     public void checkCollisions(float delta)
     {
+        float playerBottom;
+        float playerTop;
+        float playerLeft;
+        float playerRight;
 
-        float playerBottom = 0;
-        float playerTop = 0;
-        float playerLeft = 0;
-        float playerRight = 0;
+        float objectBottom;
+        float objectTop;
+        float objectLeft;
+        float objectRight;
 
-        float objectBottom = 0;
-        float objectTop = 0;
-        float objectLeft = 0;
-        float objectRight = 0;
+        float oldX = player.getPosition().x;
+        float oldY = player.getPosition().y;
+
         // Iterate through all objects in the collision layer
-        boolean touchingGround = false;
         for (MapObject object : objects)
         {
             if (object instanceof RectangleMapObject)
@@ -128,69 +133,72 @@ public class World
                     // Check for ground collision
                     if (playerBottom <= objectTop + 5f && playerTop > objectTop + 16f) // +16f
                     {
-                        //System.out.println("Overlapping");
-
                         //TODO
                         // When colliding with a corner, the player will jut to the top of the corner and get stuck
                         // Work out a solution to end this.
-                        //TODO: Move Collision from player to World.
-                        if (!(playerRight > objectLeft) || !(playerLeft < objectRight - 5f))
-                        {
-                            //player.getVelocity().y = 0;
-                            //player.getPosition().y = objectTop;
-                        }else
-                        {
-                            //player.getVelocity().y = 0;
-                            player.getPosition().y = objectTop;
-                            isTouchingGround = true;
-                            touchingGround = true;
-                        }
-                    }
 
-                    if (playerBottom + 5f >= objectTop)
-                    {
-                        collisionOccurred = true;
+                        if (!(playerLeft < objectRight) || !(playerRight > objectLeft))
+                        {
+                            System.out.println("test");
+                        } else
+                        {
+                            player.getPosition().y = objectTop;
+                        }
+                        isTouchingGround = true;
                     }
 
                     // Check for left wall collision
-                    if (playerRight > objectLeft && playerLeft < objectLeft) {
+                    if (playerRight > objectLeft && playerLeft < objectLeft)
+                    {
+                        if (isTouchingGround && (playerBottom > objectLeft))
+                        {
+                            player.getVelocity().x = 0; // Stop the player's horizontal movement
+                            player.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
+                        } else
+                        {
+                            player.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
+                        }
                         isTouchingLeftWall = true;
                         isTouchingWall = true;
-                        collisionOccurred = true;
                     }
 
                     // Check for right wall collision
                     if (playerLeft < objectRight && playerRight > objectRight)
                     {
+                        if (isTouchingGround && (playerBottom > objectRight))
+                        {
+                            player.getVelocity().x = 0; // Stop the player's horizontal movement
+                            player.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
+                        } else
+                        {
+                            player.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
+
+                        }
                         isTouchingRightWall = true;
                         isTouchingWall = true;
-                        collisionOccurred = true;
                     }
 
                     // Check for ceiling collision
-                    if (playerTop > objectBottom && playerBottom < objectBottom)
+                    if (playerTop > objectBottom - 5f && playerBottom < objectBottom - 16f)
                     {
-                        isTouchingCeiling = true;
-                        collisionOccurred = true;
-                        //player.getVelocity().y = 0;
+                        player.getPosition().y = objectBottom - player.getHeight();
+                        player.getVelocity().y = 0;
                         //player.getPosition().y = objectTop;
+                        isTouchingCeiling = true;
                     }
-                } else
-                {
-                    collisionOccurred = false;
                 }
             }
         }
 
-        if (!touchingGround && player.getVelocity().y > 1)
+        if (player.getVelocity().y > 1)
         {
             isTouchingGround = false;
         }
-        if (!isTouchingLeftWall)
+        if (player.getVelocity().x > 1)
         {
             isTouchingLeftWall = false;
         }
-        if (!isTouchingRightWall)
+        if (player.getVelocity().x < 1)
         {
             isTouchingRightWall = false;
         }
@@ -198,18 +206,10 @@ public class World
         {
             isTouchingWall = false;
         }
-        if (!isTouchingCeiling)
+        if (player.getVelocity().y < 1)
         {
             isTouchingCeiling = false;
         }
-
-
-
-        //player.getPosition().x = newPlayerX;
-        //player.getPosition().y = newPlayerY;
-
-        float oldX = player.getPosition().x;
-        float oldY = player.getPosition().y;
 
         // Apply gravity
         if (isTouchingGround)
@@ -219,26 +219,6 @@ public class World
         } else
         {
             player.getVelocity().add(0, GRAVITY * delta);
-        }
-
-        // Check if the player is trying to move into a wall
-        if ((player.getVelocity().x <= 0)  && (isTouchingRightWall) && !isTouchingGround)
-        {
-            player.getVelocity().x = 0; // Stop the player's horizontal movement
-            player.getVelocity().x = oldX; // Reset the player's position to the previous x-coordinate
-        }
-
-        if (((player.getVelocity().x > 0)  && isTouchingLeftWall) && !isTouchingGround)
-        {
-            player.getVelocity().x = 0; // Stop the player's horizontal movement
-            player.getPosition().x = oldX; // Reset the player's position to the previous x-coordinate
-        }
-
-        // Check if the player is trying to move into the ceiling
-        if (player.getVelocity().y > 0 && isTouchingCeiling)
-        {
-            player.getVelocity().y = 0; // Stop the player's vertical movement
-            //player.getVelocity().y = oldY; // Reset the player's position to the previous y-coordinate
         }
 
         if (player.getVelocity().x > 0)
@@ -259,27 +239,48 @@ public class World
             player.getPosition().add(player.getVelocity().x * delta, player.getVelocity().y * delta);
         }
 
-        /*
-        if (player.getVelocity().x <= 2f)
-        {
-            player.getVelocity().x = 0;
-        }else if (player.getVelocity().x >= -2f)
+        if ((!player.getPlatformerInput().isRightPressed() && !player.getPlatformerInput().isLeftPressed()) &&
+                (player.getVelocity().x <= 2 && player.getVelocity().x > 0))
         {
             player.getVelocity().x = 0;
         }
-        */
 
+        if (!isTouchingAnything())
+        {
+            isTouchingGround = false;
+        }
 
-        //System.out.println(isTouchingWall);
         // Update the player's collision status
         player.setGrounded(isTouchingGround);
         player.setTouchingLeftWall(isTouchingLeftWall);
         player.setTouchingRightWall(isTouchingRightWall);
         player.setTouchingWall(isTouchingWall);
         player.setTouchingCeiling(isTouchingCeiling);
-        //System.out.println(isTouchingRightWall);
-        System.out.println(isTouchingRightWall);
-        //System.out.println(collisionOccurred);
+        //System.out.println(isTouchingAnything());
+    }
+
+    public boolean isTouchingAnything() {
+        float tolerance = 1f;
+
+        for (MapObject object : objects) {
+            if (object instanceof RectangleMapObject)
+            {
+                RectangleMapObject rectObject = (RectangleMapObject) object;
+                Rectangle rect = rectObject.getRectangle();
+
+                float left = rect.x - tolerance;
+                float right = rect.x + rect.width + tolerance;
+                float bottom = rect.y - tolerance;
+                float top = rect.y + rect.height + tolerance;
+
+                if (player.getPosition().x < right && player.getPosition().x + player.getWidth() > left &&
+                        player.getPosition().y < top && player.getPosition().y + player.getHeight() > bottom) {
+                    return true; // Player is touching the object
+                }
+            }
+        }
+
+        return false; // Player is not touching anything
     }
 
     public void render(float delta)
@@ -292,6 +293,7 @@ public class World
         camera.position.y = player.getPosition().y + player.getHeight() / SCALE;
         player.updateCamera(camera);
 
+        //newCheckCollisions(delta);
         checkCollisions(delta);
         mapRenderer.setView(camera);
         mapRenderer.render();

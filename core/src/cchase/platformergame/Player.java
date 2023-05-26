@@ -17,8 +17,8 @@ public class Player
 {
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
     private static final float JUMP_VELOCITY = 450f; // Adjust the jump velocity as needed
-    private static final float HEIGHT = 64f;
-    private static final float WIDTH = 64f;
+    private static final float HEIGHT = 60f;
+    private static final float WIDTH = 60f;
     private static float SCALE = 1f;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
 
@@ -213,7 +213,7 @@ public class Player
         Sprite sprite = sprites.get(name);
 
 
-        sprite.setBounds(x,y,WIDTH,HEIGHT);
+        sprite.setBounds(x,y,WIDTH + 10f,HEIGHT + 10f);
 
         if (facingRight && sprite.isFlipX())
         {
@@ -304,6 +304,16 @@ public class Player
     public void setPositionY(float y)
     {
         position.y = y;
+    }
+
+    public PlatformerInput getPlatformerInput()
+    {
+        return platformerInput;
+    }
+
+    public void setPlatformerInput(PlatformerInput platformerInput)
+    {
+        this.platformerInput = platformerInput;
     }
 
     public void dispose()

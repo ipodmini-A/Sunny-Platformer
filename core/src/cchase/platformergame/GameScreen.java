@@ -36,7 +36,7 @@ public class GameScreen extends ScreenAdapter
     @Override
     public void render(float delta)
     {
-        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        Gdx.gl.glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         world.WorldUpdate(player); // Removing this results in a null crash. idk
