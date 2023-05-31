@@ -212,7 +212,6 @@ public class Player
     {
         Sprite sprite = sprites.get(name);
 
-
         sprite.setBounds(x,y,WIDTH + 10f,HEIGHT + 10f);
 
         if (facingRight && sprite.isFlipX())

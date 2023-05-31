@@ -41,6 +41,10 @@ public class GameScreen extends ScreenAdapter
 
         world.WorldUpdate(player); // Removing this results in a null crash. idk
         world.render(delta);
+        if (world.isTouchingEndGoal())
+        {
+            game.setScreen(new EndScreen(game));
+        }
 
         player.render(batch,delta); // Render the player
 

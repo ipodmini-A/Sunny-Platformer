@@ -35,8 +35,10 @@ public class World
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
     private MapLayer collisionLayer;
+    private MapLayer endGoalLayer;
     private MapObjects objects;
-    private boolean debug = true;
+    private MapObjects endGameObject;
+    private boolean debug = false;
 
     private Pool<Rectangle> rectPool = new Pool<Rectangle>() {
         @Override
@@ -62,7 +64,9 @@ public class World
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1);
         // Get the collision object layer
         collisionLayer = map.getLayers().get("collision");
+        endGoalLayer = map.getLayers().get("endgoal");
         objects = collisionLayer.getObjects();
+        endGameObject = endGoalLayer.getObjects();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth() / SCALE, Gdx.graphics.getHeight() / SCALE);
         camera.update();
@@ -105,6 +109,8 @@ public class World
 
         float oldX = player.getPosition().x;
         float oldY = player.getPosition().y;
+
+        isTouchingWall = isTouchingWall();
 
         // Iterate through all objects in the collision layer
         for (MapObject object : objects)
@@ -150,7 +156,7 @@ public class World
                     // Check for left wall collision
                     if (playerRight > objectLeft && playerLeft < objectLeft)
                     {
-                        if (isTouchingGround && (playerBottom > objectLeft))
+                        if (isTouchingGround && (playerBottom < objectLeft))
                         {
                             player.getVelocity().x = 0; // Stop the player's horizontal movement
                             player.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
@@ -159,7 +165,7 @@ public class World
                             player.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         }
                         isTouchingLeftWall = true;
-                        isTouchingWall = true;
+                        //isTouchingWall = true;
                     }
 
                     // Check for right wall collision
@@ -175,7 +181,7 @@ public class World
 
                         }
                         isTouchingRightWall = true;
-                        isTouchingWall = true;
+                        //isTouchingWall = true;
                     }
 
                     // Check for ceiling collision
@@ -256,8 +262,10 @@ public class World
         player.setTouchingRightWall(isTouchingRightWall);
         player.setTouchingWall(isTouchingWall);
         player.setTouchingCeiling(isTouchingCeiling);
+        //System.out.println(isTouchingEndGoal());
         //System.out.println(isTouchingAnything());
     }
+
 
     public boolean isTouchingAnything() {
         float tolerance = 1f;
@@ -279,9 +287,60 @@ public class World
                 }
             }
         }
-
         return false; // Player is not touching anything
     }
+
+    public boolean isTouchingWall()
+    {
+        float tolerance = 1f;
+
+        for (MapObject object : objects)
+        {
+            if (object instanceof RectangleMapObject) {
+                RectangleMapObject rectObject = (RectangleMapObject) object;
+                Rectangle rect = rectObject.getRectangle();
+
+                float left = rect.x - tolerance;
+                float right = rect.x + rect.width + tolerance;
+                float bottom = rect.y - tolerance;
+                float top = rect.y + rect.height + tolerance;
+
+                boolean touchingLeftWall = player.getPosition().x + player.getWidth() >= left && player.getPosition().x <= left;
+                boolean touchingRightWall = player.getPosition().x <= right && player.getPosition().x + player.getWidth() >= right;
+
+                if ((touchingLeftWall || touchingRightWall) && player.getPosition().y > bottom && player.getPosition().y < top) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isTouchingEndGoal()
+    {
+        float tolerance = 1f;
+        for (MapObject object : endGameObject)
+        {
+            if (object instanceof RectangleMapObject)
+            {
+                RectangleMapObject rectObject = (RectangleMapObject) object;
+                Rectangle rect = rectObject.getRectangle();
+
+                float left = rect.x - tolerance;
+                float right = rect.x + rect.width + tolerance;
+                float bottom = rect.y - tolerance;
+                float top = rect.y + rect.height + tolerance;
+
+                if (player.getPosition().x < right && player.getPosition().x + player.getWidth() > left &&
+                        player.getPosition().y < top && player.getPosition().y + player.getHeight() > bottom) {
+                    return true; // Player is touching the end goal
+                }
+            }
+        }
+            return false; // Player is not touching the end goal
+    }
+
 
     public void render(float delta)
     {
