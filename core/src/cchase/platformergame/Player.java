@@ -44,6 +44,32 @@ public class Player
     private State state;
     private boolean facingRight = false;
 
+    public Player()
+    {
+        position = new Vector2(0,0);
+        velocity = new Vector2();
+        grounded = false;
+        touchingCeiling = false;
+        touchingLeftWall = false;
+        touchingRightWall = false;
+        touchingWall = false;
+        flying = false;
+        platformerInput = new PlatformerInput();
+        bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
+        bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
+        state = State.STANDING;
+
+        textureAtlas = new TextureAtlas("sprites.txt");
+        spriteBatch = new SpriteBatch();
+        texture = new Texture("debugSquare.png");
+        sprite = new Sprite(texture);
+
+        addSprites();
+        sprite.setSize(WIDTH,HEIGHT);
+
+        System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
+    }
+
     public Player(float x, float y)
     {
         position = new Vector2(x, y);
@@ -98,11 +124,10 @@ public class Player
 
     public void render(SpriteBatch spriteBatch,float delta)
     {
-        spriteBatch.setProjectionMatrix(camera.combined);
         this.spriteBatch = spriteBatch;
+        spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         input();
-        //sprite.draw(spriteBatch);
         update(delta);
         if (velocity.x < 0)
         {

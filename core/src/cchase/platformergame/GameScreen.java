@@ -46,7 +46,7 @@ public class GameScreen extends ScreenAdapter
             game.setScreen(new EndScreen(game));
         }
 
-        player.render(batch,delta); // Render the player
+        //player.render(batch,delta); // Render the player
 
     }
 
