@@ -1,10 +1,13 @@
 package cchase.platformergame;
 
+import com.badlogic.gdx.math.Vector2;
+
 public class Enemy extends Player
 {
     public Enemy(float x, float y)
     {
         super(x,y);
+
     }
 
     /**
@@ -15,13 +18,12 @@ public class Enemy extends Player
     public void input()
     {
         //Currently this is here to override input.
-    }
-
-
-
-    @Override
-    public void jump()
-    {
-
+        /*
+        if (velocity.x < 200)
+        {
+            velocity.x += 10;
+        }
+         */
+        //jump();
     }
 }

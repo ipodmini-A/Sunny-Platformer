@@ -23,7 +23,6 @@ public class GameScreen extends ScreenAdapter
         this.game = game;
         batch = new SpriteBatch();
         player = new Player(x,y);
-
         world = new World(player);
     }
 
@@ -44,6 +43,11 @@ public class GameScreen extends ScreenAdapter
         if (world.isTouchingEndGoal())
         {
             game.setScreen(new EndScreen(game));
+        }
+
+        if (world.isCollidingWithEnemy())
+        {
+            game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 
         //player.render(batch,delta); // Render the player

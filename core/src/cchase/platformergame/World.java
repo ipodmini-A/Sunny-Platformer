@@ -36,7 +36,7 @@ public class World
     private MapLayer endGoalLayer;
     private MapObjects objects;
     private MapObjects endGameObject;
-    private boolean debug = false;
+    private boolean debug = true;
 
     private Pool<Rectangle> rectPool = new Pool<Rectangle>() {
         @Override
@@ -72,7 +72,7 @@ public class World
         //mapRenderer.setView(camera);
 
         player.setSCALE(SCALE);
-        enemy = new Enemy(player.getPosition().x, player.getPosition().y);
+        enemy = new Enemy(player.getPosition().x + 300, player.getPosition().y);
         enemy.setSCALE(SCALE);
         debugRenderer = new ShapeRenderer();
         debugFont = new BitmapFont();
@@ -100,7 +100,6 @@ public class World
      * TODO: See if the iteration can be changed.
      * TODO: Calculate a way to allow for the method to jump.
      * TODO: Refactor
-     * TODO: Enemy collision should be coded.
      */
     public void checkCollisions(float delta, Player p)
     {
@@ -117,7 +116,7 @@ public class World
         float oldX = p.getPosition().x;
         float oldY = p.getPosition().y;
 
-        isTouchingWall = isTouchingWall();
+        isTouchingWall = isTouchingWall(player);
 
         // Iterate through all objects in the collision layer
         for (MapObject object : objects)
@@ -258,7 +257,7 @@ public class World
             p.getVelocity().x = 0;
         }
 
-        if (!isTouchingAnything())
+        if (!isTouchingAnything(p))
         {
             p.setGrounded(false);
         }
@@ -274,7 +273,7 @@ public class World
     }
 
 
-    public boolean isTouchingAnything()
+    public boolean isTouchingAnything(Player player)
     {
         float tolerance = 1f;
 
@@ -298,7 +297,7 @@ public class World
         return false; // Player is not touching anything
     }
 
-    public boolean isTouchingWall()
+    public boolean isTouchingWall(Player player)
     {
         float tolerance = 1f;
 
@@ -325,13 +324,10 @@ public class World
         return false;
     }
 
-    public boolean isTouchingEndGoal()
-    {
+    public boolean isTouchingEndGoal() {
         float tolerance = 1f;
-        for (MapObject object : endGameObject)
-        {
-            if (object instanceof RectangleMapObject)
-            {
+        for (MapObject object : endGameObject) {
+            if (object instanceof RectangleMapObject) {
                 RectangleMapObject rectObject = (RectangleMapObject) object;
                 Rectangle rect = rectObject.getRectangle();
 
@@ -346,8 +342,22 @@ public class World
                 }
             }
         }
-            return false; // Player is not touching the end goal
+        return false; // Player is not touching the end goal
     }
+
+    public boolean isCollidingWithEnemy()
+    {
+        if (player.getBounds().overlaps(enemy.getBounds()))
+        {
+            //System.out.println("Colliding with enemy");
+            return true;
+        }
+        //System.out.println("Not colliding with enemy");
+        return false;
+    }
+
+
+
 
 
     public void render(float delta)

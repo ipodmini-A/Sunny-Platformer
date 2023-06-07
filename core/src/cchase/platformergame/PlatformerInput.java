@@ -11,6 +11,9 @@ public class PlatformerInput
     private boolean rightPressed;
     private boolean downPressed;
     private boolean debugPressed;
+    private boolean leftMouseClicked;
+    private float leftMouseClickedX;
+    private float leftMouseClickedY;
 
     public boolean isJumpPressed()
     {
@@ -42,6 +45,11 @@ public class PlatformerInput
         return debugPressed;
     }
 
+    public boolean isLeftMouseClicked()
+    {
+        return leftMouseClicked;
+    }
+
     public void update()
     {
         jumpPressed = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
@@ -50,5 +58,21 @@ public class PlatformerInput
         rightPressed = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
         downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
         debugPressed = Gdx.input.isKeyPressed(Input.Keys.P);
+
+        leftMouseClicked = Gdx.input.isButtonJustPressed(Input.Buttons.LEFT);
+        if (leftMouseClicked)
+        {
+            leftMouseClickedX = Gdx.input.getX();
+            leftMouseClickedY = Gdx.input.getY();
+        }
+    }
+
+    public float getLeftMouseClickedX()
+    {
+        return leftMouseClickedX;
+    }
+    public float getLeftMouseClickedY()
+    {
+        return leftMouseClickedY;
     }
 }

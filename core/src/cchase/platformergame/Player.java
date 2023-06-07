@@ -25,7 +25,7 @@ public class Player
     private Texture texture;
     private Sprite sprite;
     private Vector2 position;
-    private Vector2 velocity;
+    protected Vector2 velocity;
     private Rectangle bounds;
     private PlatformerInput platformerInput;
     private boolean grounded;
@@ -222,6 +222,9 @@ public class Player
         }
     }
 
+    /**
+     * Adds sprites to the hashmap
+     */
     private void addSprites()
     {
         Array<TextureAtlas.AtlasRegion> regions = textureAtlas.getRegions();
@@ -233,6 +236,12 @@ public class Player
         }
     }
 
+    /**
+     * Draws the sprite on screen.
+     * @param name The name is the hash map key.
+     * @param x X position of the sprite
+     * @param y Y position of the sprite
+     */
     private void drawSprite(String name, float x, float y)
     {
         Sprite sprite = sprites.get(name);
