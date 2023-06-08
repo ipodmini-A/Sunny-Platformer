@@ -21,7 +21,7 @@ public class BattleScreen extends ScreenAdapter
         batch = new SpriteBatch();
         this.player = player;
         this.enemy = enemy;
-        battle = new Battle(player, enemy);
+        battle = new Battle(player,enemy);
     }
 
     public void show()

@@ -50,11 +50,21 @@ public class Battle {
             System.out.println(platformerInput.getLeftMouseClickedY());
             mouseX = platformerInput.getLeftMouseClickedX();
             mouseY = (Gdx.graphics.getHeight() - platformerInput.getLeftMouseClickedY()); //lol y is inverted so this is to un-invert it.
-            if (mouseX > 100 && mouseX < 150
-            && mouseY > 200 &&  mouseY < 250)
+
+            /*
+            Controls for the Magic button.
+            TODO: Rename attack, defend, etc to "Button1, Button2, Button3, etc"
+             */
+            if (mouseX > magicButtonBounds.x && mouseX < magicButtonBounds.x + magicButtonBounds.getWidth()
+            && mouseY > magicButtonBounds.y &&  mouseY < magicButtonBounds.y + magicButtonBounds.getHeight() && !magicClicked)
             {
                 magicClicked = true;
+            }else if (mouseX > magicButtonBounds.x && mouseX < magicButtonBounds.x + magicButtonBounds.getWidth()
+                    && mouseY > magicButtonBounds.y &&  mouseY < magicButtonBounds.y + magicButtonBounds.getHeight() && magicClicked)
+            {
+                magicClicked = false;
             }
+
         }
         renderUI();
         platformerInput.update();
@@ -82,19 +92,26 @@ public class Battle {
             // Render action buttons
             if (100 /* HP */ > 0)
             {
-                font.draw(spriteBatch, "Attack", 100, 175);
-                font.draw(spriteBatch, "Defend", 100, 125);
-                font.draw(spriteBatch, "Magic", 100, 75);
+                font.draw(spriteBatch, "Attack", attackButtonBounds.x + (attackButtonBounds.getWidth() / 2),
+                        attackButtonBounds.y + (attackButtonBounds.getHeight() / 2));
+                font.draw(spriteBatch, "Defend", defendButtonBounds.x + (defendButtonBounds.getWidth() / 2),
+                        defendButtonBounds.y + (defendButtonBounds.getHeight() / 2));
+                font.draw(spriteBatch, "Magic", magicButtonBounds.x + (magicButtonBounds.getWidth() / 2),
+                        magicButtonBounds.y + (magicButtonBounds.getHeight() / 2));
             } else
             {
                 font.draw(spriteBatch, "Game Over", 100, 300);
             }
         } else
         {
-            font.draw(spriteBatch, "Magic1", 100, 300);
-            font.draw(spriteBatch, "Magic2", 100, 250);
-            font.draw(spriteBatch, "Back", 100, 200);
+            font.draw(spriteBatch, "Magic1", attackButtonBounds.x + (attackButtonBounds.getWidth() / 2),
+                    attackButtonBounds.y + (attackButtonBounds.getHeight() / 2));
+            font.draw(spriteBatch, "Magic2", defendButtonBounds.x + (defendButtonBounds.getWidth() / 2),
+                    defendButtonBounds.y + (defendButtonBounds.getHeight() / 2));
+            font.draw(spriteBatch, "Back", magicButtonBounds.x + (magicButtonBounds.getWidth() / 2),
+                    magicButtonBounds.y + (magicButtonBounds.getHeight() / 2));
         }
+
         spriteBatch.end();
     }
 
