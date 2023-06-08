@@ -1,5 +1,6 @@
 package cchase.platformergame;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -33,9 +34,10 @@ public class BattleScreen extends ScreenAdapter
         Gdx.gl.glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         battle.render();
+
         if (Gdx.input.isKeyPressed(Input.Keys.P))
         {
-            game.setScreen(new GameScreen(game));
+            game.setScreen(GameState.gameScreen);
         }
     }
 

@@ -1,9 +1,9 @@
 package cchase.platformergame;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
-public class PlatformerInput
-{
+public class PlatformerInput {
 
     private boolean jumpPressed;
     private boolean upPressed;
@@ -15,43 +15,43 @@ public class PlatformerInput
     private float leftMouseClickedX;
     private float leftMouseClickedY;
 
-    public boolean isJumpPressed()
-    {
+    public boolean isJumpPressed() {
         return jumpPressed;
     }
 
-    public boolean isUpPressed()
-    {
+    public boolean isUpPressed() {
         return upPressed;
     }
 
-    public boolean isLeftPressed()
-    {
+    public boolean isLeftPressed() {
         return leftPressed;
     }
 
-    public boolean isRightPressed()
-    {
+    public boolean isRightPressed() {
         return rightPressed;
     }
 
-    public boolean isDownPressed()
-    {
+    public boolean isDownPressed() {
         return downPressed;
     }
 
-    public boolean isDebugPressed()
-    {
+    public boolean isDebugPressed() {
         return debugPressed;
     }
 
-    public boolean isLeftMouseClicked()
-    {
+    public boolean isLeftMouseClicked() {
         return leftMouseClicked;
     }
 
-    public void update()
-    {
+    public float getLeftMouseClickedX() {
+        return leftMouseClickedX;
+    }
+
+    public float getLeftMouseClickedY() {
+        return leftMouseClickedY;
+    }
+
+    public void update() {
         jumpPressed = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
         upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
         leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
@@ -60,19 +60,10 @@ public class PlatformerInput
         debugPressed = Gdx.input.isKeyPressed(Input.Keys.P);
 
         leftMouseClicked = Gdx.input.isButtonJustPressed(Input.Buttons.LEFT);
-        if (leftMouseClicked)
-        {
+        if (leftMouseClicked) {
             leftMouseClickedX = Gdx.input.getX();
             leftMouseClickedY = Gdx.input.getY();
         }
     }
-
-    public float getLeftMouseClickedX()
-    {
-        return leftMouseClickedX;
-    }
-    public float getLeftMouseClickedY()
-    {
-        return leftMouseClickedY;
-    }
 }
+

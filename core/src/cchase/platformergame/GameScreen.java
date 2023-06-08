@@ -1,11 +1,15 @@
 package cchase.platformergame;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 
+/**
+ * GameScreen is the main platformer screen of the game.
+ * TODO: Rename this class.
+ */
 public class GameScreen extends ScreenAdapter
 {
     PlatformerGame  game;
@@ -17,7 +21,11 @@ public class GameScreen extends ScreenAdapter
     float y = 300f;
 
 
-
+    /**
+     * Constructor to GameScreen. Accepts a PlatformerGame and assigns game, while creating a new SpriteBatch,
+     * player and world.
+     * @param game
+     */
     public GameScreen(PlatformerGame game)
     {
         this.game = game;
@@ -33,6 +41,17 @@ public class GameScreen extends ScreenAdapter
     }
 
     @Override
+    public void hide()
+    {
+        GameState.gameScreen = game.getScreen();
+    }
+
+    /**
+     * render Renders the images on screen. First by clearing the screen, then running render from different classes
+     * In this method you will also find game objectives, such as touching the end goal or touching an enemy.
+     * @param delta The time in seconds since the last render.
+     */
+    @Override
     public void render(float delta)
     {
         Gdx.gl.glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
@@ -47,11 +66,15 @@ public class GameScreen extends ScreenAdapter
 
         if (world.isCollidingWithEnemy())
         {
+            GameState.gameScreen = game.getScreen();
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 
-        //player.render(batch,delta); // Render the player
-
+        if (Gdx.input.isKeyPressed(Input.Keys.I))
+        {
+            GameState.gameScreen = game.getScreen();
+            game.setScreen(new BattleScreen(game,player,world.enemy));
+        }
     }
 
     @Override

@@ -14,22 +14,26 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pool;
 
+/**
+ * This class is a mess, im not even joking
+ * TODO: Clean up
+ *
+ * The World class contains the details in the world and how the player along with enemies interact with it.
+ * This class is intended to serve as a template for levels to be created from. As this class gets more refined, more
+ * documentation will be added.
+ */
 public class World
 {
     //private TiledMapRenderer mapRenderer; // What does this do?
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
-    private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
+    //private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
     private static final float SCALE = 2f;
-    private static float FRICTION = 3f;
-    private OrthographicCamera camera;
-    int objectLayerId;
+    private static final float FRICTION = 3f;
+    private final OrthographicCamera camera;
     Player player;
     Enemy enemy;
-    float tileSize = 32;
-    private TiledMap map;
+    private final TiledMap map;
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
     private MapLayer collisionLayer;
@@ -37,13 +41,6 @@ public class World
     private MapObjects objects;
     private MapObjects endGameObject;
     private boolean debug = true;
-
-    private Pool<Rectangle> rectPool = new Pool<Rectangle>() {
-        @Override
-        protected Rectangle newObject () {
-            return new Rectangle();
-        }
-    };
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -57,23 +54,33 @@ public class World
 
     public World(Player player)
     {
+        // Map creation
         loader = new TmxMapLoader();
         map = loader.load("test1.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1);
+
+        //sprite batch creation
         spriteBatch = new SpriteBatch();
-        // Get the collision object layer
+
+        // Layers from the map that was spawned above.
         collisionLayer = map.getLayers().get("collision");
         endGoalLayer = map.getLayers().get("endgoal");
         objects = collisionLayer.getObjects();
         endGameObject = endGoalLayer.getObjects();
+
+        // Camera creation
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth() / SCALE, Gdx.graphics.getHeight() / SCALE);
         camera.update();
         //mapRenderer.setView(camera);
 
+        // Sets the size of the player. Going to be honest, forgot what this does.
+        // Enemy creation
         player.setSCALE(SCALE);
         enemy = new Enemy(player.getPosition().x + 300, player.getPosition().y);
         enemy.setSCALE(SCALE);
+
+        // Debug
         debugRenderer = new ShapeRenderer();
         debugFont = new BitmapFont();
         debugBatch = new SpriteBatch();
@@ -273,6 +280,13 @@ public class World
     }
 
 
+    /**
+     * isTouchingAnything returns true if the player is currently colliding with a level object, false if otherwise.
+     * Note that this only checks for level floors, ceilings and walls. This does not check for objects such as the
+     * end level
+     * @param player
+     * @return
+     */
     public boolean isTouchingAnything(Player player)
     {
         float tolerance = 1f;
@@ -297,6 +311,11 @@ public class World
         return false; // Player is not touching anything
     }
 
+    /**
+     * isTouchingWall returns true if the player is touching a wall, returns false if otherwise.
+     * @param player
+     * @return True if the player is touching wall, false if otherwise.
+     */
     public boolean isTouchingWall(Player player)
     {
         float tolerance = 1f;
@@ -324,6 +343,10 @@ public class World
         return false;
     }
 
+    /**
+     * isTouchingEndGoal returns true if the player has collided with the end goal object. Returns false if otherwise.
+     * @return True if player has collided with the end game object, false if otherwise
+     */
     public boolean isTouchingEndGoal() {
         float tolerance = 1f;
         for (MapObject object : endGameObject) {
@@ -345,6 +368,13 @@ public class World
         return false; // Player is not touching the end goal
     }
 
+    /**
+     * Returns true if the player is colliding with an enemy, false if otherwise
+     * @return True if the player is colliding with an enemy, false if otherwise
+     *
+     * TODO: If there are multiple enemies within the level, it's most likely this method will have to iterate through
+     *       each enemy to test to see if collision has occured. Is this idea optimal? No. Will I do it? Probably.
+     */
     public boolean isCollidingWithEnemy()
     {
         if (player.getBounds().overlaps(enemy.getBounds()))
@@ -357,9 +387,10 @@ public class World
     }
 
 
-
-
-
+    /**
+     * Map renderer
+     * @param delta
+     */
     public void render(float delta)
     {
         // Update the camera's view
@@ -384,6 +415,9 @@ public class World
         if (debug) renderDebug();
     }
 
+    /**
+     * Map debug renderer. Draws lines around key objects such as the player or the world objects.
+     */
     private void renderDebug ()
     {
 
@@ -398,6 +432,9 @@ public class World
         debugRenderer.setColor(Color.RED);
         debugRenderer.rect(player.getPosition().x, player.getPosition().y, player.getWidth(), player.getHeight());
         //System.out.println("debugRender X:" + player.getPosition().x + " debugRender Y:" + player.getPosition().y);
+
+        debugRenderer.setColor(Color.CYAN);
+        debugRenderer.rect(enemy.getPosition().x, enemy.getPosition().y, enemy.getWidth(), enemy.getHeight());
 
         debugRenderer.setColor(Color.YELLOW);
         for (MapObject object : objects)
