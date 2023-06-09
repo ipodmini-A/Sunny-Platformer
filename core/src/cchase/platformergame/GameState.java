@@ -8,5 +8,7 @@ import com.badlogic.gdx.Screen;
 public class GameState
 {
     public static Screen gameScreen;
+    public static float lastRecordedPlayerX;
+    public static float lastRecordedPlayerY;
 
 }

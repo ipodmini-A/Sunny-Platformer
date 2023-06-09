@@ -33,7 +33,7 @@ public class BattleScreen extends ScreenAdapter
     {
         Gdx.gl.glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        battle.render();
+        battle.render(delta);
 
         if (Gdx.input.isKeyPressed(Input.Keys.P))
         {

@@ -1,124 +1,183 @@
 package cchase.platformergame;
-
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 
+/**
+ * Battle serves as the UI as well as controls the flow of battle.
+ */
 public class Battle {
-    Player player;
-    Enemy enemy;
-    PlatformerInput platformerInput;
-
-    ShapeRenderer shapeRenderer;
-    SpriteBatch spriteBatch;
-    private Rectangle rectangle;
-    BitmapFont font;
-    float mouseX;
-    float mouseY;
+    private Player player;
+    private Enemy enemy;
+    private Stage stage;
+    private Skin skin;
+    private Label playerStatusLabel;
+    private TextButton attackButton;
+    private TextButton magicButton;
+    private TextButton defendButton;
+    private VerticalGroup movesGroup;
+    private ScrollPane movesScrollPane;
     private boolean magicClicked;
-    private Rectangle attackButtonBounds;
-    private Rectangle defendButtonBounds;
-    private Rectangle magicButtonBounds;
-    private float width = 100;
-    private float height = 50;
+    private SpriteBatch spriteBatch;
+    private OrthographicCamera camera;
 
     public Battle(Player player, Enemy enemy)
     {
         this.player = player;
         this.enemy = enemy;
+
+        player.getPosition().x = 20;
+        player.getPosition().y = 300;
+
         spriteBatch = new SpriteBatch();
-        font = new BitmapFont();
-        shapeRenderer = new ShapeRenderer();
-        platformerInput = new PlatformerInput();
-        magicClicked = false;
 
-        attackButtonBounds = new Rectangle(100, 150, width, height);
-        defendButtonBounds = new Rectangle(100, 100, width, height);
-        magicButtonBounds = new Rectangle(100, 50, width, height);
-    }
+        stage = new Stage();
+        stage.setDebugAll(true);
+        Gdx.input.setInputProcessor(stage);
 
-    public void render()
-    {
-        if (platformerInput.isLeftMouseClicked())
-        {
-            System.out.println(platformerInput.getLeftMouseClickedX());
-            System.out.println(platformerInput.getLeftMouseClickedY());
-            mouseX = platformerInput.getLeftMouseClickedX();
-            mouseY = (Gdx.graphics.getHeight() - platformerInput.getLeftMouseClickedY()); //lol y is inverted so this is to un-invert it.
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-            /*
-            Controls for the Magic button.
-            TODO: Rename attack, defend, etc to "Button1, Button2, Button3, etc"
-             */
-            if (mouseX > magicButtonBounds.x && mouseX < magicButtonBounds.x + magicButtonBounds.getWidth()
-            && mouseY > magicButtonBounds.y &&  mouseY < magicButtonBounds.y + magicButtonBounds.getHeight() && !magicClicked)
-            {
-                magicClicked = true;
-            }else if (mouseX > magicButtonBounds.x && mouseX < magicButtonBounds.x + magicButtonBounds.getWidth()
-                    && mouseY > magicButtonBounds.y &&  mouseY < magicButtonBounds.y + magicButtonBounds.getHeight() && magicClicked)
-            {
-                magicClicked = false;
+        // Player status label
+        playerStatusLabel = new Label("Player HP: " + player.getHealth(), skin);
+        playerStatusLabel.setPosition(20, Gdx.graphics.getHeight() - playerStatusLabel.getHeight() - 20);
+        stage.addActor(playerStatusLabel);
+
+        // Buttons
+        attackButton = new TextButton("Attack", skin);
+        defendButton = new TextButton("Defend", skin);
+        magicButton = new TextButton("Magic", skin);
+
+        attackButton.setPosition(20, 140);
+        defendButton.setPosition(20, 80);
+        magicButton.setPosition(20, 20);
+
+        // Moves list
+        movesGroup = new VerticalGroup();
+        movesScrollPane = new ScrollPane(movesGroup, skin);
+        movesScrollPane.setSize(200, 300); // Background
+        movesScrollPane.setPosition(Gdx.graphics.getWidth() - movesScrollPane.getWidth() - 20, 20);
+        movesScrollPane.setVisible(false);
+
+        // Button listeners
+        attackButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Implement attack logic
             }
+        });
 
-        }
-        renderUI();
-        platformerInput.update();
+        magicButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                toggleMagicMoves();
+            }
+        });
+
+        defendButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // TODO: Implement defend logic
+            }
+        });
+
+        stage.addActor(attackButton);
+        stage.addActor(defendButton);
+        stage.addActor(magicButton);
+        stage.addActor(movesScrollPane);
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.update();
     }
 
-    public void renderUI()
+    public void render(float delta)
     {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.CYAN);
-        shapeRenderer.rect(attackButtonBounds.x, attackButtonBounds.y, attackButtonBounds.width, attackButtonBounds.height); // Attack
-        shapeRenderer.rect(defendButtonBounds.x, defendButtonBounds.y, defendButtonBounds.width, defendButtonBounds.height); // Defend
-        shapeRenderer.rect(magicButtonBounds.x, magicButtonBounds.y, magicButtonBounds.width, magicButtonBounds.height); // Magic
-        shapeRenderer.end();
+        stage.act();
+        stage.draw();
 
-        spriteBatch.begin();
-        // Render player and enemy information
-        font.draw(spriteBatch, "Player HP: " + 100/* HP */, 100, 500);
-        font.draw(spriteBatch, "Enemy HP: " + 100 /* HP */, 100, 450);
+        player.render(spriteBatch,delta);
+    }
 
-        if (!magicClicked)
+    public void dispose()
+    {
+        stage.dispose();
+    }
+
+    private void toggleMagicMoves()
+    {
+        magicClicked = !magicClicked;
+
+        if (magicClicked)
         {
-            // Render action buttons
-            if (100 /* HP */ > 0)
-            {
-                font.draw(spriteBatch, "Attack", attackButtonBounds.x + (attackButtonBounds.getWidth() / 2),
-                        attackButtonBounds.y + (attackButtonBounds.getHeight() / 2));
-                font.draw(spriteBatch, "Defend", defendButtonBounds.x + (defendButtonBounds.getWidth() / 2),
-                        defendButtonBounds.y + (defendButtonBounds.getHeight() / 2));
-                font.draw(spriteBatch, "Magic", magicButtonBounds.x + (magicButtonBounds.getWidth() / 2),
-                        magicButtonBounds.y + (magicButtonBounds.getHeight() / 2));
-            } else
-            {
-                font.draw(spriteBatch, "Game Over", 100, 300);
-            }
+            showMovesList("Magic");
         } else
         {
-            font.draw(spriteBatch, "Magic1", attackButtonBounds.x + (attackButtonBounds.getWidth() / 2),
-                    attackButtonBounds.y + (attackButtonBounds.getHeight() / 2));
-            font.draw(spriteBatch, "Magic2", defendButtonBounds.x + (defendButtonBounds.getWidth() / 2),
-                    defendButtonBounds.y + (defendButtonBounds.getHeight() / 2));
-            font.draw(spriteBatch, "Back", magicButtonBounds.x + (magicButtonBounds.getWidth() / 2),
-                    magicButtonBounds.y + (magicButtonBounds.getHeight() / 2));
+            hideMovesList();
+        }
+    }
+
+    private void showMovesList(String category)
+    {
+        movesGroup.clear();
+        movesGroup.align(Align.left);
+        movesGroup.space(10);
+        movesGroup.padLeft(10);
+
+        // Simulating moves based on category
+        if (category.equals("Magic")) {
+            TextButton magic1Button = new TextButton("Magic 1", skin);
+            TextButton magic2Button = new TextButton("Magic 2", skin);
+            TextButton magic3Button = new TextButton("Magic 3", skin);
+
+            movesGroup.addActor(magic1Button);
+            movesGroup.addActor(magic2Button);
+            movesGroup.addActor(magic3Button);
+
+            magic1Button.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // TODO: Implement magic 1 logic
+                }
+            });
+
+            magic2Button.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // TODO: Implement magic 2 logic
+                }
+            });
+
+            magic3Button.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // TODO: Implement magic 3 logic
+                }
+            });
         }
 
-        spriteBatch.end();
+        movesScrollPane.setVisible(true);
     }
 
-    public void dispose() {
-        spriteBatch.dispose();
-        font.dispose();
-        shapeRenderer.dispose();
+    private void hideMovesList() {
+        movesScrollPane.setVisible(false);
     }
 }
+
+
+
+
+
+
+
+
 

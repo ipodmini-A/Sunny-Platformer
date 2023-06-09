@@ -19,6 +19,7 @@ public class GameScreen extends ScreenAdapter
 
     float x = 100f;
     float y = 300f;
+    private boolean firstSpawnCheck = false;
 
 
     /**
@@ -37,6 +38,13 @@ public class GameScreen extends ScreenAdapter
     @Override
     public void show()
     {
+        player.setDisableControls(false);
+        if (firstSpawnCheck)
+        {
+            player.setPositionX(GameState.lastRecordedPlayerX);
+            player.setPositionY(GameState.lastRecordedPlayerY);
+        }
+        firstSpawnCheck = true;
         super.show();
     }
 
@@ -44,6 +52,7 @@ public class GameScreen extends ScreenAdapter
     public void hide()
     {
         GameState.gameScreen = game.getScreen();
+        System.out.println("Hidden");
     }
 
     /**
@@ -64,15 +73,29 @@ public class GameScreen extends ScreenAdapter
             game.setScreen(new EndScreen(game));
         }
 
+        /*
+        Following code stores the state of the game screen and the player.
+        TODO: Put into a method
+         */
         if (world.isCollidingWithEnemy())
         {
             GameState.gameScreen = game.getScreen();
+            player.setDisableControls(true);
+            GameState.lastRecordedPlayerX = player.getPosition().x;
+            System.out.println(GameState.lastRecordedPlayerX);
+            GameState.lastRecordedPlayerY = player.getPosition().y;
+            System.out.println(GameState.lastRecordedPlayerY);
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.I))
         {
             GameState.gameScreen = game.getScreen();
+            player.setDisableControls(true);
+            GameState.lastRecordedPlayerX = player.getPosition().x;
+            System.out.println(GameState.lastRecordedPlayerX);
+            GameState.lastRecordedPlayerY = player.getPosition().y;
+            System.out.println(GameState.lastRecordedPlayerY);
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
     }

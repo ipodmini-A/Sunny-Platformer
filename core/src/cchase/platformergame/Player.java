@@ -18,6 +18,7 @@ public class Player
     private static final float HEIGHT = 60f;
     private static final float WIDTH = 60f;
     private static float SCALE = 1f;
+    private float health;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
 
     private Texture texture;
@@ -35,6 +36,7 @@ public class Player
     private OrthographicCamera camera;
     private SpriteBatch spriteBatch;
     private TextureAtlas textureAtlas;
+    private boolean disableControls;
     enum State
     {
         STANDING, WALKING, JUMPING
@@ -47,12 +49,14 @@ public class Player
         position = new Vector2(0,0);
         velocity = new Vector2();
         grounded = false;
+        health = 100;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
         touchingWall = false;
         flying = false;
         platformerInput = new PlatformerInput();
+        disableControls = false;
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
@@ -97,24 +101,27 @@ public class Player
     public void input()
     {
         platformerInput.update();
-        if (platformerInput.isLeftPressed())
+        if (!disableControls)
         {
-            velocity.x -= 5;
-        }
+            if (platformerInput.isLeftPressed())
+            {
+                velocity.x -= 5;
+            }
 
-        if (platformerInput.isRightPressed())
-        {
-            velocity.x += 5;
-        }
+            if (platformerInput.isRightPressed())
+            {
+                velocity.x += 5;
+            }
 
-        if (platformerInput.isUpPressed() && !flying)
-        {
-            jump();
-        }
+            if (platformerInput.isUpPressed() && !flying)
+            {
+                jump();
+            }
 
-        if (platformerInput.isDownPressed())
-        {
-            velocity.y -= 5;
+            if (platformerInput.isDownPressed())
+            {
+                velocity.y -= 5;
+            }
         }
         flying = platformerInput.isDebugPressed();
         //System.out.println(flying);
@@ -347,12 +354,33 @@ public class Player
         this.platformerInput = platformerInput;
     }
 
+    public float getHealth()
+    {
+        return health;
+    }
+
+    public void setHealth(float health)
+    {
+        this.health = health;
+    }
+
+    public boolean isDisableControls()
+    {
+        return disableControls;
+    }
+
+    public void setDisableControls(boolean disableControls)
+    {
+        this.disableControls = disableControls;
+    }
+
     public void dispose()
     {
         texture.dispose();
         textureAtlas.dispose();
         spriteBatch.dispose();
     }
+
 
 }
 
