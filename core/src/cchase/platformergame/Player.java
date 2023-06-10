@@ -15,17 +15,17 @@ public class Player
 {
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
     private static final float JUMP_VELOCITY = 450f; // Adjust the jump velocity as needed
-    private static final float HEIGHT = 60f;
-    private static final float WIDTH = 60f;
+    protected static final float HEIGHT = 60f;
+    protected static final float WIDTH = 60f;
     private static float SCALE = 1f;
     private float health;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
 
     private Texture texture;
-    private Sprite sprite;
-    private Vector2 position;
+    protected Sprite sprite;
+    protected Vector2 position;
     protected Vector2 velocity;
-    private Rectangle bounds;
+    protected Rectangle bounds;
     private PlatformerInput platformerInput;
     private boolean grounded;
     private boolean touchingLeftWall;
@@ -33,23 +33,23 @@ public class Player
     private boolean touchingWall;
     private boolean touchingCeiling;
     private boolean flying;
-    private OrthographicCamera camera;
-    private SpriteBatch spriteBatch;
+    protected OrthographicCamera camera;
+    protected SpriteBatch spriteBatch;
     private TextureAtlas textureAtlas;
     private boolean disableControls;
     enum State
     {
         STANDING, WALKING, JUMPING
     }
-    private State state;
-    private boolean facingRight = false;
+    protected State state;
+    protected boolean facingRight = false;
 
     public Player()
     {
         position = new Vector2(0,0);
         velocity = new Vector2();
         grounded = false;
-        health = 100;
+        health = 100f;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
@@ -77,6 +77,7 @@ public class Player
         position = new Vector2(x, y);
         velocity = new Vector2();
         grounded = false;
+        health = 100f;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
@@ -157,6 +158,20 @@ public class Player
         //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
     }
 
+    public void renderBattle(SpriteBatch spriteBatch,float delta, float scale)
+    {
+        this.spriteBatch = spriteBatch;
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+        input();
+        updateBattle(delta, scale);
+        drawSpriteBattle("standing", position.x, position.y, scale);
+        //drawSprite("standing", position.x, position.y);
+        spriteBatch.end();
+        //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
+        //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
+    }
+
     public void jump()
     {
         if (grounded)
@@ -227,6 +242,19 @@ public class Player
         }
     }
 
+    public void updateBattle(float delta, float scale)
+    {
+        sprite.setBounds(
+                position.x,
+                position.y,
+                WIDTH * scale,
+                HEIGHT * scale);
+        // Update position based on velocity
+        bounds.setPosition(position.x, position.y); // Update the bounds with the new position
+        facingRight = false;
+        state = State.STANDING;
+    }
+
     /**
      * Adds sprites to the hashmap
      */
@@ -261,7 +289,22 @@ public class Player
             sprite.flip(true, false);
         }
         sprite.draw(spriteBatch);
+    }
 
+    protected void drawSpriteBattle(String name, float x, float y, float scale)
+    {
+        Sprite sprite = sprites.get(name);
+
+        sprite.setBounds(x,y,(WIDTH + 10f) * scale,(HEIGHT + 10f) * scale);
+
+        if (facingRight && sprite.isFlipX())
+        {
+            sprite.flip(true,false);
+        } else if (!facingRight && !sprite.isFlipX())
+        {
+            sprite.flip(true, false);
+        }
+        sprite.draw(spriteBatch);
     }
 
 

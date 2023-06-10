@@ -39,12 +39,17 @@ public class BattleScreen extends ScreenAdapter
         {
             game.setScreen(GameState.gameScreen);
         }
+        if (enemy.getHealth() <= 0)
+        {
+            game.setScreen(GameState.gameScreen);
+        }
     }
 
     public void dispose()
     {
         batch.dispose();
         player.dispose();
+        battle.dispose();
     }
 
 }

@@ -123,20 +123,16 @@ public class World
         float oldX = p.getPosition().x;
         float oldY = p.getPosition().y;
 
+
         isTouchingWall = isTouchingWall(player);
+        //System.out.println(isTouchingWall);
 
         // Iterate through all objects in the collision layer
-        for (MapObject object : objects)
-        {
-            if (object instanceof RectangleMapObject)
-            {
-
+        for (MapObject object : objects) {
+            if (object instanceof RectangleMapObject) {
                 RectangleMapObject rectObject = (RectangleMapObject) object;
-                // Check if the player's bounding box overlaps with the object's rectangle
                 Rectangle rect = rectObject.getRectangle();
 
-                // TODO: Fix collision issue. Maybe increase the objects hit box by a small amount.
-                // Check the relative position of the object with respect to the player
                 playerBottom = p.getPosition().y;
                 playerTop = p.getPosition().y + p.getHeight();
                 playerLeft = p.getPosition().x;
@@ -147,67 +143,60 @@ public class World
                 objectLeft = rect.x;
                 objectRight = rect.x + rect.width;
 
-                if (p.getBounds().overlaps(rect))
-                {
+                if (p.getBounds().overlaps(rect)) {
                     // Check for ground collision
-                    if (playerBottom <= objectTop + 5f && playerTop > objectTop + 16f) // +16f
+                    if (playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
                     {
-                        //TODO
-                        // When colliding with a corner, the player will jut to the top of the corner and get stuck
-                        // Work out a solution to end this.
-
                         if (!(playerLeft < objectRight) || !(playerRight > objectLeft))
                         {
                             System.out.println("test");
                         } else
                         {
                             p.getPosition().y = objectTop;
+                            p.setGrounded(true);
                         }
-                        p.setGrounded(true);
                     }
 
                     // Check for left wall collision
                     if (playerRight > objectLeft && playerLeft < objectLeft)
                     {
-                        if (p.isGrounded() && (playerBottom < objectLeft))
+                        if (p.getVelocity().x > 0 && playerRight <= objectLeft + p.getVelocity().x)
                         {
-                            p.getVelocity().x = 0; // Stop the player's horizontal movement
-                            p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
-                        } else
-                        {
-                            p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
+                            p.getPosition().x = objectLeft - p.getWidth();
+                            p.getVelocity().x = 0;
                         }
                         isTouchingLeftWall = true;
-                        //isTouchingWall = true;
+                        System.out.println("Touching left wall");
                     }
 
                     // Check for right wall collision
                     if (playerLeft < objectRight && playerRight > objectRight)
                     {
-                        if (p.isGrounded() && (playerBottom > objectRight))
+                        if (p.getVelocity().x < 0 && playerLeft >= objectRight + p.getVelocity().x)
                         {
-                            p.getVelocity().x = 0; // Stop the player's horizontal movement
-                            p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
-                        } else
-                        {
-                            p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
-
+                            p.getPosition().x = objectRight;
+                            p.getVelocity().x = 0;
                         }
                         isTouchingRightWall = true;
-                        //isTouchingWall = true;
+                        System.out.println("Touching right wall");
                     }
 
                     // Check for ceiling collision
                     if (playerTop > objectBottom - 5f && playerBottom < objectBottom - 16f)
                     {
-                        p.getPosition().y = objectBottom - p.getHeight();
-                        p.getVelocity().y = 0;
-                        //player.getPosition().y = objectTop;
-                        isTouchingCeiling = true;
+                        if (!p.isGrounded() && oldY >= objectBottom)
+                        {
+                            p.getPosition().y = objectBottom - p.getHeight();
+                            p.getVelocity().y = 0;
+                            isTouchingCeiling = true;
+                        }
                     }
+
                 }
             }
         }
+
+
 
         if (p.getVelocity().y > 1)
         {
@@ -316,12 +305,10 @@ public class World
      * @param player
      * @return True if the player is touching wall, false if otherwise.
      */
-    public boolean isTouchingWall(Player player)
-    {
+    public boolean isTouchingWall(Player player) {
         float tolerance = 1f;
 
-        for (MapObject object : objects)
-        {
+        for (MapObject object : objects) {
             if (object instanceof RectangleMapObject) {
                 RectangleMapObject rectObject = (RectangleMapObject) object;
                 Rectangle rect = rectObject.getRectangle();
@@ -333,8 +320,9 @@ public class World
 
                 boolean touchingLeftWall = player.getPosition().x + player.getWidth() >= left && player.getPosition().x <= left;
                 boolean touchingRightWall = player.getPosition().x <= right && player.getPosition().x + player.getWidth() >= right;
+                boolean aboveTop = player.getPosition().y + player.getHeight() >= top;
 
-                if ((touchingLeftWall || touchingRightWall) && player.getPosition().y > bottom && player.getPosition().y < top) {
+                if ((touchingLeftWall || touchingRightWall) && player.getPosition().y > bottom && player.getPosition().y < top && !aboveTop) {
                     return true;
                 }
             }
@@ -342,6 +330,7 @@ public class World
 
         return false;
     }
+
 
     /**
      * isTouchingEndGoal returns true if the player has collided with the end goal object. Returns false if otherwise.
@@ -408,8 +397,11 @@ public class World
         mapRenderer.render();
 
         player.render(spriteBatch,delta);
-        enemy.updateCamera(camera);
-        enemy.render(spriteBatch,delta);
+        if (enemy.getHealth() > 0)
+        {
+            enemy.updateCamera(camera);
+            enemy.render(spriteBatch,delta);
+        }
 
         // render debug rectangles
         if (debug) renderDebug();
