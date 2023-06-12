@@ -135,7 +135,7 @@ public class World
 
                 playerBottom = p.getPosition().y;
                 playerTop = p.getPosition().y + p.getHeight();
-                playerLeft = p.getPosition().x;
+                playerLeft = p.getPosition().x ;
                 playerRight = p.getPosition().x + p.getWidth();
 
                 objectBottom = rect.y;
@@ -162,9 +162,18 @@ public class World
                     {
                         if (p.getVelocity().x > 0 && playerRight <= objectLeft + p.getVelocity().x)
                         {
-                            p.getPosition().x = objectLeft - p.getWidth();
+                            //p.getPosition().x = objectLeft - p.getWidth();
                             p.getVelocity().x = 0;
+                        } else if (p.isGrounded() && (playerBottom < objectLeft))
+                        {
+                            System.out.println("h");
+                            p.getVelocity().y = 0; // Stop the player's horizontal movement
+                            //p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
+                        } else
+                        {
+                            p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         }
+
                         isTouchingLeftWall = true;
                         System.out.println("Touching left wall");
                     }
@@ -174,8 +183,17 @@ public class World
                     {
                         if (p.getVelocity().x < 0 && playerLeft >= objectRight + p.getVelocity().x)
                         {
-                            p.getPosition().x = objectRight;
+                            //p.getPosition().x = objectRight;
                             p.getVelocity().x = 0;
+                        } else if (p.isGrounded() && (playerBottom > objectRight))
+                        {
+                            System.out.println("h");
+                            p.getVelocity().y = 0; // Stop the player's horizontal movement
+                            //p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
+                        } else
+                        {
+                            p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
+
                         }
                         isTouchingRightWall = true;
                         System.out.println("Touching right wall");
