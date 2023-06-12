@@ -40,7 +40,7 @@ public class World
     private MapLayer endGoalLayer;
     private MapObjects objects;
     private MapObjects endGameObject;
-    private boolean debug = true;
+    private boolean debug = false;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -107,6 +107,9 @@ public class World
      * TODO: See if the iteration can be changed.
      * TODO: Calculate a way to allow for the method to jump.
      * TODO: Refactor
+     *
+     * @param delta float
+     * @param p A player object. This includes players and objects that are extended from it such as enemies.
      */
     public void checkCollisions(float delta, Player p)
     {
@@ -143,13 +146,15 @@ public class World
                 objectLeft = rect.x;
                 objectRight = rect.x + rect.width;
 
-                if (p.getBounds().overlaps(rect)) {
+                if (p.getBounds().overlaps(rect))
+                {
                     // Check for ground collision
                     if (playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
                     {
                         if (!(playerLeft < objectRight) || !(playerRight > objectLeft))
                         {
                             System.out.println("test");
+                            p.getPosition().x = 0;
                         } else
                         {
                             p.getPosition().y = objectTop;
@@ -162,11 +167,19 @@ public class World
                     {
                         if (p.getVelocity().x > 0 && playerRight <= objectLeft + p.getVelocity().x)
                         {
-                            //p.getPosition().x = objectLeft - p.getWidth();
-                            p.getVelocity().x = 0;
+                            if (p.isGrounded() && playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
+                            {
+                                System.out.println("Inside first if");
+                                p.getVelocity().y = 0;
+                            } else
+                            {
+                                //p.getPosition().x = objectLeft - p.getWidth();
+                                p.getVelocity().x = 0;
+                            //System.out.println("Inside first if");
+                            }
+
                         } else if (p.isGrounded() && (playerBottom < objectLeft))
                         {
-                            System.out.println("h");
                             p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         } else
@@ -183,33 +196,38 @@ public class World
                     {
                         if (p.getVelocity().x < 0 && playerLeft >= objectRight + p.getVelocity().x)
                         {
-                            //p.getPosition().x = objectRight;
-                            p.getVelocity().x = 0;
+                            if (p.isGrounded() && playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
+                            {
+                                System.out.println("Inside first if");
+                                p.getVelocity().y = 0;
+                            }else
+                            {
+                                //p.getPosition().x = objectRight;
+                                p.getVelocity().x = 0;
+                            }
                         } else if (p.isGrounded() && (playerBottom > objectRight))
                         {
-                            System.out.println("h");
                             p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
                         } else
                         {
                             p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
-
                         }
                         isTouchingRightWall = true;
                         System.out.println("Touching right wall");
                     }
 
                     // Check for ceiling collision
-                    if (playerTop > objectBottom - 5f && playerBottom < objectBottom - 16f)
+                    if (playerTop > objectBottom - 5f && playerBottom + 50f < objectBottom)
                     {
-                        if (!p.isGrounded() && oldY >= objectBottom)
+                        if (!p.isGrounded())
                         {
+                            System.out.println("Touching ceiling");
                             p.getPosition().y = objectBottom - p.getHeight();
                             p.getVelocity().y = 0;
                             isTouchingCeiling = true;
                         }
                     }
-
                 }
             }
         }

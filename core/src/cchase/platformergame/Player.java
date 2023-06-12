@@ -16,7 +16,8 @@ public class Player
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
     private static final float JUMP_VELOCITY = 450f; // Adjust the jump velocity as needed
     protected static final float HEIGHT = 60f;
-    protected static final float WIDTH = 60f;
+    protected static final float WIDTH = 30f;
+    protected static float MAX_VELOCITY = 150f;
     private static float SCALE = 1f;
     private float health;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
@@ -44,6 +45,9 @@ public class Player
     protected State state;
     protected boolean facingRight = false;
 
+    /**
+     * Default constructor. The location of the player is set to 0,0
+     */
     public Player()
     {
         position = new Vector2(0,0);
@@ -72,6 +76,11 @@ public class Player
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
 
+    /**
+     * This constructor accepts a x and y value, which determines where the player is placed.
+     * @param x x coordinate
+     * @param y y coordinate
+     */
     public Player(float x, float y)
     {
         position = new Vector2(x, y);
@@ -99,6 +108,11 @@ public class Player
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
 
+    /**
+     * input() controls the input for the player.
+     *
+     * TODO: isDownPressed doesn't do anything.
+     */
     public void input()
     {
         platformerInput.update();
@@ -106,12 +120,24 @@ public class Player
         {
             if (platformerInput.isLeftPressed())
             {
-                velocity.x -= 5;
+                if (velocity.x >= -1 * MAX_VELOCITY)
+                {
+                    velocity.x -= 5;
+                } else
+                {
+                    velocity.x = -150;
+                }
             }
 
             if (platformerInput.isRightPressed())
             {
-                velocity.x += 5;
+                if (velocity.x <= MAX_VELOCITY)
+                {
+                    velocity.x += 5;
+                } else
+                {
+                    velocity.x = 150;
+                }
             }
 
             if (platformerInput.isUpPressed() && !flying)
@@ -128,6 +154,12 @@ public class Player
         //System.out.println(flying);
     }
 
+    /**
+     * render is called every frame. Render should be used while the player is in a level.
+     *
+     * @param spriteBatch
+     * @param delta
+     */
     public void render(SpriteBatch spriteBatch,float delta)
     {
         this.spriteBatch = spriteBatch;
@@ -135,6 +167,19 @@ public class Player
         spriteBatch.begin();
         input();
         update(delta);
+        renderMovement();
+        //drawSprite("standing", position.x, position.y);
+        spriteBatch.end();
+        //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
+        //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
+    }
+
+    /**
+     * renderMovement() controls movement and will display the correct sprite depending on what action is being performed
+     * The method uses drawSprite(), and changes by using the enum State.
+     */
+    public void renderMovement()
+    {
         if (velocity.x < 0)
         {
             facingRight = true;
@@ -152,12 +197,17 @@ public class Player
         {
             drawSprite("jumping", position.x, position.y);
         }
-        //drawSprite("standing", position.x, position.y);
-        spriteBatch.end();
-        //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
-        //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
     }
 
+    /**
+     * renderBattle is a render screen that is used for the battle screen.
+     * When in battle the player cannot move and they are locked into the standing animation (for now... until I
+     * figure out what animation is)
+     *
+     * @param spriteBatch SpriteBatch
+     * @param delta float
+     * @param scale float, how large the sprites will be rendered.
+     */
     public void renderBattle(SpriteBatch spriteBatch,float delta, float scale)
     {
         this.spriteBatch = spriteBatch;
@@ -166,12 +216,12 @@ public class Player
         input();
         updateBattle(delta, scale);
         drawSpriteBattle("standing", position.x, position.y, scale);
-        //drawSprite("standing", position.x, position.y);
         spriteBatch.end();
-        //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
-        //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
     }
 
+    /**
+     * Allows the player to jump. If they are grounded, first the player is moved up one pixel, then jump velocity is applied
+     */
     public void jump()
     {
         if (grounded)
@@ -271,6 +321,7 @@ public class Player
 
     /**
      * Draws the sprite on screen.
+     * TODO: Currently messing around with bounds and sprite bounds. Create a variable dedicated to the sprite bounds.
      * @param name The name is the hash map key.
      * @param x X position of the sprite
      * @param y Y position of the sprite
@@ -279,7 +330,7 @@ public class Player
     {
         Sprite sprite = sprites.get(name);
 
-        sprite.setBounds(x,y,WIDTH + 10f,HEIGHT + 10f);
+        sprite.setBounds(x - (WIDTH / 2f) - 5f,y,(WIDTH * 2f) + 10f,HEIGHT + 10f);
 
         if (facingRight && sprite.isFlipX())
         {
@@ -291,6 +342,15 @@ public class Player
         sprite.draw(spriteBatch);
     }
 
+    /**
+     * drawSpriteBattle draws the sprite on screen inside of a battle screen.
+     * Going to be honest... I made this method so that I can scale up the sprite, and in hindsight I could have just
+     * overloaded drawSprite.
+     * @param name
+     * @param x
+     * @param y
+     * @param scale
+     */
     protected void drawSpriteBattle(String name, float x, float y, float scale)
     {
         Sprite sprite = sprites.get(name);
@@ -417,13 +477,26 @@ public class Player
         this.disableControls = disableControls;
     }
 
+    public static float getMaxVelocity()
+    {
+        return MAX_VELOCITY;
+    }
+
+    public void setBounds(Rectangle bounds)
+    {
+        this.bounds = bounds;
+    }
+
+    public static void setMaxVelocity(float maxVelocity)
+    {
+        MAX_VELOCITY = maxVelocity;
+    }
+
     public void dispose()
     {
         texture.dispose();
         textureAtlas.dispose();
         spriteBatch.dispose();
     }
-
-
 }
 
