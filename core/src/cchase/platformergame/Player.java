@@ -46,6 +46,7 @@ public class Player
     }
     protected State state;
     protected boolean facingRight = false;
+    protected boolean doubleJumped = false;
 
     /**
      * Default constructor. The location of the player is set to 0,0
@@ -60,6 +61,7 @@ public class Player
         touchingLeftWall = false;
         touchingRightWall = false;
         touchingWall = false;
+        doubleJumped = false;
         flying = false;
         platformerInput = new PlatformerInput();
         disableControls = false;
@@ -152,12 +154,25 @@ public class Player
                 velocity.y -= 5;
             }
             System.out.println(touchingWall);
-
+            //System.out.println(grounded);
             if (platformerInput.isUpPressed() && !grounded && touchingWall)
             {
                 System.out.println("Walljump");
                 wallJump();
             }
+
+            if (platformerInput.isUpPressed() && !grounded)
+            {
+                System.out.println("Double jump");
+                //TODO: When input is entered, it should only allow one input, as currently it is letting many through
+                // Causing wacky behavior.
+                //doubleJump();
+            }
+        }
+
+        if (grounded)
+        {
+            doubleJumped = false;
         }
         flying = platformerInput.isDebugPressed();
         //System.out.println(flying);
@@ -241,6 +256,15 @@ public class Player
         }
     }
 
+    /**
+     * Allows the player to wall jump.
+     * Current bugs:
+     * - When the player attempts to wall jump, It seems to only work when the velocity is going down, or when the player
+     * is holding jump and running at a wall.
+     * - The player can scale the wall
+     *
+     * TODO: Bug fix
+     */
     public void wallJump()
     {
         if (!grounded && touchingWall)
@@ -248,15 +272,27 @@ public class Player
             if (touchingLeftWall)
             {
                 position.y += 1;
-                velocity.x = JUMP_VELOCITY;
+                velocity.x = -JUMP_VELOCITY / 2f;
                 velocity.y = JUMP_VELOCITY;
             } else if (touchingRightWall)
             {
                 position.y -= 1;
-                velocity.x = -JUMP_VELOCITY;
+                velocity.x = JUMP_VELOCITY / 2f;
                 velocity.y = JUMP_VELOCITY;
             }
-            grounded = false;
+            //grounded = false;
+        }
+    }
+
+    public void doubleJump()
+    {
+        if (!grounded)
+        {
+            if (!doubleJumped)
+            {
+                velocity.y += JUMP_VELOCITY;
+                doubleJumped = true;
+            }
         }
     }
 
@@ -334,7 +370,7 @@ public class Player
     }
 
     /**
-     * Adds sprites to the hashmap
+     * Adds sprites to the hashmap located within player.
      */
     private void addSprites()
     {
@@ -374,10 +410,10 @@ public class Player
      * drawSpriteBattle draws the sprite on screen inside of a battle screen.
      * Going to be honest... I made this method so that I can scale up the sprite, and in hindsight I could have just
      * overloaded drawSprite.
-     * @param name
-     * @param x
-     * @param y
-     * @param scale
+     * @param name name of the sprite to be drawn
+     * @param x x coordinate
+     * @param y y coordinate
+     * @param scale scale to draw the sprite at
      */
     protected void drawSpriteBattle(String name, float x, float y, float scale)
     {

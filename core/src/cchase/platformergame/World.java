@@ -126,7 +126,7 @@ public class World
         float oldX = p.getPosition().x;
         float oldY = p.getPosition().y;
 
-        isTouchingWall = isTouchingWall(player);
+        //isTouchingWall = isTouchingWall(player);
         //System.out.println(isTouchingWall);
 
         // Iterate through all objects in the collision layer
@@ -173,7 +173,6 @@ public class World
                             {
                                 //p.getPosition().x = objectLeft - p.getWidth();
                                 p.getVelocity().x = 0;
-                            //System.out.println("Inside first if");
                             }
 
                         } else if (p.isGrounded() && (playerBottom < objectLeft))
@@ -184,10 +183,9 @@ public class World
                         {
                             p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         }
-
                         p.setTouchingWall(true);
-                        p.setTouchingRightWall(true);
-                        isTouchingLeftWall = true;
+                        p.setTouchingLeftWall(true);
+                        //isTouchingLeftWall = true;
                         //System.out.println("Touching left wall");
                     }
 
@@ -214,8 +212,7 @@ public class World
                         }
                         p.setTouchingWall(true);
                         p.setTouchingRightWall(true);
-                        isTouchingRightWall = true;
-                        //System.out.println("Touching right wall");
+                        //isTouchingRightWall = true;
                     }
 
                     // Check for ceiling collision
@@ -226,7 +223,8 @@ public class World
                             System.out.println("Touching ceiling");
                             p.getPosition().y = objectBottom - p.getHeight();
                             p.getVelocity().y = 0;
-                            isTouchingCeiling = true;
+                            p.setTouchingCeiling(true);
+                            //isTouchingCeiling = true;
                         }
                     }
                 }
@@ -240,22 +238,24 @@ public class World
         }
         if (p.getVelocity().x > 1)
         {
-            isTouchingLeftWall = false;
+            //isTouchingLeftWall = false;
             p.setTouchingLeftWall(false);
         }
-        if (p.getVelocity().x < 1)
+
+        if (p.getVelocity().x < -1)
         {
-            isTouchingRightWall = false;
+            //isTouchingRightWall = false;
             p.setTouchingRightWall(false);
         }
-        if (!isTouchingLeftWall || !isTouchingRightWall)
+        if (!p.isTouchingLeftWall() || !p.isTouchingRightWall())
         {
-            isTouchingWall = false;
+            //isTouchingWall = false;
             p.setTouchingWall(false);
         }
         if (p.getVelocity().y < 1)
         {
-            isTouchingCeiling = false;
+            p.setTouchingCeiling(false);
+            //isTouchingCeiling = false;
         }
 
         // Apply gravity
@@ -292,7 +292,19 @@ public class World
             p.getVelocity().x = 0;
         }
 
-        p.setTouchingWall(isTouchingWall(p));
+        if (!isTouchingWall(p))
+        {
+            p.setTouchingWall(false);
+            p.setTouchingLeftWall(false);
+            p.setTouchingRightWall(false);
+        }
+
+        if (p.isTouchingLeftWall() || p.isTouchingRightWall())
+        {
+            p.setTouchingWall(true);
+        }
+
+        //p.setTouchingWall(isTouchingWall(p));
 
         if (!isTouchingAnything(p))
         {
@@ -303,11 +315,12 @@ public class World
 
         // Update the player's collision status
         //p.setGrounded();
+        //System.out.println(isTouchingWall(p));
         //System.out.println(isTouchingAnything(p));
-        p.setTouchingLeftWall(isTouchingLeftWall);
-        p.setTouchingRightWall(isTouchingRightWall);
-        p.setTouchingWall(isTouchingWall);
-        p.setTouchingCeiling(isTouchingCeiling);
+        //p.setTouchingLeftWall(isTouchingLeftWall);
+        //p.setTouchingRightWall(isTouchingRightWall);
+        //p.setTouchingWall(isTouchingWall);
+        //p.setTouchingCeiling(isTouchingCeiling);
         //System.out.println(isTouchingEndGoal());
         //System.out.println(isTouchingAnything());
     }
