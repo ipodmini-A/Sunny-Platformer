@@ -151,6 +151,7 @@ public class Player
             {
                 velocity.y -= 5;
             }
+            System.out.println(touchingWall);
 
             if (platformerInput.isUpPressed() && !grounded && touchingWall)
             {
@@ -236,7 +237,7 @@ public class Player
         {
             position.y += 1;
             velocity.y = JUMP_VELOCITY;
-            grounded = false;
+            //grounded = false;
         }
     }
 

@@ -126,7 +126,6 @@ public class World
         float oldX = p.getPosition().x;
         float oldY = p.getPosition().y;
 
-
         isTouchingWall = isTouchingWall(player);
         //System.out.println(isTouchingWall);
 
@@ -153,12 +152,11 @@ public class World
                     {
                         if (!(playerLeft < objectRight) || !(playerRight > objectLeft))
                         {
-                            System.out.println("test");
                             p.getPosition().x = 0;
                         } else
                         {
                             p.getPosition().y = objectTop;
-                            isTouchingGround = true;
+                            //isTouchingGround = true;
                             p.setGrounded(true);
                         }
                     }
@@ -170,7 +168,6 @@ public class World
                         {
                             if (p.isGrounded() && playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
                             {
-                                System.out.println("Inside first if");
                                 p.getVelocity().y = 0;
                             } else
                             {
@@ -191,7 +188,7 @@ public class World
                         p.setTouchingWall(true);
                         p.setTouchingRightWall(true);
                         isTouchingLeftWall = true;
-                        System.out.println("Touching left wall");
+                        //System.out.println("Touching left wall");
                     }
 
                     // Check for right wall collision
@@ -201,7 +198,6 @@ public class World
                         {
                             if (p.isGrounded() && playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
                             {
-                                System.out.println("Inside first if");
                                 p.getVelocity().y = 0;
                             }else
                             {
@@ -237,12 +233,10 @@ public class World
             }
         }
 
-
-
         if (p.getVelocity().y > 1)
         {
             p.setGrounded(false);
-            isTouchingGround = false;
+            //isTouchingGround = false;
         }
         if (p.getVelocity().x > 1)
         {
@@ -298,16 +292,18 @@ public class World
             p.getVelocity().x = 0;
         }
 
+        p.setTouchingWall(isTouchingWall(p));
+
         if (!isTouchingAnything(p))
         {
             p.setGrounded(false);
-            isTouchingGround = false;
+            //isTouchingGround = false;
         }
-        //System.out.println(isTouchingAnything(p));
+        //System.out.println(p.isGrounded());
 
         // Update the player's collision status
-        //p.setGrounded(p.isGrounded());
-        //System.out.println(isTouchingGround);
+        //p.setGrounded();
+        //System.out.println(isTouchingAnything(p));
         p.setTouchingLeftWall(isTouchingLeftWall);
         p.setTouchingRightWall(isTouchingRightWall);
         p.setTouchingWall(isTouchingWall);
@@ -350,9 +346,13 @@ public class World
             }
         }
 
+        // Check if the player is not touching any object and is in the air
+        if (!touching && !player.isGrounded()) {
+            return false;
+        }
+
         return touching; // Return the result
     }
-
 
 
     /**
@@ -457,6 +457,8 @@ public class World
             enemy.updateCamera(camera);
             enemy.render(spriteBatch,delta);
         }
+
+        //System.out.println(player.isGrounded());
 
         // render debug rectangles
         if (debug) renderDebug();
