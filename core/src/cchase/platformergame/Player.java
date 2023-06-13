@@ -17,6 +17,8 @@ public class Player
     private static final float JUMP_VELOCITY = 450f; // Adjust the jump velocity as needed
     protected static final float HEIGHT = 60f;
     protected static final float WIDTH = 30f;
+    protected static final float SPRITE_HEIGHT = 60f + 10f;
+    protected static final float SPRITE_WIDTH = 60f + 10f; // I don't know why adding 10 makes the sprite the proper size.
     protected static float MAX_VELOCITY = 150f;
     private static float SCALE = 1f;
     private float health;
@@ -149,6 +151,12 @@ public class Player
             {
                 velocity.y -= 5;
             }
+
+            if (platformerInput.isUpPressed() && !grounded && touchingWall)
+            {
+                System.out.println("Walljump");
+                wallJump();
+            }
         }
         flying = platformerInput.isDebugPressed();
         //System.out.println(flying);
@@ -228,6 +236,25 @@ public class Player
         {
             position.y += 1;
             velocity.y = JUMP_VELOCITY;
+            grounded = false;
+        }
+    }
+
+    public void wallJump()
+    {
+        if (!grounded && touchingWall)
+        {
+            if (touchingLeftWall)
+            {
+                position.y += 1;
+                velocity.x = JUMP_VELOCITY;
+                velocity.y = JUMP_VELOCITY;
+            } else if (touchingRightWall)
+            {
+                position.y -= 1;
+                velocity.x = -JUMP_VELOCITY;
+                velocity.y = JUMP_VELOCITY;
+            }
             grounded = false;
         }
     }
@@ -330,7 +357,7 @@ public class Player
     {
         Sprite sprite = sprites.get(name);
 
-        sprite.setBounds(x - (WIDTH / 2f) - 5f,y,(WIDTH * 2f) + 10f,HEIGHT + 10f);
+        sprite.setBounds(x - (WIDTH / 2f) - 5f,y,SPRITE_WIDTH,SPRITE_HEIGHT);
 
         if (facingRight && sprite.isFlipX())
         {
@@ -355,7 +382,7 @@ public class Player
     {
         Sprite sprite = sprites.get(name);
 
-        sprite.setBounds(x,y,(WIDTH + 10f) * scale,(HEIGHT + 10f) * scale);
+        sprite.setBounds(x,y,(SPRITE_WIDTH) * scale,(SPRITE_HEIGHT) * scale);
 
         if (facingRight && sprite.isFlipX())
         {

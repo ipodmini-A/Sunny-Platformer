@@ -75,7 +75,8 @@ public class Battle {
 
         // Button listeners
         // Attack logic
-        attackButton.addListener(new ClickListener() {
+        attackButton.addListener(new ClickListener()
+        {
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
