@@ -4,7 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 
-public class PlatformerInput implements InputProcessor {
+/**
+ * PlatformerInput handles the input for the player. Currently, in the process of being deprecated.
+ */
+public class PlatformerInput implements InputProcessor
+{
 
     private boolean jumpPressed;
     private boolean upPressed;
@@ -51,8 +55,20 @@ public class PlatformerInput implements InputProcessor {
     public float getLeftMouseClickedY() {
         return leftMouseClickedY;
     }
+    private Player p;
 
-    public void update() {
+    public PlatformerInput(Player p)
+    {
+        this.p = p;
+    }
+
+    /**
+     * update() constantly checks to see if input was entered. Currently, in the process of being deprecated.
+     *
+     * @deprecated
+     */
+    public void update()
+    {
         jumpPressed = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
         upPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
         leftPressed = Gdx.input.isKeyPressed(Input.Keys.LEFT);
@@ -61,29 +77,49 @@ public class PlatformerInput implements InputProcessor {
         debugPressed = Gdx.input.isKeyPressed(Input.Keys.P);
 
         leftMouseClicked = Gdx.input.isButtonJustPressed(Input.Buttons.LEFT);
-        if (leftMouseClicked) {
+        if (leftMouseClicked)
+        {
             leftMouseClickedX = Gdx.input.getX();
             leftMouseClickedY = Gdx.input.getY();
         }
     }
 
     @Override
-    public boolean keyDown(int keycode) {
+    public boolean keyDown(int keycode)
+    {
+        /*
+        switch (keycode)
+        {
+            case Input.Keys.UP:
+                System.out.println("Jump");
+                p.jump();
+                break;
+            default:
+                break;
+        }
+        return true;
+         */
+
+        return false;
+
+    }
+
+
+    @Override
+    public boolean keyUp(int keycode)
+    {
         return false;
     }
 
     @Override
-    public boolean keyUp(int keycode) {
+    public boolean keyTyped(char character)
+    {
         return false;
     }
 
     @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+    public boolean touchDown(int screenX, int screenY, int pointer, int button)
+    {
         return false;
     }
 

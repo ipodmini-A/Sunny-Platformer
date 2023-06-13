@@ -11,6 +11,8 @@ import com.badlogic.gdx.math.Rectangle;
 /**
  * BattleOld is the old UI system for the game. I still see some benefit to having this form of UI exist, so until
  * further notice this class will stay here until Battle.java is in a useable state that I am okay with.
+ *
+ * @Depricated
  */
 public class BattleOld {
     Player player;
@@ -37,7 +39,7 @@ public class BattleOld {
         spriteBatch = new SpriteBatch();
         font = new BitmapFont();
         shapeRenderer = new ShapeRenderer();
-        platformerInput = new PlatformerInput();
+        //platformerInput = new PlatformerInput(player);
         magicClicked = false;
 
         attackButtonBounds = new Rectangle(100, 150, width, height);
@@ -70,7 +72,7 @@ public class BattleOld {
 
         }
         renderUI();
-        platformerInput.update();
+        //platformerInput.update();
     }
 
     public void renderUI()

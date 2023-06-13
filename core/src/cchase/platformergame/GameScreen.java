@@ -2,6 +2,7 @@ package cchase.platformergame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -29,9 +30,11 @@ public class GameScreen extends ScreenAdapter
      */
     public GameScreen(PlatformerGame game)
     {
+        System.out.println("GameScreen created");
         this.game = game;
         batch = new SpriteBatch();
         player = new Player(x,y);
+        //Gdx.input.setInputProcessor(inputProcessor);
         world = new World(player);
     }
 
@@ -44,6 +47,10 @@ public class GameScreen extends ScreenAdapter
             player.setPositionX(GameState.lastRecordedPlayerX);
             player.setPositionY(GameState.lastRecordedPlayerY);
         }
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(new NewPlatformerInput(player));
+        Gdx.input.setInputProcessor(multiplexer);
+
         firstSpawnCheck = true;
         super.show();
     }
@@ -98,6 +105,8 @@ public class GameScreen extends ScreenAdapter
             System.out.println(GameState.lastRecordedPlayerY);
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
+
+        //System.out.println(player.isTouchingWall());
     }
 
     @Override

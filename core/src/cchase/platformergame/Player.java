@@ -1,5 +1,6 @@
 package cchase.platformergame;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -19,7 +20,7 @@ public class Player
     protected static final float WIDTH = 30f;
     protected static final float SPRITE_HEIGHT = 60f + 10f;
     protected static final float SPRITE_WIDTH = 60f + 10f; // I don't know why adding 10 makes the sprite the proper size.
-    protected static float MAX_VELOCITY = 150f;
+    protected static float MAX_VELOCITY = 200f;
     private static float SCALE = 1f;
     private float health;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
@@ -40,6 +41,8 @@ public class Player
     protected SpriteBatch spriteBatch;
     private TextureAtlas textureAtlas;
     private boolean disableControls;
+    boolean leftMove;
+    boolean rightMove;
     enum State
     {
         STANDING, WALKING, JUMPING
@@ -63,7 +66,6 @@ public class Player
         touchingWall = false;
         doubleJumped = false;
         flying = false;
-        platformerInput = new PlatformerInput();
         disableControls = false;
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
@@ -76,6 +78,9 @@ public class Player
 
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
+
+        platformerInput = new PlatformerInput(this);
+        Gdx.input.setInputProcessor(platformerInput);
 
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
@@ -96,7 +101,6 @@ public class Player
         touchingRightWall = false;
         touchingWall = false;
         flying = false;
-        platformerInput = new PlatformerInput();
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
@@ -109,17 +113,22 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
+        platformerInput = new PlatformerInput(this);
+        Gdx.input.setInputProcessor(platformerInput);
+
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
 
     /**
      * input() controls the input for the player.
      *
-     * TODO: isDownPressed doesn't do anything.
+     * @Depricated
+     *
      */
     public void input()
     {
-        platformerInput.update();
+        //platformerInput.update();
+
         if (!disableControls)
         {
             if (platformerInput.isLeftPressed())
@@ -153,7 +162,7 @@ public class Player
             {
                 velocity.y -= 5;
             }
-            System.out.println(touchingWall);
+            //System.out.println(touchingWall);
             //System.out.println(grounded);
             if (platformerInput.isUpPressed() && !grounded && touchingWall)
             {
@@ -177,6 +186,30 @@ public class Player
         flying = platformerInput.isDebugPressed();
         //System.out.println(flying);
     }
+    public void newInput()
+    {
+        if (leftMove)
+        {
+            if (velocity.x >= -1 * MAX_VELOCITY)
+            {
+                velocity.x -= 10;
+            } else
+            {
+                velocity.x = -MAX_VELOCITY;
+            }
+        }
+        if (rightMove)
+        {
+            if (velocity.x <= MAX_VELOCITY)
+            {
+                velocity.x += 10;
+            } else
+            {
+                velocity.x = MAX_VELOCITY;
+            }
+        }
+        doubleJumpCheck();
+    }
 
     /**
      * render is called every frame. Render should be used while the player is in a level.
@@ -189,11 +222,13 @@ public class Player
         this.spriteBatch = spriteBatch;
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        input();
+        newInput();
+        //input();
         update(delta);
         renderMovement();
         //drawSprite("standing", position.x, position.y);
         spriteBatch.end();
+
         //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
         //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
     }
@@ -237,7 +272,7 @@ public class Player
         this.spriteBatch = spriteBatch;
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        input();
+        //input();
         updateBattle(delta, scale);
         drawSpriteBattle("standing", position.x, position.y, scale);
         spriteBatch.end();
@@ -284,15 +319,53 @@ public class Player
         }
     }
 
+    /**
+     * Allows the player to double jump.
+     */
     public void doubleJump()
     {
         if (!grounded)
         {
-            if (!doubleJumped)
+            if (rightMove && !doubleJumped) // If the player is holding left they will go forwards diagonally.
             {
-                velocity.y += JUMP_VELOCITY;
+                velocity.y = JUMP_VELOCITY;
+                velocity.x = JUMP_VELOCITY;
+                doubleJumped = true;
+            }else if (leftMove && !doubleJumped) // If the player is holding left they will go backwards diagonally
+            {
+                velocity.y = JUMP_VELOCITY;
+                velocity.x = -JUMP_VELOCITY;
                 doubleJumped = true;
             }
+            if (!doubleJumped)
+            {
+                velocity.y = JUMP_VELOCITY;
+                doubleJumped = true;
+            }
+
+        }
+    }
+
+    /**
+     * Checks to see if the player already double jumped.
+     * Used within newInput()
+     */
+    public void doubleJumpCheck()
+    {
+        if (grounded && doubleJumped)
+        {
+            doubleJumped = false;
+        }
+    }
+
+    public void dash()
+    {
+        if (rightMove)
+        {
+            velocity.x += 3000f;
+        }else if (leftMove)
+        {
+            velocity.x -= 3000f;
         }
     }
 
@@ -554,6 +627,17 @@ public class Player
     public static void setMaxVelocity(float maxVelocity)
     {
         MAX_VELOCITY = maxVelocity;
+    }
+
+    public void setLeftMove(boolean t)
+    {
+        if(rightMove && t) rightMove = false;
+        leftMove = t;
+    }
+    public void setRightMove(boolean t)
+    {
+        if(leftMove && t) leftMove = false;
+        rightMove = t;
     }
 
     public void dispose()

@@ -27,6 +27,7 @@ public class World
 {
     //private TiledMapRenderer mapRenderer; // What does this do?
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
+    private static final float MAX_FALL = -500f;
     //private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
     private static final float SCALE = 2f;
     private static final float FRICTION = 3f;
@@ -45,12 +46,6 @@ public class World
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
     private SpriteBatch debugBatch;
-    boolean isTouchingGround = false;
-    boolean isTouchingLeftWall = false;
-    boolean isTouchingRightWall = false;
-    boolean isTouchingWall = false;
-    boolean isTouchingCeiling = false;
-    boolean collisionOccurred = false;
 
     public World(Player player)
     {
@@ -177,18 +172,24 @@ public class World
 
                         } else if (p.isGrounded() && (playerBottom < objectLeft))
                         {
-                            p.getVelocity().y = 0; // Stop the player's horizontal movement
+                            /*
+                            This mess of code is a little much.
+                            Uncommenting the velocity code prevents the player from jumping.
+                             */
+                            //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         } else
                         {
                             p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         }
-                        p.setTouchingWall(true);
+                        //p.setTouchingWall(true);
                         p.setTouchingLeftWall(true);
                         //isTouchingLeftWall = true;
                         //System.out.println("Touching left wall");
                     }
 
+                    // If you're reading this and you're not the owner of this repository, dont try to make sense of it
+                    // because I currently don't know how it works
                     // Check for right wall collision
                     if (playerLeft < objectRight && playerRight > objectRight)
                     {
@@ -204,13 +205,16 @@ public class World
                             }
                         } else if (p.isGrounded() && (playerBottom > objectRight))
                         {
-                            p.getVelocity().y = 0; // Stop the player's horizontal movement
+                            /*
+                            This mess of code is a little much.
+                            Uncommenting the velocity code prevents the player from jumping.
+                             */
+                            //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
                         } else
                         {
                             p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
                         }
-                        p.setTouchingWall(true);
                         p.setTouchingRightWall(true);
                         //isTouchingRightWall = true;
                     }
@@ -265,7 +269,13 @@ public class World
             //player.getPosition().y = oldY;
         } else
         {
-            p.getVelocity().add(0, GRAVITY * delta);
+            if (p.getVelocity().y >= MAX_FALL)
+            {
+                p.getVelocity().add(0, GRAVITY * delta);
+            }else
+            {
+                p.getVelocity().y = MAX_FALL;
+            }
         }
 
         if (p.getVelocity().x > 0)
@@ -286,7 +296,8 @@ public class World
             p.getPosition().add(p.getVelocity().x * delta, p.getVelocity().y * delta);
         }
 
-        if ((!p.getPlatformerInput().isRightPressed() && !p.getPlatformerInput().isLeftPressed()) &&
+
+        if (!p.rightMove && !p.leftMove &&
                 (p.getVelocity().x <= 2 && p.getVelocity().x > 0))
         {
             p.getVelocity().x = 0;
@@ -303,8 +314,6 @@ public class World
         {
             p.setTouchingWall(true);
         }
-
-        //p.setTouchingWall(isTouchingWall(p));
 
         if (!isTouchingAnything(p))
         {

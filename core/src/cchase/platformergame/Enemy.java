@@ -46,7 +46,7 @@ public class Enemy extends Player
         this.spriteBatch = spriteBatch;
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        input();
+        //input();
         updateBattle(delta, scale);
         drawSpriteBattle("standing", position.x, position.y, scale);
         //drawSprite("standing", position.x, position.y);
