@@ -60,6 +60,12 @@ public class NewPlatformerInput implements InputProcessor
                     p.wallRide();
                 }
                 break;
+            case Input.Keys.DOWN:
+                if (p.isNpcInteraction())
+                {
+                    System.out.println("Hi!");
+                }
+                break;
             case Input.Keys.X:
                 System.out.println("Dash");
                 p.dash();

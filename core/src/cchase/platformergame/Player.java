@@ -12,6 +12,13 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.HashMap;
 
+/**
+ * Player.java
+ * Contains code that controls various aspects of the player. This class is intended to extend from, making various
+ * characters from it. Currently, Enemy.java extends it.
+ * Objects include the characters stats, their sprites, their moves, and their bounds.
+ * TODO: As time goes on, Player may not be the best name for this class.
+ */
 public class Player
 {
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
@@ -49,6 +56,7 @@ public class Player
     private boolean disableControls;
     boolean leftMove;
     boolean rightMove;
+    boolean npcInteraction;
     enum State
     {
         STANDING, WALKING, JUMPING
@@ -60,6 +68,9 @@ public class Player
 
     /**
      * Default constructor. The location of the player is set to 0,0
+     * Health is set to 100f
+     * Attack is set to 10f
+     * Defense is set to 10f
      */
     public Player()
     {
@@ -75,6 +86,7 @@ public class Player
         touchingWall = false;
         doubleJumped = false;
         flying = false;
+        npcInteraction = false;
         disableControls = false;
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
@@ -96,6 +108,9 @@ public class Player
 
     /**
      * This constructor accepts a x and y value, which determines where the player is placed.
+     * Health is set to 100f
+     * Attack is set to 10f
+     * Defense is set to 10f
      * @param x x coordinate
      * @param y y coordinate
      */
@@ -739,6 +754,14 @@ public class Player
     public void setSpeed(float speed)
     {
         this.speed = speed;
+    }
+
+    public boolean isNpcInteraction() {
+        return npcInteraction;
+    }
+
+    public void setNpcInteraction(boolean npcInteraction) {
+        this.npcInteraction = npcInteraction;
     }
 
     public void dispose()

@@ -3,6 +3,12 @@ package cchase.platformergame;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * Enemy.java
+ * Enemy object. This class serves as a template for future enemy objects.
+ * Enemy extends from Player, and has its input() method overridden. Enemy also has a modified updateBattle and renderBattle
+ * method.
+ */
 public class Enemy extends Player
 {
     public Enemy(float x, float y)

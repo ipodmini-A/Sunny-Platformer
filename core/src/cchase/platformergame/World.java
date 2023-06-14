@@ -37,6 +37,7 @@ public class World
     private final OrthographicCamera camera;
     protected Player player;
     public Enemy enemy;
+    public  NonPlayableCharacter nonPlayableCharacter;
     private final TiledMap map;
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -44,7 +45,7 @@ public class World
     private MapLayer endGoalLayer;
     private MapObjects objects;
     private MapObjects endGameObject;
-    private boolean debug = false;
+    private boolean debug = true;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -67,18 +68,20 @@ public class World
         endGameObject = endGoalLayer.getObjects();
 
         // Camera creation
-
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 640, 360);
         camera.update();
         //mapRenderer.setView(camera);
 
         // Sets the size of the player. Going to be honest, forgot what this does.
-        // Enemy creation
         player.setSCALE(SCALE);
+
+        // Enemy creation
         enemy = new Enemy(player.getPosition().x + 300, player.getPosition().y);
         enemy.setSCALE(SCALE);
+
+        //NPC creation
+        nonPlayableCharacter = new NonPlayableCharacter(300 , 300);
 
         // Debug
         debugRenderer = new ShapeRenderer();
@@ -457,6 +460,21 @@ public class World
         return false;
     }
 
+    public boolean isCollidingWithNPC()
+    {
+        if (player.getBounds().overlaps(nonPlayableCharacter.getBounds()))
+        {
+            //System.out.println("Colliding with NPC");
+            nonPlayableCharacter.setTouchingPLayer(true);
+            player.setNpcInteraction(true);
+            return true;
+        }
+        //System.out.println("Not colliding with NPC");
+        nonPlayableCharacter.setTouchingPLayer(false);
+        player.setNpcInteraction(false);
+        return false;
+    }
+
 
     /**
      * Map renderer
@@ -470,15 +488,20 @@ public class World
         // Set the camera's position to follow the player, considering half of the screen size
         camera.position.x = player.getPosition().x + player.getWidth() / SCALE;
         camera.position.y = player.getPosition().y + player.getHeight() / SCALE;
-        player.updateCamera(camera);
 
         //newCheckCollisions(delta);
         checkCollisions(delta,player);
         checkCollisions(delta,enemy);
+        checkCollisions(delta,nonPlayableCharacter);
         mapRenderer.setView(camera);
         mapRenderer.render();
 
-        player.render(spriteBatch,delta);
+        // NPC render
+        nonPlayableCharacter.updateCamera(camera);
+        nonPlayableCharacter.render(spriteBatch,delta);
+        isCollidingWithNPC();
+
+        // Enemy render
         if (enemy.getHealth() > 0)
         {
             enemy.updateCamera(camera);
@@ -486,6 +509,10 @@ public class World
         }
 
         //System.out.println(player.isGrounded());
+
+        // Player render
+        player.updateCamera(camera);
+        player.render(spriteBatch,delta);
 
         // render debug rectangles
         if (debug) renderDebug();
@@ -505,12 +532,18 @@ public class World
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
 
+        //Player Debug
         debugRenderer.setColor(Color.RED);
         debugRenderer.rect(player.getPosition().x, player.getPosition().y, player.getWidth(), player.getHeight());
         //System.out.println("debugRender X:" + player.getPosition().x + " debugRender Y:" + player.getPosition().y);
 
+        //Enemy Debug
         debugRenderer.setColor(Color.CYAN);
         debugRenderer.rect(enemy.getPosition().x, enemy.getPosition().y, enemy.getWidth(), enemy.getHeight());
+
+        //NPC Debug
+        debugRenderer.setColor(Color.PURPLE);
+        debugRenderer.rect(nonPlayableCharacter.getPosition().x, nonPlayableCharacter.getPosition().y, nonPlayableCharacter.getWidth(), nonPlayableCharacter.getHeight());
 
         debugRenderer.setColor(Color.YELLOW);
         for (MapObject object : objects)
