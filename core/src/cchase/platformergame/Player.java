@@ -50,6 +50,7 @@ public class Player
     protected State state;
     protected boolean facingRight = false;
     protected boolean doubleJumped = false;
+    protected boolean wallRiding = false;
 
     /**
      * Default constructor. The location of the player is set to 0,0
@@ -123,7 +124,6 @@ public class Player
      * input() controls the input for the player.
      *
      * @Depricated
-     *
      */
     public void input()
     {
@@ -209,6 +209,8 @@ public class Player
             }
         }
         doubleJumpCheck();
+        wallRideCheck();
+
     }
 
     /**
@@ -358,6 +360,12 @@ public class Player
         }
     }
 
+    /**
+     * dash allows the player to dash forward.
+     *
+     * Currently bugged
+     * TODO: Fix teleporting
+     */
     public void dash()
     {
         if (rightMove)
@@ -368,6 +376,39 @@ public class Player
             velocity.x -= 3000f;
         }
     }
+
+    /**
+     * Allows the player to hang onto the wall, a.k.a. wall-ride
+     *
+     * This method has a few things making it work. If the player is touching a wall and either right or left is being held,
+     * wallRiding is set to true, which is handled by wallRideCheck().
+     * Within the input class, key down and key up help control when wallRiding is set to true or false.
+     *
+     */
+    public void wallRide()
+    {
+        if (touchingWall && (rightMove || leftMove))
+        {
+            System.out.println("wallride");
+            wallRiding = true;
+        } else
+        {
+            wallRiding = false;
+        }
+    }
+
+    /**
+     * Checks to see if wallRiding is set to true or false. Sets the player's velocity to half of the max velocity
+     * if wallRiding is true.
+     */
+    public void wallRideCheck()
+    {
+        if (wallRiding)
+        {
+            velocity.y = -MAX_VELOCITY / 2f;
+        }
+    }
+
 
     public Vector2 getPosition()
     {

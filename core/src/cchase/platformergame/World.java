@@ -22,6 +22,11 @@ import com.badlogic.gdx.math.Rectangle;
  * The World class contains the details in the world and how the player along with enemies interact with it.
  * This class is intended to serve as a template for levels to be created from. As this class gets more refined, more
  * documentation will be added.
+ *
+ * Key words to know from the map file
+ * tiles: The visual tiles (Not used except for rendering)
+ * endgoal: The end goal of the game.
+ * collision: The collision of the map.
  */
 public class World
 {
@@ -32,8 +37,8 @@ public class World
     private static final float SCALE = 2f;
     private static final float FRICTION = 3f;
     private final OrthographicCamera camera;
-    Player player;
-    Enemy enemy;
+    protected Player player;
+    public Enemy enemy;
     private final TiledMap map;
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -41,7 +46,7 @@ public class World
     private MapLayer endGoalLayer;
     private MapObjects objects;
     private MapObjects endGameObject;
-    private boolean debug = true;
+    private boolean debug = false;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;

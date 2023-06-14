@@ -1,5 +1,6 @@
-package cchase.platformergame;
+package cchase.platformergame.screens;
 
+import cchase.platformergame.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -13,7 +14,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  */
 public class GameScreen extends ScreenAdapter
 {
-    PlatformerGame  game;
+    PlatformerGame game;
     private SpriteBatch batch;
     World world;
     Player player;
@@ -106,6 +107,7 @@ public class GameScreen extends ScreenAdapter
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 
+        //System.out.println(player.isTouchingWall());
         //System.out.println(player.isTouchingWall());
     }
 

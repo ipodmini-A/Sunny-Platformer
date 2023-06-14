@@ -13,7 +13,7 @@ import com.badlogic.gdx.InputProcessor;
 public class NewPlatformerInput implements InputProcessor
 {
     Player p;
-    NewPlatformerInput(Player p)
+    public NewPlatformerInput(Player p)
     {
         this.p = p;
     }
@@ -24,7 +24,7 @@ public class NewPlatformerInput implements InputProcessor
         switch (keycode)
         {
             case Input.Keys.Z: // Up controls
-                if (!p.isGrounded() && p.isTouchingWall()) // Wall Jump input
+                if (!p.isGrounded() && p.isTouchingWall() && !p.wallRiding) // Wall Jump input
                 {
                     System.out.println("Wall jump");
                     p.wallJump();
@@ -32,7 +32,13 @@ public class NewPlatformerInput implements InputProcessor
                 {
                     System.out.println("Double jump");
                     p.doubleJump();
-                } else // Jump input
+                } else if (p.wallRiding)
+                {
+                    System.out.println("Jumping off wall from sliding");
+                    p.wallJump();
+                    p.wallRiding = false;
+                }
+                else // Jump input
                 {
                     System.out.println("Jump");
                     p.jump();
@@ -41,10 +47,18 @@ public class NewPlatformerInput implements InputProcessor
             case Input.Keys.LEFT:
                 System.out.println("Left");
                 p.setLeftMove(true);
+                if (!p.isGrounded())
+                {
+                    p.wallRide();
+                }
                 break;
             case Input.Keys.RIGHT:
                 System.out.println("Right");
                 p.setRightMove(true);
+                if (!p.isGrounded())
+                {
+                    p.wallRide();
+                }
                 break;
             case Input.Keys.X:
                 System.out.println("Dash");
@@ -63,9 +77,11 @@ public class NewPlatformerInput implements InputProcessor
         {
             case Input.Keys.LEFT:
                 p.setLeftMove(false);
+                p.wallRiding = false;
                 break;
             case Input.Keys.RIGHT:
                 p.setRightMove(false);
+                p.wallRiding = false;
                 break;
         }
         return true;

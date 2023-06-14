@@ -1,9 +1,8 @@
 package cchase.platformergame;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import cchase.platformergame.screens.TitleScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,11 +12,11 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 public class PlatformerGame extends Game
 {
-	SpriteBatch batch;
-	ShapeRenderer shapeRenderer;
-	BitmapFont font;
-	OrthographicCamera camera;
-	ScalingViewport viewport;
+	public SpriteBatch batch;
+	protected ShapeRenderer shapeRenderer;
+	public BitmapFont font;
+	public OrthographicCamera camera;
+	protected ScalingViewport viewport;
 
 	@Override
 	public void create()
