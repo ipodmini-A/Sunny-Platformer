@@ -107,6 +107,11 @@ public class GameScreen extends ScreenAdapter
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 
+        if (player.getHealth() <= 0)
+        {
+            game.setScreen(new EndScreen(game));
+        }
+
         //System.out.println(player.isTouchingWall());
         //System.out.println(player.isTouchingWall());
     }

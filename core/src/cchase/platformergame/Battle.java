@@ -33,7 +33,7 @@ public class Battle {
     }
     private Turn turn;
 
-    public Battle(Player player, Enemy enemy)
+    public Battle(final Player player, final Enemy enemy)
     {
         this.player = player;
         this.enemy = enemy;
@@ -116,20 +116,25 @@ public class Battle {
         player.updateCamera(camera);
         enemy.updateCamera(camera);
 
-        player.setPositionX(20);
+        /*
+        Setting players position
+         */
+        player.setPositionX(Gdx.graphics.getWidth() / 60f);
         System.out.println("X Position set to: " + player.getPosition().x);
-        player.setPositionY(300);
+        player.setPositionY(Gdx.graphics.getHeight() / 2f);
         System.out.println("Y Position set to: " + player.getPosition().y);
 
         enemy.setPositionX((Gdx.graphics.getWidth() - enemy.getWidth()) - 250 );
         System.out.println("X Position set to: " + enemy.getPosition().x);
-        enemy.setPositionY(300);
+        enemy.setPositionY(Gdx.graphics.getHeight() / 2f);
         System.out.println("Y Position set to: " + enemy.getPosition().y);
 
         //Turn set
         turn = Turn.PLAYER_TURN;
     }
 
+    float baseWidth = 1280f;
+    float baseHeight = 720f;
     public void render(float delta)
     {
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -138,8 +143,11 @@ public class Battle {
         stage.act();
         stage.draw();
 
-        player.renderBattle(spriteBatch, delta,3f);
-        enemy.renderBattle(spriteBatch, delta, 3f);
+        float referenceScreenWidth = 1280;  // The reference screen width for scaling
+        float scale = 3 * (Gdx.graphics.getWidth() / referenceScreenWidth);
+
+        player.renderBattle(spriteBatch, delta,scale);
+        enemy.renderBattle(spriteBatch, delta, scale);
         turnManager();
     }
 
@@ -188,7 +196,7 @@ public class Battle {
 
     public void playerAttackOccurred()
     {
-        enemy.setHealth(enemy.getHealth() - 20);
+        BattleCalculation.damageCalculation(player,enemy);
         // This is here to update the players health every time this method is called.
         playerStatusLabel.setText("Player HP: " + player.getHealth());
         enemyStatusLabel.setText("Enemy HP: " + enemy.getHealth());
@@ -196,7 +204,7 @@ public class Battle {
 
     public void enemyAttackOccured()
     {
-        player.setHealth(player.getHealth() - 10);
+        BattleCalculation.damageCalculation(enemy, player);
         playerStatusLabel.setText("Player HP: " + player.getHealth());
         enemyStatusLabel.setText("Enemy HP: " + enemy.getHealth());
     }

@@ -8,7 +8,9 @@ public class Enemy extends Player
     public Enemy(float x, float y)
     {
         super(x,y);
-
+        health = 100f;
+        attack = 10f;
+        defense = 3f;
     }
 
     /**

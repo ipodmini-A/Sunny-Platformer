@@ -18,11 +18,9 @@ import com.badlogic.gdx.math.Rectangle;
 /**
  * This class is a mess, im not even joking
  * TODO: Clean up
- *
  * The World class contains the details in the world and how the player along with enemies interact with it.
  * This class is intended to serve as a template for levels to be created from. As this class gets more refined, more
  * documentation will be added.
- *
  * Key words to know from the map file
  * tiles: The visual tiles (Not used except for rendering)
  * endgoal: The end goal of the game.
@@ -69,8 +67,10 @@ public class World
         endGameObject = endGoalLayer.getObjects();
 
         // Camera creation
+
+
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth() / SCALE, Gdx.graphics.getHeight() / SCALE);
+        camera.setToOrtho(false, 640, 360);
         camera.update();
         //mapRenderer.setView(camera);
 
@@ -181,7 +181,7 @@ public class World
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
                              */
-                            //p.getVelocity().y = 0; // Stop the player's horizontal movement
+                            p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         } else
                         {
@@ -193,7 +193,7 @@ public class World
                         //System.out.println("Touching left wall");
                     }
 
-                    // If you're reading this and you're not the owner of this repository, dont try to make sense of it
+                    // If you're reading this, and you're not the owner of this repository, don't try to make sense of it
                     // because I currently don't know how it works
                     // Check for right wall collision
                     if (playerLeft < objectRight && playerRight > objectRight)
@@ -214,7 +214,7 @@ public class World
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
                              */
-                            //p.getVelocity().y = 0; // Stop the player's horizontal movement
+                            p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
                         } else
                         {
@@ -444,7 +444,7 @@ public class World
      * @return True if the player is colliding with an enemy, false if otherwise
      *
      * TODO: If there are multiple enemies within the level, it's most likely this method will have to iterate through
-     *       each enemy to test to see if collision has occured. Is this idea optimal? No. Will I do it? Probably.
+     *       each enemy to test to see if collision has occurred. Is this idea optimal? No. Will I do it? Probably.
      */
     public boolean isCollidingWithEnemy()
     {
@@ -530,5 +530,8 @@ public class World
     {
         mapRenderer.dispose();
         map.dispose();
+        player.dispose();
+        enemy.dispose();
+        spriteBatch.dispose();
     }
 }

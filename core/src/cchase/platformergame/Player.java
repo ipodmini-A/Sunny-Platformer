@@ -22,7 +22,13 @@ public class Player
     protected static final float SPRITE_WIDTH = 60f + 10f; // I don't know why adding 10 makes the sprite the proper size.
     protected static float MAX_VELOCITY = 200f;
     private static float SCALE = 1f;
-    private float health;
+    // Player stats
+    protected float health;
+    protected float attack;
+    protected float defense;
+    protected float magic;
+    protected float wisdom;
+    protected float speed;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
 
     private Texture texture;
@@ -61,6 +67,8 @@ public class Player
         velocity = new Vector2();
         grounded = false;
         health = 100f;
+        attack = 10f;
+        defense = 10f;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
@@ -97,6 +105,8 @@ public class Player
         velocity = new Vector2();
         grounded = false;
         health = 100f;
+        attack = 10f;
+        defense = 10f;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
@@ -679,6 +689,56 @@ public class Player
     {
         if(leftMove && t) leftMove = false;
         rightMove = t;
+    }
+
+    public float getAttack()
+    {
+        return attack;
+    }
+
+    public void setAttack(float attack)
+    {
+        this.attack = attack;
+    }
+
+    public float getDefense()
+    {
+        return defense;
+    }
+
+    public void setDefense(float defense)
+    {
+        this.defense = defense;
+    }
+
+    public float getMagic()
+    {
+        return magic;
+    }
+
+    public void setMagic(float magic)
+    {
+        this.magic = magic;
+    }
+
+    public float getWisdom()
+    {
+        return wisdom;
+    }
+
+    public void setWisdom(float wisdom)
+    {
+        this.wisdom = wisdom;
+    }
+
+    public float getSpeed()
+    {
+        return speed;
+    }
+
+    public void setSpeed(float speed)
+    {
+        this.speed = speed;
     }
 
     public void dispose()

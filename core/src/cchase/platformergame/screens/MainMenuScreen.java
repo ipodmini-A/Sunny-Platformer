@@ -1,73 +1,127 @@
 package cchase.platformergame.screens;
 
 import cchase.platformergame.PlatformerGame;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
-
-public class MainMenuScreen extends ScreenAdapter
-{
+public class MainMenuScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private PlatformerGame game;
+
+    private Table mainMenuTable;
+    private Table optionsTable;
 
     public MainMenuScreen(final PlatformerGame game) {
         this.game = game;
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
-        stage.setDebugAll(true);
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        Table table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
+        mainMenuTable = new Table();
+        mainMenuTable.setFillParent(true);
+        stage.addActor(mainMenuTable);
+        stage.setDebugAll(true);
 
         Label titleLabel = new Label("Main Menu", skin, "title");
-        table.add(titleLabel).padBottom(50f).row();
+        mainMenuTable.add(titleLabel).padBottom(50f).row();
 
         TextButton playButton = new TextButton("Play", skin);
-        playButton.addListener(new ChangeListener()
-        {
+        playButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new GameScreen(game));
                 dispose();
             }
         });
-        table.add(playButton).padBottom(20f).row();
+        mainMenuTable.add(playButton).padBottom(20f).row();
 
         TextButton optionsButton = new TextButton("Options", skin);
         optionsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // Handle options screen transition here
+                showOptionsScreen();
             }
         });
-        table.add(optionsButton).padBottom(20f).row();
+        mainMenuTable.add(optionsButton).padBottom(20f).row();
 
         TextButton exitButton = new TextButton("Exit", skin);
         exitButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            public void changed(ChangeEvent event, Actor actor) {
                 Gdx.app.exit();
             }
         });
-        table.add(exitButton);
+        mainMenuTable.add(exitButton);
     }
 
-    /**
-     * show is called when the screen is created.
-     *
-     */
+    private void showOptionsScreen() {
+        optionsTable = new Table();
+        optionsTable.setFillParent(true);
+        stage.clear();
+        stage.addActor(optionsTable);
+
+        Label titleLabel = new Label("Options", skin, "title");
+        optionsTable.add(titleLabel).padBottom(50f).row();
+
+        Label resolutionLabel = new Label("Resolution:", skin);
+        optionsTable.add(resolutionLabel).padBottom(20f).row();
+
+        final SelectBox<String> resolutionSelectBox = new SelectBox<>(skin);
+        resolutionSelectBox.setItems("720x480","1280x720", "1920x1080", "2560x1440");
+        optionsTable.add(resolutionSelectBox).padBottom(20f).row();
+
+        TextButton applyButton = new TextButton("Apply", skin);
+        applyButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                String selectedResolution = resolutionSelectBox.getSelected();
+                String[] parts = selectedResolution.split("x");
+                int width = Integer.parseInt(parts[0]);
+                int height = Integer.parseInt(parts[1]);
+
+                int targetWidth = 1280;  // The target width for scaling
+                int targetHeight = 720;  // The target height for scaling
+
+                float scaleX = (float) width / targetWidth;
+                float scaleY = (float) height / targetHeight;
+
+                float scale = Math.min(scaleX, scaleY);
+
+                int scaledWidth = (int) (targetWidth * scale);
+                int scaledHeight = (int) (targetHeight * scale);
+
+                Gdx.graphics.setWindowedMode(scaledWidth, scaledHeight);
+                stage.getViewport().update(scaledWidth, scaledHeight, true);
+            }
+
+        });
+        optionsTable.add(applyButton).padBottom(20f).row();
+
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                showMainMenuScreen();
+            }
+        });
+        optionsTable.add(backButton);
+    }
+
+    private void showMainMenuScreen() {
+        stage.clear();
+        stage.addActor(mainMenuTable);
+    }
+
     @Override
-    public void show()
-    {
+    public void show() {
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -106,4 +160,6 @@ public class MainMenuScreen extends ScreenAdapter
         skin.dispose();
     }
 }
+
+
 
