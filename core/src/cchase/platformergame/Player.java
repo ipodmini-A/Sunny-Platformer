@@ -413,7 +413,7 @@ public class Player
      */
     public void wallRide()
     {
-        if (touchingWall && (rightMove || leftMove))
+        if ((touchingLeftWall && rightMove) || (touchingRightWall && leftMove))
         {
             System.out.println("wallride");
             wallRiding = true;
