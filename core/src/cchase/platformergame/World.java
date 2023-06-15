@@ -451,13 +451,18 @@ public class World
      */
     public boolean isCollidingWithEnemy()
     {
-        if (player.getBounds().overlaps(enemy.getBounds()))
+        try
         {
-            //System.out.println("Colliding with enemy");
-            return true;
+            if (player.getBounds().overlaps(enemy.getBounds()))
+            {
+                return true;
+            }
+            return false;
+        } catch (Exception e)
+        {
+            // Try catch is here to prevent null exceptions when a enemy is missing.
+            return false;
         }
-        //System.out.println("Not colliding with enemy");
-        return false;
     }
 
     public boolean isCollidingWithNPC()
@@ -489,28 +494,39 @@ public class World
         camera.position.x = player.getPosition().x + player.getWidth() / SCALE;
         camera.position.y = player.getPosition().y + player.getHeight() / SCALE;
 
-        //newCheckCollisions(delta);
-        checkCollisions(delta,player);
-        checkCollisions(delta,enemy);
-        checkCollisions(delta,nonPlayableCharacter);
         mapRenderer.setView(camera);
         mapRenderer.render();
 
         // NPC render
         nonPlayableCharacter.updateCamera(camera);
         nonPlayableCharacter.render(spriteBatch,delta);
-        isCollidingWithNPC();
-
-        // Enemy render
-        if (enemy.getHealth() > 0)
+        checkCollisions(delta,nonPlayableCharacter);
+        if (isCollidingWithNPC() && player.isDownMove())
         {
-            enemy.updateCamera(camera);
-            enemy.render(spriteBatch,delta);
+            nonPlayableCharacter.displayMessage(player);
         }
 
-        //System.out.println(player.isGrounded());
+        try
+        {
+            // Enemy render
+            if (enemy.getHealth() > 0)
+            {
+                enemy.updateCamera(camera);
+                enemy.render(spriteBatch, delta);
+                checkCollisions(delta, enemy);
+            } else
+            {
+                // Enemy is removed from the world.
+                enemy = null;
+            }
+        } catch (Exception e)
+        {
+            // Handle error
+        }
+
 
         // Player render
+        checkCollisions(delta,player);
         player.updateCamera(camera);
         player.render(spriteBatch,delta);
 
@@ -538,8 +554,15 @@ public class World
         //System.out.println("debugRender X:" + player.getPosition().x + " debugRender Y:" + player.getPosition().y);
 
         //Enemy Debug
-        debugRenderer.setColor(Color.CYAN);
-        debugRenderer.rect(enemy.getPosition().x, enemy.getPosition().y, enemy.getWidth(), enemy.getHeight());
+        try
+        {
+            debugRenderer.setColor(Color.CYAN);
+            debugRenderer.rect(enemy.getPosition().x, enemy.getPosition().y, enemy.getWidth(), enemy.getHeight());
+        } catch (Exception e)
+        {
+            // Handle enemy removal
+            // Try catch is here to handle when the enemy is missing
+        }
 
         //NPC Debug
         debugRenderer.setColor(Color.PURPLE);

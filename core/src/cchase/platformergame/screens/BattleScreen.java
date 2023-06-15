@@ -50,6 +50,7 @@ public class BattleScreen extends ScreenAdapter
     {
         batch.dispose();
         player.dispose();
+        enemy.dispose();
         battle.dispose();
     }
 

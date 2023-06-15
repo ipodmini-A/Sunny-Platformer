@@ -52,6 +52,14 @@ public class GameScreen extends ScreenAdapter
         multiplexer.addProcessor(new NewPlatformerInput(player));
         Gdx.input.setInputProcessor(multiplexer);
 
+        // Resetting players movement
+        player.setDownMove(false);
+        player.setLeftMove(false);
+        player.setRightMove(false);
+
+        // Resetting players velocity
+        player.setVelocity(0,0);
+
         firstSpawnCheck = true;
         super.show();
     }

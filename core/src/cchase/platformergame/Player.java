@@ -56,6 +56,7 @@ public class Player
     private boolean disableControls;
     boolean leftMove;
     boolean rightMove;
+    boolean downMove;
     boolean npcInteraction;
     enum State
     {
@@ -764,11 +765,20 @@ public class Player
         this.npcInteraction = npcInteraction;
     }
 
+    public boolean isDownMove()
+    {
+        return downMove;
+    }
+
+    public void setDownMove(boolean downMove)
+    {
+        this.downMove = downMove;
+    }
+
     public void dispose()
     {
         texture.dispose();
         textureAtlas.dispose();
-        spriteBatch.dispose();
     }
 }
 

@@ -61,10 +61,7 @@ public class NewPlatformerInput implements InputProcessor
                 }
                 break;
             case Input.Keys.DOWN:
-                if (p.isNpcInteraction())
-                {
-                    System.out.println("Hi!");
-                }
+                p.setDownMove(true);
                 break;
             case Input.Keys.X:
                 System.out.println("Dash");
@@ -88,6 +85,9 @@ public class NewPlatformerInput implements InputProcessor
             case Input.Keys.RIGHT:
                 p.setRightMove(false);
                 p.wallRiding = false;
+                break;
+            case Input.Keys.DOWN:
+                p.setDownMove(false);
                 break;
         }
         return true;
