@@ -33,7 +33,7 @@ public class World
     private static final float MAX_FALL = -500f;
     //private static final float JUMP_VELOCITY = 400f; // Adjust the jump velocity as needed
     private static final float SCALE = 2f;
-    private static final float FRICTION = 3f;
+    private static final float FRICTION = 5f;
     private final OrthographicCamera camera;
     protected Player player;
     public Enemy enemy;
@@ -184,7 +184,7 @@ public class World
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
                              */
-                            p.getVelocity().y = 0; // Stop the player's horizontal movement
+                            //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         } else
                         {
@@ -217,7 +217,7 @@ public class World
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
                              */
-                            p.getVelocity().y = 0; // Stop the player's horizontal movement
+                            //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
                         } else
                         {
