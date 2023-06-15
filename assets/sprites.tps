@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename></filename>
+                <filename>sprites.txt</filename>
             </struct>
         </map>
         <key>multiPackMode</key>
@@ -173,9 +173,11 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">Z:/gamePictures/jumping.PNG</key>
-            <key type="filename">Z:/gamePictures/running.PNG</key>
-            <key type="filename">Z:/gamePictures/standing.PNG</key>
+            <key type="filename">sprites/falling.PNG</key>
+            <key type="filename">sprites/jumping.PNG</key>
+            <key type="filename">sprites/running.PNG</key>
+            <key type="filename">sprites/standing.PNG</key>
+            <key type="filename">sprites/wallriding.PNG</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -197,9 +199,11 @@
             <struct type="SpriteSheet">
                 <key>files</key>
                 <array>
-                    <filename>Z:/gamePictures/jumping.PNG</filename>
-                    <filename>Z:/gamePictures/running.PNG</filename>
-                    <filename>Z:/gamePictures/standing.PNG</filename>
+                    <filename>sprites/falling.PNG</filename>
+                    <filename>sprites/jumping.PNG</filename>
+                    <filename>sprites/running.PNG</filename>
+                    <filename>sprites/standing.PNG</filename>
+                    <filename>sprites/wallriding.PNG</filename>
                 </array>
             </struct>
         </map>

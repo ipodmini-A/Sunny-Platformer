@@ -60,7 +60,7 @@ public class Player
     boolean npcInteraction;
     enum State
     {
-        STANDING, WALKING, JUMPING
+        STANDING, WALKING, JUMPING, FALLING, WALLRIDING
     }
     protected State state;
     protected boolean facingRight = false;
@@ -274,15 +274,24 @@ public class Player
         {
             facingRight = false;
         }
-        if (state == State.STANDING)
+
+        switch (state)
         {
-            drawSprite("standing", position.x, position.y);
-        } else if (state == State.WALKING)
-        {
-            drawSprite("running", position.x, position.y);
-        } else if ( state == State.JUMPING)
-        {
-            drawSprite("jumping", position.x, position.y);
+            case STANDING:
+                drawSprite("standing", position.x, position.y);
+                break;
+            case WALKING:
+                drawSprite("running", position.x, position.y);
+                break;
+            case JUMPING:
+                drawSprite("jumping", position.x, position.y);
+                break;
+            case FALLING:
+                drawSprite("falling", position.x, position.y);
+                break;
+            case WALLRIDING:
+                drawSprite("wallriding", position.x, position.y);
+                break;
         }
     }
 
@@ -469,6 +478,7 @@ public class Player
      * First thing that is checked is input, next bounding box and sprite is edited.
      * UPDATE: All code relating to collision was moved to World.java.
      * TODO: Refactor sprite so that it doesn't look horrible
+     * TODO: Convert to switch block. This is gross
      *
      * Afterwards, collision code is checked.
      *
@@ -484,16 +494,25 @@ public class Player
         // Update position based on velocity
         bounds.setPosition(position.x, position.y); // Update the bounds with the new position
         //position.add(velocity.x * delta, velocity.y * delta);
-        if (grounded && velocity.x == 0)
+        if (grounded) {
+            if (velocity.x == 0) {
+                state = State.STANDING;
+            } else {
+                state = State.WALKING;
+            }
+        } else if (!wallRiding)
         {
-            state = State.STANDING;
-        }else if (grounded && velocity.x != 0)
-        {
-            state = State.WALKING;
-        }else if (!grounded)
-        {
-            state = State.JUMPING;
+            if (velocity.y > 0) {
+                state = State.JUMPING;
+            } else if (velocity.y < 0) {
+                state = State.FALLING;
+            }
         }
+
+        if (touchingWall && wallRiding) {
+            state = State.WALLRIDING;
+        }
+
     }
 
     public void updateBattle(float delta, float scale)

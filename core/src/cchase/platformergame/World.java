@@ -45,7 +45,7 @@ public class World
     private MapLayer endGoalLayer;
     private MapObjects objects;
     private MapObjects endGameObject;
-    private boolean debug = true;
+    private boolean debug = false;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
