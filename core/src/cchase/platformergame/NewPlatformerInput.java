@@ -87,7 +87,7 @@ public class NewPlatformerInput implements InputProcessor
                 p.wallRiding = false;
                 break;
             case Input.Keys.DOWN:
-                p.setDownMove(false);
+                //p.setDownMove(false);
                 break;
         }
         return true;

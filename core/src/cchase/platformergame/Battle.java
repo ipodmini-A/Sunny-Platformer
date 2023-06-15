@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Timer;
 
 /**
  * Battle serves as the UI as well as controls the flow of battle.
@@ -78,13 +79,11 @@ public class Battle {
         attackButton.addListener(new ClickListener()
         {
             @Override
-            public void clicked(InputEvent event, float x, float y)
-            {
+            public void clicked(InputEvent event, float x, float y) {
                 // TODO: Implement attack logic
                 if (turn.equals(Turn.PLAYER_TURN))
                 {
-                    playerAttackOccurred();
-                    turn = Turn.ENEMY_TURN;
+                    schedulePlayerTurn(2); // Delay in seconds for player's attack (adjust as needed)
                 }
             }
         });
@@ -191,18 +190,49 @@ public class Battle {
 
     public void enemyTurn()
     {
-        enemyAttackOccured();
+        enemyAttackOccurred();
+    }
+
+    /**
+     * scedulePlayerTurn starts the players turn with a delay so that it's not done instantly
+     * @param delay how long to delay the turn
+     */
+    private void schedulePlayerTurn(float delay) {
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                // Code to execute after the delay
+                playerAttackOccurred();
+                scheduleEnemyTurn(2); // Delay in seconds for enemy's turn (adjust as needed)
+            }
+        }, delay);
+    }
+
+    /**
+     * scheduleEnemyTurn starts the enemy turn with a delay so that it's not done instantly
+     * @param delay how long to delay the turn
+     */
+    private void scheduleEnemyTurn(float delay) {
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                // Code to execute after the delay
+                turn = Turn.ENEMY_TURN;
+                enemyAttackOccurred();
+            }
+        }, delay);
     }
 
     public void playerAttackOccurred()
     {
+
         BattleCalculation.damageCalculation(player,enemy);
         // This is here to update the players health every time this method is called.
         playerStatusLabel.setText("Player HP: " + player.getHealth());
         enemyStatusLabel.setText("Enemy HP: " + enemy.getHealth());
     }
 
-    public void enemyAttackOccured()
+    public void enemyAttackOccurred()
     {
         BattleCalculation.damageCalculation(enemy, player);
         playerStatusLabel.setText("Player HP: " + player.getHealth());
