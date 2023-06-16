@@ -57,15 +57,20 @@ public class Player
     boolean leftMove;
     boolean rightMove;
     boolean downMove;
+    boolean displayMessage;
+    boolean nextMessage;
     boolean npcInteraction;
+
     enum State
     {
-        STANDING, WALKING, JUMPING, FALLING, WALLRIDING
+        STANDING, WALKING, JUMPING, FALLING, WALL_RIDING, LOOKING_DOWN, LOOKING_UP,TOUCHING_WALL
     }
     protected State state;
     protected boolean facingRight = false;
     protected boolean doubleJumped = false;
     protected boolean wallRiding = false;
+    protected boolean lookingUp;
+    protected boolean lookingDown;
 
     /**
      * Default constructor. The location of the player is set to 0,0
@@ -86,8 +91,12 @@ public class Player
         touchingRightWall = false;
         touchingWall = false;
         doubleJumped = false;
+        lookingUp = false;
+        lookingDown = false;
         flying = false;
         npcInteraction = false;
+        displayMessage = false;
+        nextMessage = false;
         disableControls = false;
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
@@ -214,28 +223,24 @@ public class Player
     }
     public void newInput()
     {
-        if (leftMove)
-        {
-            if (velocity.x >= -1 * MAX_VELOCITY)
-            {
-                velocity.x -= 10;
-            } else
-            {
-                velocity.x = -MAX_VELOCITY;
+        if (!disableControls) {
+            if (leftMove) {
+                if (velocity.x >= -1 * MAX_VELOCITY) {
+                    velocity.x -= 10;
+                } else {
+                    velocity.x = -MAX_VELOCITY;
+                }
             }
-        }
-        if (rightMove)
-        {
-            if (velocity.x <= MAX_VELOCITY)
-            {
-                velocity.x += 10;
-            } else
-            {
-                velocity.x = MAX_VELOCITY;
+            if (rightMove) {
+                if (velocity.x <= MAX_VELOCITY) {
+                    velocity.x += 10;
+                } else {
+                    velocity.x = MAX_VELOCITY;
+                }
             }
+            doubleJumpCheck();
+            wallRideCheck();
         }
-        doubleJumpCheck();
-        wallRideCheck();
 
     }
 
@@ -289,9 +294,17 @@ public class Player
             case FALLING:
                 drawSprite("falling", position.x, position.y);
                 break;
-            case WALLRIDING:
+            case WALL_RIDING:
                 drawSprite("wallriding", position.x, position.y);
                 break;
+            case LOOKING_UP:
+                drawSprite("lookingUp", position.x, position.y);
+                break;
+            case LOOKING_DOWN:
+                drawSprite("lookingDown", position.x, position.y);
+                break;
+            case TOUCHING_WALL:
+                drawSprite("touchingWall", position.x, position.y);
         }
     }
 
@@ -495,9 +508,16 @@ public class Player
         bounds.setPosition(position.x, position.y); // Update the bounds with the new position
         //position.add(velocity.x * delta, velocity.y * delta);
         if (grounded) {
-            if (velocity.x == 0) {
+            if (velocity.x == 0 && !lookingUp && !lookingDown) {
                 state = State.STANDING;
-            } else {
+            } else if (lookingUp && velocity.x == 0)
+            {
+                state = State.LOOKING_UP;
+            } else if (lookingDown && velocity.x == 0)
+            {
+                state = State.LOOKING_DOWN;
+            } else
+            {
                 state = State.WALKING;
             }
         } else if (!wallRiding)
@@ -510,7 +530,7 @@ public class Player
         }
 
         if (touchingWall && wallRiding) {
-            state = State.WALLRIDING;
+            state = State.WALL_RIDING;
         }
 
     }
@@ -792,6 +812,38 @@ public class Player
     public void setDownMove(boolean downMove)
     {
         this.downMove = downMove;
+    }
+
+    public boolean isNextMessage() {
+        return nextMessage;
+    }
+
+    public void setNextMessage(boolean nextMessage) {
+        this.nextMessage = nextMessage;
+    }
+
+    public boolean isDisplayMessage() {
+        return displayMessage;
+    }
+
+    public void setDisplayMessage(boolean displayMessage) {
+        this.displayMessage = displayMessage;
+    }
+
+    public boolean isLookingUp() {
+        return lookingUp;
+    }
+
+    public void setLookingUp(boolean lookingUp) {
+        this.lookingUp = lookingUp;
+    }
+
+    public boolean isLookingDown() {
+        return lookingDown;
+    }
+
+    public void setLookingDown(boolean lookingDown) {
+        this.lookingDown = lookingDown;
     }
 
     public void dispose()

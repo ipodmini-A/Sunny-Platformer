@@ -184,6 +184,7 @@ public class World
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
                              */
+                            System.out.println("Pushing wall");
                             //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         } else
@@ -217,6 +218,7 @@ public class World
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
                              */
+                            System.out.println("Pushing wall");
                             //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
                         } else
@@ -470,12 +472,12 @@ public class World
         if (player.getBounds().overlaps(nonPlayableCharacter.getBounds()))
         {
             //System.out.println("Colliding with NPC");
-            nonPlayableCharacter.setTouchingPLayer(true);
+            nonPlayableCharacter.setTouchingPlayer(true);
             player.setNpcInteraction(true);
             return true;
         }
         //System.out.println("Not colliding with NPC");
-        nonPlayableCharacter.setTouchingPLayer(false);
+        nonPlayableCharacter.setTouchingPlayer(false);
         player.setNpcInteraction(false);
         return false;
     }
@@ -501,9 +503,16 @@ public class World
         nonPlayableCharacter.updateCamera(camera);
         nonPlayableCharacter.render(spriteBatch,delta);
         checkCollisions(delta,nonPlayableCharacter);
-        if (isCollidingWithNPC() && player.isDownMove())
+        //System.out.println(player.nextMessage);
+        //System.out.println(isCollidingWithNPC());
+        if (isCollidingWithNPC() && player.isDisplayMessage())
         {
-            nonPlayableCharacter.displayMessage(player);
+            //System.out.println("NPC interaction");
+            nonPlayableCharacter.setDisplayMessage(true);
+        }
+        if (nonPlayableCharacter.isDisplayMessage())
+        {
+            nonPlayableCharacter.Message(player);
         }
 
         try

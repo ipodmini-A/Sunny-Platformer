@@ -1,5 +1,5 @@
 sprites.png
-size: 2000, 400
+size: 800, 1600
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
@@ -17,23 +17,44 @@ jumping
   orig: 400, 400
   offset: 0, 0
   index: -1
+lookingDown
+  rotate: false
+  xy: 0, 400
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
+lookingUp
+  rotate: false
+  xy: 400, 400
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
 running
   rotate: false
-  xy: 800, 0
+  xy: 0, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
 standing
   rotate: false
-  xy: 1200, 0
+  xy: 400, 800
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
+touchingWall
+  rotate: false
+  xy: 0, 1200
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
 wallriding
   rotate: false
-  xy: 1600, 0
+  xy: 400, 1200
   size: 400, 400
   orig: 400, 400
   offset: 0, 0

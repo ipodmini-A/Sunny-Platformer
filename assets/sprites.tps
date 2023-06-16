@@ -175,8 +175,11 @@
         <map type="IndividualSpriteSettingsMap">
             <key type="filename">sprites/falling.PNG</key>
             <key type="filename">sprites/jumping.PNG</key>
+            <key type="filename">sprites/lookingDown.PNG</key>
+            <key type="filename">sprites/lookingUp.PNG</key>
             <key type="filename">sprites/running.PNG</key>
             <key type="filename">sprites/standing.PNG</key>
+            <key type="filename">sprites/touchingWall.PNG</key>
             <key type="filename">sprites/wallriding.PNG</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -204,6 +207,9 @@
                     <filename>sprites/running.PNG</filename>
                     <filename>sprites/standing.PNG</filename>
                     <filename>sprites/wallriding.PNG</filename>
+                    <filename>sprites/lookingDown.PNG</filename>
+                    <filename>sprites/lookingUp.PNG</filename>
+                    <filename>sprites/touchingWall.PNG</filename>
                 </array>
             </struct>
         </map>

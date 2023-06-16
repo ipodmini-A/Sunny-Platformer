@@ -13,11 +13,22 @@ import com.badlogic.gdx.InputProcessor;
 public class NewPlatformerInput implements InputProcessor
 {
     Player p;
+
+    /**
+     * Constructor. Sets the inputProcessor to the player
+     * @param p Player
+     */
     public NewPlatformerInput(Player p)
     {
         this.p = p;
     }
 
+    /**
+     * Function that determines the logic when a key is pressed down
+     *
+     * @param keycode one of the constants in {@link Input.Keys}
+     * @return true or false depending on if a key was clicked.
+     */
     @Override
     public boolean keyDown(int keycode)
     {
@@ -44,6 +55,10 @@ public class NewPlatformerInput implements InputProcessor
                     p.jump();
                 }
                 break;
+            case Input.Keys.UP:
+                System.out.println("Up");
+                p.setLookingUp(true);
+                break;
             case Input.Keys.LEFT:
                 System.out.println("Left");
                 p.setLeftMove(true);
@@ -62,6 +77,21 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(true);
+                if (p.npcInteraction)
+                {
+                    if (p.isDisplayMessage())
+                    {
+                        p.setNextMessage(true);
+                    } else
+                    {
+                        p.setDisplayMessage(true);
+                    }
+                    //p.setNextMessage(true);
+                    //p.setNextMessage(false);
+                }else
+                {
+                    p.setLookingDown(true);
+                }
                 break;
             case Input.Keys.X:
                 System.out.println("Dash");
@@ -73,11 +103,19 @@ public class NewPlatformerInput implements InputProcessor
         return true;
     }
 
+    /**
+     * Determines the logic when a key is released.
+     * @param keycode one of the constants in {@link Input.Keys}
+     * @return true or false depending on the state of the key.
+     */
     @Override
     public boolean keyUp(int keycode)
     {
         switch (keycode)
         {
+            case Input.Keys.UP:
+                p.setLookingUp(false);
+                break;
             case Input.Keys.LEFT:
                 p.setLeftMove(false);
                 p.wallRiding = false;
@@ -87,7 +125,14 @@ public class NewPlatformerInput implements InputProcessor
                 p.wallRiding = false;
                 break;
             case Input.Keys.DOWN:
-                //p.setDownMove(false);
+                p.setDownMove(false);
+                if (p.npcInteraction)
+                {
+                    p.setNextMessage(false);
+                } else
+                {
+                    p.setLookingDown(false);
+                }
                 break;
         }
         return true;

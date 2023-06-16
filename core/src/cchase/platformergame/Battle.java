@@ -11,7 +11,14 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Timer;
 
 /**
- * Battle serves as the UI as well as controls the flow of battle.
+ * Battle.java
+ * Battle serves as the UI as well as controls the flow of battle
+ * The goal is to have something that looks similar to a traditional RPG battle system, such as Dragon Quest.
+ * Current Bugs: Pressing attack multiple times causes a overload which causes the game to think you won? This bug is crazy
+ * - Possible fix: Remove the menu when attack, defend or magic attack is clicked.
+ * TODO: Temporary Battle Sprite (Stance and attack sprite)
+ *  Implement Defending
+ *  Implement Magic system (requires some work)
  */
 public class Battle {
     private Player player;
@@ -34,13 +41,21 @@ public class Battle {
     }
     private Turn turn;
 
+    /**
+     * Constructor to Battle. A new stage is created with labels and buttons.
+     * Listeners are declared here.
+     * @param player the player character
+     * @param enemy the enemy
+     */
     public Battle(final Player player, final Enemy enemy)
     {
         this.player = player;
         this.enemy = enemy;
 
+        // New Sprite Batch so that the players and the enemies are fixed on screen and not using the worlds sprite batch.
         spriteBatch = new SpriteBatch();
 
+        // Stage creation
         stage = new Stage();
         stage.setDebugAll(true);
         Gdx.input.setInputProcessor(stage);
@@ -132,8 +147,10 @@ public class Battle {
         turn = Turn.PLAYER_TURN;
     }
 
-    float baseWidth = 1280f;
-    float baseHeight = 720f;
+    /**
+     * Renders the stage and the players on screen.
+     * @param delta float
+     */
     public void render(float delta)
     {
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -150,6 +167,10 @@ public class Battle {
         turnManager();
     }
 
+    /**
+     * Manages the players and enemies turns. Currently incomplete
+     * TODO: Incomplete. implement logic for player turn
+     */
     public void turnManager()
     {
         if (turn == Turn.ENEMY_TURN)
@@ -160,11 +181,6 @@ public class Battle {
         {
 
         }
-    }
-
-    public void dispose()
-    {
-        stage.dispose();
     }
 
     /**
@@ -183,11 +199,17 @@ public class Battle {
         }
     }
 
+    /**
+     * activates the method playerAttackOccurred. Not in use.
+     */
     public void playerTurn()
     {
         playerAttackOccurred();
     }
 
+    /**
+     * Activates the method enemyAttackOccurred.
+     */
     public void enemyTurn()
     {
         enemyAttackOccurred();
@@ -223,6 +245,10 @@ public class Battle {
         }, delay);
     }
 
+    /**
+     * Calculates damage against the enemy, and updates both the player's and enemy's health
+     * This uses damageCalculation which can be found within BattleCalculation
+     */
     public void playerAttackOccurred()
     {
 
@@ -232,12 +258,21 @@ public class Battle {
         enemyStatusLabel.setText("Enemy HP: " + enemy.getHealth());
     }
 
+    /**
+     * Calculates damage against the player and updates both the player's and enemy's health
+     * This uses damageCalculation which can be found within BattleCalculation
+     */
     public void enemyAttackOccurred()
     {
         BattleCalculation.damageCalculation(enemy, player);
         playerStatusLabel.setText("Player HP: " + player.getHealth());
         enemyStatusLabel.setText("Enemy HP: " + enemy.getHealth());
     }
+
+    /**
+     * Displays a move list depending on the category. Currently only used for the magic list.
+     * @param category
+     */
     private void showMovesList(String category)
     {
         movesGroup.clear();
@@ -282,6 +317,15 @@ public class Battle {
 
     private void hideMovesList() {
         movesScrollPane.setVisible(false);
+    }
+
+    /**
+     * Disposes the stage when the battle is done
+     * TODO: Probably needs to be reworked.
+     */
+    public void dispose()
+    {
+        stage.dispose();
     }
 }
 
