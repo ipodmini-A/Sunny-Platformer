@@ -77,7 +77,7 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(true);
-                if (p.npcInteraction)
+                if (p.isNpcInteraction())
                 {
                     if (p.isDisplayMessage())
                     {
@@ -126,7 +126,7 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(false);
-                if (p.npcInteraction)
+                if (p.isNpcInteraction())
                 {
                     p.setNextMessage(false);
                 } else

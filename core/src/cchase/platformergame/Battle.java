@@ -17,13 +17,13 @@ import com.badlogic.gdx.utils.Timer;
  * Current Bugs: Pressing attack multiple times causes a overload which causes the game to think you won? This bug is crazy
  * - Possible fix: Remove the menu when attack, defend or magic attack is clicked.
  * TODO: Temporary Battle Sprite (Stance and attack sprite)
- *  Implement Defending
  *  Implement Magic system (requires some work)
  */
 public class Battle {
     private Player player;
     private Enemy enemy;
     private Stage stage;
+    private Stage actorsHealth;
     private Skin skin;
     private Label playerStatusLabel;
     private Label enemyStatusLabel;
@@ -35,11 +35,19 @@ public class Battle {
     private boolean magicClicked;
     private SpriteBatch spriteBatch;
     private OrthographicCamera camera;
+    private boolean battleOccuring;
+    private boolean playerTurn;
+    private boolean enemyTurn;
     enum Turn
     {
         PLAYER_TURN, ENEMY_TURN
     }
+    enum TypeOfAttack
+    {
+        ATTACK, DEFENSE, MAGIC
+    }
     private Turn turn;
+    private TypeOfAttack typeOfAttack;
 
     /**
      * Constructor to Battle. A new stage is created with labels and buttons.
@@ -52,26 +60,20 @@ public class Battle {
         this.player = player;
         this.enemy = enemy;
 
+        battleOccuring = false;
+
         // New Sprite Batch so that the players and the enemies are fixed on screen and not using the worlds sprite batch.
         spriteBatch = new SpriteBatch();
 
         // Stage creation
         stage = new Stage();
+        actorsHealth = new Stage();
+
         stage.setDebugAll(true);
+        actorsHealth.setDebugAll(true);
         Gdx.input.setInputProcessor(stage);
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-
-        // Player status label
-        playerStatusLabel = new Label("Player HP: " + player.getHealth(), skin);
-        playerStatusLabel.setPosition(20, Gdx.graphics.getHeight() - playerStatusLabel.getHeight() - 20);
-        stage.addActor(playerStatusLabel);
-
-        // Enemy status label
-        enemyStatusLabel = new Label("Enemy HP: " + player.getHealth(), skin);
-        enemyStatusLabel.setPosition((Gdx.graphics.getWidth() - enemy.getWidth()) - 250
-                , Gdx.graphics.getHeight() - enemyStatusLabel.getHeight() - 20);
-        stage.addActor(enemyStatusLabel);
 
         // Buttons
         attackButton = new TextButton("Attack", skin);
@@ -98,11 +100,13 @@ public class Battle {
                 // TODO: Implement attack logic
                 if (turn.equals(Turn.PLAYER_TURN))
                 {
-                    schedulePlayerTurn(2); // Delay in seconds for player's attack (adjust as needed)
+                    typeOfAttack = TypeOfAttack.ATTACK;
+                    schedulePlayerTurn(2,typeOfAttack); // Delay in seconds for player's attack (adjust as needed)
                 }
             }
         });
 
+        // Magic logic
         magicButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -110,10 +114,16 @@ public class Battle {
             }
         });
 
+        // Defend logic
         defendButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // TODO: Implement defend logic
+                if (turn.equals(Turn.PLAYER_TURN))
+                {
+                    typeOfAttack = TypeOfAttack.DEFENSE;
+                    schedulePlayerTurn(1,typeOfAttack);
+                }
             }
         });
 
@@ -143,6 +153,16 @@ public class Battle {
         enemy.setPositionY(Gdx.graphics.getHeight() / 2f);
         System.out.println("Y Position set to: " + enemy.getPosition().y);
 
+        // Player status label
+        playerStatusLabel = new Label("Player HP: " + player.getHealth(), skin);
+        playerStatusLabel.setPosition(player.getPosition().x, player.getPosition().y - 100);
+        actorsHealth.addActor(playerStatusLabel);
+
+        // Enemy status label
+        enemyStatusLabel = new Label("Enemy HP: " + player.getHealth(), skin);
+        enemyStatusLabel.setPosition(enemy.getPosition().x, enemy.getPosition().y - 100);
+        actorsHealth.addActor(enemyStatusLabel);
+
         //Turn set
         turn = Turn.PLAYER_TURN;
     }
@@ -153,18 +173,46 @@ public class Battle {
      */
     public void render(float delta)
     {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0.1f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        stage.act();
-        stage.draw();
+        displayMoves();
+        actorsHealth.act();
+        actorsHealth.draw();
 
         float referenceScreenWidth = 1280;  // The reference screen width for scaling
         float scale = 3 * (Gdx.graphics.getWidth() / referenceScreenWidth);
 
-        player.renderBattle(spriteBatch, delta,scale);
+        update(delta);
+        player.renderBattle(spriteBatch, delta, scale);
         enemy.renderBattle(spriteBatch, delta, scale);
         turnManager();
+        System.out.println(playerTurn);
+    }
+
+    public void update(float delta)
+    {
+        if (playerTurn && typeOfAttack == TypeOfAttack.ATTACK)
+        {
+            player.state = Player.State.ATTACKING;
+        } else if ((playerTurn || enemyTurn) && typeOfAttack == TypeOfAttack.DEFENSE)
+        {
+            player.state = Player.State.DEFENDING;
+        }else
+        {
+            player.state = Player.State.STANCE;
+        }
+
+        if (enemyTurn && typeOfAttack == TypeOfAttack.ATTACK)
+        {
+            enemy.state = Enemy.State.ATTACKING;
+        } else if (enemyTurn && typeOfAttack == TypeOfAttack.DEFENSE)
+        {
+            enemy.state = Enemy.State.ATTACKING;
+        } else
+        {
+            enemy.state = Enemy.State.STANCE;
+        }
     }
 
     /**
@@ -175,7 +223,7 @@ public class Battle {
     {
         if (turn == Turn.ENEMY_TURN)
         {
-            enemyTurn();
+            //enemyTurn();
             turn = Turn.PLAYER_TURN;
         }else if (turn == Turn.PLAYER_TURN)
         {
@@ -199,6 +247,15 @@ public class Battle {
         }
     }
 
+    private void displayMoves()
+    {
+        if (!battleOccuring)
+        {
+            stage.act();
+            stage.draw();
+        }
+    }
+
     /**
      * activates the method playerAttackOccurred. Not in use.
      */
@@ -219,30 +276,69 @@ public class Battle {
      * scedulePlayerTurn starts the players turn with a delay so that it's not done instantly
      * @param delay how long to delay the turn
      */
-    private void schedulePlayerTurn(float delay) {
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                // Code to execute after the delay
-                playerAttackOccurred();
-                scheduleEnemyTurn(2); // Delay in seconds for enemy's turn (adjust as needed)
-            }
-        }, delay);
+    private void schedulePlayerTurn(float delay, final TypeOfAttack typeOfAttack)
+    {
+        battleOccuring = true;
+        playerTurn = true;
+        if (typeOfAttack == (TypeOfAttack.ATTACK))
+        {
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    // Code to execute after the delay
+                    playerAttackOccurred();
+                    scheduleEnemyTurn(2,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
+                    playerTurn = false;
+                }
+            }, delay);
+        } else if (typeOfAttack == (TypeOfAttack.DEFENSE))
+        {
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    // Code to execute after the delay
+                    scheduleEnemyTurn(2,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
+                    playerTurn = false;
+                }
+            }, delay);
+        }
     }
 
     /**
      * scheduleEnemyTurn starts the enemy turn with a delay so that it's not done instantly
+     * Depends on schedulePlayerTurn()
      * @param delay how long to delay the turn
      */
-    private void scheduleEnemyTurn(float delay) {
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                // Code to execute after the delay
-                turn = Turn.ENEMY_TURN;
-                enemyAttackOccurred();
-            }
-        }, delay);
+    private void scheduleEnemyTurn(float delay, TypeOfAttack typeOfAttack)
+    {
+        enemyTurn = true;
+        if (typeOfAttack == (TypeOfAttack.ATTACK))
+        {
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    // Code to execute after the delay
+                    turn = Turn.ENEMY_TURN;
+                    enemyAttackOccurred();
+                    enemyTurn = false;
+                    battleOccuring = false;
+                }
+            }, delay);
+        } else if (typeOfAttack == (TypeOfAttack.DEFENSE))
+        {
+            Timer.schedule(new Timer.Task()
+            {
+                @Override
+                public void run()
+                {
+                    // Code to execute after the delay
+                    turn = Turn.ENEMY_TURN;
+                    enemyAttackOccurred();
+                    enemyTurn = false;
+                    battleOccuring = false;
+                }
+            }, delay);
+        }
     }
 
     /**
@@ -264,7 +360,12 @@ public class Battle {
      */
     public void enemyAttackOccurred()
     {
-        BattleCalculation.damageCalculation(enemy, player);
+        if (typeOfAttack == TypeOfAttack.ATTACK) {
+            BattleCalculation.damageCalculation(enemy, player);
+        } else if (typeOfAttack == TypeOfAttack.DEFENSE)
+        {
+            BattleCalculation.defenseDamageCalculation(enemy, player);
+        }
         playerStatusLabel.setText("Player HP: " + player.getHealth());
         enemyStatusLabel.setText("Enemy HP: " + enemy.getHealth());
     }

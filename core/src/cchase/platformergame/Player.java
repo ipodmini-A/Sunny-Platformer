@@ -54,16 +54,16 @@ public class Player
     protected SpriteBatch spriteBatch;
     private TextureAtlas textureAtlas;
     private boolean disableControls;
-    boolean leftMove;
-    boolean rightMove;
-    boolean downMove;
-    boolean displayMessage;
-    boolean nextMessage;
-    boolean npcInteraction;
+    private boolean leftMove;
+    private boolean rightMove;
+    private boolean downMove;
+    private boolean displayMessage;
+    private boolean nextMessage;
+    private boolean npcInteraction;
 
     enum State
     {
-        STANDING, WALKING, JUMPING, FALLING, WALL_RIDING, LOOKING_DOWN, LOOKING_UP,TOUCHING_WALL
+        STANDING, WALKING, JUMPING, FALLING, WALL_RIDING, LOOKING_DOWN, LOOKING_UP,TOUCHING_WALL, ATTACKING, DEFENDING, STANCE
     }
     protected State state;
     protected boolean facingRight = false;
@@ -71,6 +71,8 @@ public class Player
     protected boolean wallRiding = false;
     protected boolean lookingUp;
     protected boolean lookingDown;
+    protected boolean attacking;
+    protected boolean defending;
 
     /**
      * Default constructor. The location of the player is set to 0,0
@@ -93,6 +95,8 @@ public class Player
         doubleJumped = false;
         lookingUp = false;
         lookingDown = false;
+        attacking = false;
+        defending = false;
         flying = false;
         npcInteraction = false;
         displayMessage = false;
@@ -305,6 +309,16 @@ public class Player
                 break;
             case TOUCHING_WALL:
                 drawSprite("touchingWall", position.x, position.y);
+                break;
+            case ATTACKING:
+                drawSprite("attacking", position.x, position.y);
+                break;
+            case DEFENDING:
+                drawSprite("defending", position.x, position.y);
+                break;
+            case STANCE:
+                drawSprite("stance", position.x, position.y);
+                break;
         }
     }
 
@@ -324,7 +338,19 @@ public class Player
         spriteBatch.begin();
         //input();
         updateBattle(delta, scale);
-        drawSpriteBattle("standing", position.x, position.y, scale);
+        //drawSpriteBattle("stance", position.x, position.y, scale);
+        switch(state)
+        {
+            case ATTACKING:
+                drawSpriteBattle("attacking", position.x, position.y,scale);
+                break;
+            case DEFENDING:
+                drawSpriteBattle("defending", position.x, position.y,scale);
+                break;
+            case STANCE:
+                drawSpriteBattle("stance", position.x, position.y,scale);
+                break;
+        }
         spriteBatch.end();
     }
 
@@ -545,7 +571,7 @@ public class Player
         // Update position based on velocity
         bounds.setPosition(position.x, position.y); // Update the bounds with the new position
         facingRight = false;
-        state = State.STANDING;
+        //state = State.STANDING;
     }
 
     /**
@@ -844,6 +870,30 @@ public class Player
 
     public void setLookingDown(boolean lookingDown) {
         this.lookingDown = lookingDown;
+    }
+
+    public boolean isLeftMove() {
+        return leftMove;
+    }
+
+    public boolean isRightMove() {
+        return rightMove;
+    }
+
+    public boolean isAttacking() {
+        return attacking;
+    }
+
+    public void setAttacking(boolean attacking) {
+        this.attacking = attacking;
+    }
+
+    public boolean isDefending() {
+        return defending;
+    }
+
+    public void setDefending(boolean defending) {
+        this.defending = defending;
     }
 
     public void dispose()

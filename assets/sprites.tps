@@ -173,11 +173,14 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">sprites/attacking.PNG</key>
+            <key type="filename">sprites/defending.PNG</key>
             <key type="filename">sprites/falling.PNG</key>
             <key type="filename">sprites/jumping.PNG</key>
             <key type="filename">sprites/lookingDown.PNG</key>
             <key type="filename">sprites/lookingUp.PNG</key>
             <key type="filename">sprites/running.PNG</key>
+            <key type="filename">sprites/stance.PNG</key>
             <key type="filename">sprites/standing.PNG</key>
             <key type="filename">sprites/touchingWall.PNG</key>
             <key type="filename">sprites/wallriding.PNG</key>
@@ -210,6 +213,9 @@
                     <filename>sprites/lookingDown.PNG</filename>
                     <filename>sprites/lookingUp.PNG</filename>
                     <filename>sprites/touchingWall.PNG</filename>
+                    <filename>sprites/attacking.PNG</filename>
+                    <filename>sprites/defending.PNG</filename>
+                    <filename>sprites/stance.PNG</filename>
                 </array>
             </struct>
         </map>

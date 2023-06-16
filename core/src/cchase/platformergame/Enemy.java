@@ -46,7 +46,7 @@ public class Enemy extends Player
         // Update position based on velocity
         bounds.setPosition(position.x, position.y); // Update the bounds with the new position
         facingRight = true;
-        state = State.STANDING;
+        //state = State.STANDING;
     }
 
     public void renderBattle(SpriteBatch spriteBatch, float delta, float scale)
@@ -56,8 +56,20 @@ public class Enemy extends Player
         spriteBatch.begin();
         //input();
         updateBattle(delta, scale);
-        drawSpriteBattle("standing", position.x, position.y, scale);
+        //drawSpriteBattle("standing", position.x, position.y, scale);
         //drawSprite("standing", position.x, position.y);
+        switch(state)
+        {
+            case ATTACKING:
+                drawSpriteBattle("attacking", position.x, position.y,scale);
+                break;
+            case DEFENDING:
+                drawSpriteBattle("defending", position.x, position.y,scale);
+                break;
+            case STANCE:
+                drawSpriteBattle("stance", position.x, position.y,scale);
+                break;
+        }
         spriteBatch.end();
         //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
         //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());

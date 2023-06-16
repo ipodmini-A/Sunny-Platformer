@@ -45,7 +45,7 @@ public class World
     private MapLayer endGoalLayer;
     private MapObjects objects;
     private MapObjects endGameObject;
-    private boolean debug = false;
+    private boolean debug = true;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -307,7 +307,7 @@ public class World
         }
 
 
-        if (!p.rightMove && !p.leftMove &&
+        if (!p.isRightMove() && !p.isLeftMove() &&
                 (p.getVelocity().x <= 2 && p.getVelocity().x > 0))
         {
             p.getVelocity().x = 0;

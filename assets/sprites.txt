@@ -1,18 +1,32 @@
 sprites.png
-size: 800, 1600
+size: 1600, 1200
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-falling
+attacking
   rotate: false
   xy: 0, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
-jumping
+defending
   rotate: false
   xy: 400, 0
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
+falling
+  rotate: false
+  xy: 800, 0
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
+jumping
+  rotate: false
+  xy: 1200, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
@@ -33,28 +47,35 @@ lookingUp
   index: -1
 running
   rotate: false
-  xy: 0, 800
+  xy: 800, 400
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
+stance
+  rotate: false
+  xy: 1200, 400
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
 standing
   rotate: false
-  xy: 400, 800
+  xy: 0, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
 touchingWall
   rotate: false
-  xy: 0, 1200
+  xy: 400, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
 wallriding
   rotate: false
-  xy: 400, 1200
+  xy: 800, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
