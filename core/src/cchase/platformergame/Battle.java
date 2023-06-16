@@ -101,7 +101,7 @@ public class Battle {
                 if (turn.equals(Turn.PLAYER_TURN))
                 {
                     typeOfAttack = TypeOfAttack.ATTACK;
-                    schedulePlayerTurn(2,typeOfAttack); // Delay in seconds for player's attack (adjust as needed)
+                    schedulePlayerTurn(1,typeOfAttack); // Delay in seconds for player's attack (adjust as needed)
                 }
             }
         });
@@ -122,7 +122,7 @@ public class Battle {
                 if (turn.equals(Turn.PLAYER_TURN))
                 {
                     typeOfAttack = TypeOfAttack.DEFENSE;
-                    schedulePlayerTurn(1,typeOfAttack);
+                    schedulePlayerTurn(0.5f,typeOfAttack);
                 }
             }
         });
@@ -287,7 +287,7 @@ public class Battle {
                 public void run() {
                     // Code to execute after the delay
                     playerAttackOccurred();
-                    scheduleEnemyTurn(2,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
+                    scheduleEnemyTurn(0.5f,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
                     playerTurn = false;
                 }
             }, delay);
@@ -297,7 +297,7 @@ public class Battle {
                 @Override
                 public void run() {
                     // Code to execute after the delay
-                    scheduleEnemyTurn(2,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
+                    scheduleEnemyTurn(0.3f,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
                     playerTurn = false;
                 }
             }, delay);
