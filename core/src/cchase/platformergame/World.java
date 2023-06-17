@@ -69,7 +69,7 @@ public class World
 
         // Camera creation
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 640, 360);
+        camera.setToOrtho(false, 480, 270);
         camera.update();
         //mapRenderer.setView(camera);
 
