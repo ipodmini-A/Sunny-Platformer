@@ -1,5 +1,6 @@
 package cchase.platformergame;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -16,8 +17,7 @@ import com.badlogic.gdx.utils.Timer;
  * The goal is to have something that looks similar to a traditional RPG battle system, such as Dragon Quest.
  * Current Bugs: Pressing attack multiple times causes a overload which causes the game to think you won? This bug is crazy
  * - Possible fix: Remove the menu when attack, defend or magic attack is clicked.
- * TODO: Temporary Battle Sprite (Stance and attack sprite)
- *  Implement Magic system (requires some work)
+ * TODO: Implement Magic system (requires some work)
  */
 public class Battle {
     private Player player;
@@ -48,6 +48,7 @@ public class Battle {
     }
     private Turn turn;
     private TypeOfAttack typeOfAttack;
+    public Music music;
 
     /**
      * Constructor to Battle. A new stage is created with labels and buttons.
@@ -68,6 +69,11 @@ public class Battle {
         // Stage creation
         stage = new Stage();
         actorsHealth = new Stage();
+
+        // Music creation
+        music = Gdx.audio.newMusic(Gdx.files.internal("sound/alt_version_I_guess.mp3"));
+        music.play();
+        music.setVolume(1.0f);
 
         stage.setDebugAll(true);
         actorsHealth.setDebugAll(true);
@@ -101,7 +107,7 @@ public class Battle {
                 if (turn.equals(Turn.PLAYER_TURN))
                 {
                     typeOfAttack = TypeOfAttack.ATTACK;
-                    schedulePlayerTurn(1,typeOfAttack); // Delay in seconds for player's attack (adjust as needed)
+                    schedulePlayerTurn(0.3f,typeOfAttack); // Delay in seconds for player's attack (adjust as needed)
                 }
             }
         });
@@ -187,7 +193,6 @@ public class Battle {
         player.renderBattle(spriteBatch, delta, scale);
         enemy.renderBattle(spriteBatch, delta, scale);
         turnManager();
-        System.out.println(playerTurn);
     }
 
     public void update(float delta)
@@ -276,7 +281,7 @@ public class Battle {
      * scedulePlayerTurn starts the players turn with a delay so that it's not done instantly
      * @param delay how long to delay the turn
      */
-    private void schedulePlayerTurn(float delay, final TypeOfAttack typeOfAttack)
+    private void schedulePlayerTurn(final float delay, final TypeOfAttack typeOfAttack)
     {
         battleOccuring = true;
         playerTurn = true;
@@ -287,7 +292,7 @@ public class Battle {
                 public void run() {
                     // Code to execute after the delay
                     playerAttackOccurred();
-                    scheduleEnemyTurn(0.5f,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
+                    scheduleEnemyTurn(delay,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
                     playerTurn = false;
                 }
             }, delay);
@@ -297,10 +302,10 @@ public class Battle {
                 @Override
                 public void run() {
                     // Code to execute after the delay
-                    scheduleEnemyTurn(0.3f,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
+                    scheduleEnemyTurn(delay,typeOfAttack); // Delay in seconds for enemy's turn (adjust as needed)
                     playerTurn = false;
                 }
-            }, delay);
+            }, 0.1f);
         }
     }
 

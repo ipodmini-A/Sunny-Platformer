@@ -1,6 +1,9 @@
 package cchase.platformergame;
 
+import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -50,9 +53,15 @@ public class World
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
     private SpriteBatch debugBatch;
+    public Music music;
 
     public World(Player player)
     {
+        // Sound creation
+        music = Gdx.audio.newMusic(Gdx.files.internal("sound/Tiny_Sheriff.mp3"));
+        music.play();
+        music.setVolume(1.0f);
+
         // Map creation
         loader = new TmxMapLoader();
         map = loader.load("test1.tmx");
@@ -598,5 +607,6 @@ public class World
         player.dispose();
         enemy.dispose();
         spriteBatch.dispose();
+        music.dispose();
     }
 }

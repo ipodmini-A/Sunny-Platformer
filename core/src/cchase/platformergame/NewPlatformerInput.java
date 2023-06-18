@@ -52,7 +52,7 @@ public class NewPlatformerInput implements InputProcessor
                 else // Jump input
                 {
                     System.out.println("Jump");
-                    p.jump();
+                    p.setJump(true);
                 }
                 break;
             case Input.Keys.UP:
@@ -113,6 +113,9 @@ public class NewPlatformerInput implements InputProcessor
     {
         switch (keycode)
         {
+            case Input.Keys.Z:
+                p.setJump(false);
+                break;
             case Input.Keys.UP:
                 p.setLookingUp(false);
                 break;

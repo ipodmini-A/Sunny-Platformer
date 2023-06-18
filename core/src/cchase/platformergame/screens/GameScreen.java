@@ -60,6 +60,8 @@ public class GameScreen extends ScreenAdapter
         // Resetting players velocity
         player.setVelocity(0,0);
 
+        world.music.play();
+
         firstSpawnCheck = true;
         super.show();
     }
@@ -101,6 +103,7 @@ public class GameScreen extends ScreenAdapter
             System.out.println(GameState.lastRecordedPlayerX);
             GameState.lastRecordedPlayerY = player.getPosition().y;
             System.out.println(GameState.lastRecordedPlayerY);
+            world.music.pause();
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 
@@ -112,6 +115,7 @@ public class GameScreen extends ScreenAdapter
             System.out.println(GameState.lastRecordedPlayerX);
             GameState.lastRecordedPlayerY = player.getPosition().y;
             System.out.println(GameState.lastRecordedPlayerY);
+            world.music.pause();
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 

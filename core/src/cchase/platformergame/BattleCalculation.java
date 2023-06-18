@@ -47,6 +47,12 @@ public class BattleCalculation
         defender.setHealth(defender.getHealth() - damage);
     }
 
+    /**
+     * Random damage check. If the player rolls a 0, a crit is performed.
+     * the roll is determined on randomCheck.
+     *
+     * @return damage multiplier
+     */
     public static int randomCheck()
     {
         int randomCheck = rand.nextInt(10);

@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.HashMap;
 
+
 /**
  * Player.java
  * Contains code that controls various aspects of the player. This class is intended to extend from, making various
@@ -57,6 +58,7 @@ public class Player
     private boolean leftMove;
     private boolean rightMove;
     private boolean downMove;
+    private boolean jump;
     private boolean displayMessage;
     private boolean nextMessage;
     private boolean npcInteraction;
@@ -216,13 +218,12 @@ public class Player
                 // Causing wacky behavior.
                 //doubleJump();
             }
+            if (grounded)
+            {
+                doubleJumped = false;
+            }
+            flying = platformerInput.isDebugPressed();
         }
-
-        if (grounded)
-        {
-            doubleJumped = false;
-        }
-        flying = platformerInput.isDebugPressed();
         //System.out.println(flying);
     }
     public void newInput()
@@ -241,6 +242,10 @@ public class Player
                 } else {
                     velocity.x = MAX_VELOCITY;
                 }
+            }
+            if (jump)
+            {
+                jump();
             }
             doubleJumpCheck();
             wallRideCheck();
@@ -359,10 +364,11 @@ public class Player
      */
     public void jump()
     {
-        if (grounded)
+        if (grounded && jump)
         {
             position.y += 1;
             velocity.y = JUMP_VELOCITY;
+            jump = false;
             //grounded = false;
         }
     }
@@ -894,6 +900,14 @@ public class Player
 
     public void setDefending(boolean defending) {
         this.defending = defending;
+    }
+
+    public boolean isJump() {
+        return jump;
+    }
+
+    public void setJump(boolean jump) {
+        this.jump = jump;
     }
 
     public void dispose()

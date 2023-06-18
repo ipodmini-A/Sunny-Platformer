@@ -38,10 +38,12 @@ public class BattleScreen extends ScreenAdapter
 
         if (Gdx.input.isKeyPressed(Input.Keys.P))
         {
+            battle.music.stop();
             game.setScreen(GameState.gameScreen);
         }
         if (enemy.getHealth() <= 0)
         {
+            battle.music.stop();
             game.setScreen(GameState.gameScreen);
         }
     }
