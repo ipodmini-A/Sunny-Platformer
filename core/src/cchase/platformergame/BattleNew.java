@@ -552,20 +552,28 @@ public class BattleNew
         }
     }
 
-    private void executeTurn()
-    {
-        Iterator actionsList = actions.iterator();
+    private void executeTurn() {
         if (actions.size() == player.length)
         {
             hideMovesList();
             hideActionMenu();
             hideEnemyList();
-            while (actionsList.hasNext())
-            {
-                actions.pop().performMoves();
+
+            for (int i = 0; i < actions.size(); i++) {
+                final Action action = actions.get(i);
+
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        action.performMoves();
+                    }
+                }, i * 0.5f); // Delay each action by i * 0.5 seconds
             }
+
+            actions.clear();
         }
     }
+
 
 
     /**
