@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Timer;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -41,7 +40,7 @@ public class BattleNew
     private boolean abilityClicked;
     private SpriteBatch spriteBatch;
     private OrthographicCamera camera;
-    private boolean battleOccuring;
+    private boolean battleOccurring;
     private boolean playerTurn;
     private boolean enemyTurn;
     enum Turn
@@ -76,9 +75,6 @@ public class BattleNew
             this.typeOfAttack = typeOfAttack;
         }
 
-
-
-
         public void performMoves()
         {
 
@@ -88,6 +84,7 @@ public class BattleNew
                     public void run() {
                         // Code to execute after the delay
                         attacker.state = Player.State.ATTACKING;
+                        System.out.println("Currently moving: " + attacker.getName());
                         BattleCalculation.damageCalculation(attacker, defender);
                         // This is here to update the players health every time this method is called.
                     }
@@ -113,7 +110,7 @@ public class BattleNew
 
 
         // Battle occuring set to false
-        battleOccuring = false;
+        battleOccurring = false;
 
         // New sprite batch
         spriteBatch = new SpriteBatch();
@@ -206,6 +203,7 @@ public class BattleNew
                 if (turn.equals(Turn.PLAYER_TURN))
                 {
                     typeOfAttack[currentCharacterTurn] = TypeOfAttack.ATTACK;
+                    attackClicked = false;
                     toggleEnemyList();
                 }
             }
@@ -322,6 +320,7 @@ public class BattleNew
 
         currentCharacterTurnLabel.setText(currentCharacterTurn + "");
         healthBarUpdate();
+        turnManager();
 
     }
 
@@ -330,13 +329,7 @@ public class BattleNew
 
         for (int i = 0; i < player.length; i++)
         {
-            if (playerTurn && typeOfAttack[index] == TypeOfAttack.ATTACK)
-            {
-                player[i].state = Player.State.ATTACKING;
-            } else if ((playerTurn || enemyTurn) && typeOfAttack[index] == TypeOfAttack.DEFENSE)
-            {
-                player[i].state = Player.State.DEFENDING;
-            }else
+            if (!battleOccurring)
             {
                 player[i].state = Player.State.STANCE;
             }
@@ -357,6 +350,21 @@ public class BattleNew
             {
                 enemy[i].state = Enemy.State.STANCE;
             }
+        }
+    }
+
+    /**
+     * This might be broken. Currently, manages turns.
+     */
+    public void turnManager()
+    {
+        if (turn == BattleNew.Turn.ENEMY_TURN)
+        {
+            //enemyTurn();
+            turn = BattleNew.Turn.PLAYER_TURN;
+        }else if (turn == BattleNew.Turn.PLAYER_TURN)
+        {
+
         }
     }
 
@@ -529,9 +537,11 @@ public class BattleNew
         if (currentCharacterTurn == 0)
         {
             preActionMenu = true;
+            actions.clear();
         } else if (currentCharacterTurn >= 1)
         {
             currentCharacterTurn--;
+            actions.pop();
         }
     }
 
@@ -552,12 +562,14 @@ public class BattleNew
         }
     }
 
+    private int actionsPerformed = 0;
     private void executeTurn() {
         if (actions.size() == player.length)
         {
             hideMovesList();
             hideActionMenu();
             hideEnemyList();
+            battleOccurring = true;
 
             for (int i = 0; i < actions.size(); i++) {
                 final Action action = actions.get(i);
@@ -566,14 +578,22 @@ public class BattleNew
                     @Override
                     public void run() {
                         action.performMoves();
+                        actionsPerformed++;
                     }
                 }, i * 0.5f); // Delay each action by i * 0.5 seconds
             }
 
             actions.clear();
         }
-    }
 
+        if (currentCharacterTurn == player.length && actionsPerformed == player.length)
+        {
+            battleOccurring = false;
+            showPreActionMenu();
+            actionsPerformed = 0;
+            currentCharacterTurn = 0;
+        }
+    }
 
 
     /**

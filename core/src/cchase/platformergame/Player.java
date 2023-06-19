@@ -30,6 +30,7 @@ public class Player
     protected static final float SPRITE_WIDTH = 60f + 10f; // I don't know why adding 10 makes the sprite the proper size.
     protected static float MAX_VELOCITY = 200f;
     private static float SCALE = 1f;
+    protected String name;
     // Player stats
     protected float health;
     protected float attack;
@@ -87,6 +88,7 @@ public class Player
         position = new Vector2(0,0);
         velocity = new Vector2();
         grounded = false;
+        name = "CHARACTER";
         health = 100f;
         attack = 10f;
         defense = 10f;
@@ -135,6 +137,7 @@ public class Player
         position = new Vector2(x, y);
         velocity = new Vector2();
         grounded = false;
+        name = "CHARACTER";
         health = 100f;
         attack = 10f;
         defense = 10f;
@@ -776,6 +779,14 @@ public class Player
     {
         if(leftMove && t) leftMove = false;
         rightMove = t;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public float getAttack()
