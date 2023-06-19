@@ -40,6 +40,7 @@ public class NonPlayableCharacter extends Player {
     public void Message(Player player)
     {
         this.player = player;
+        player.getVelocity().x = 0;
         if (touchingPlayer)
         {
             if (messageIndex >= messageList.size())
