@@ -12,7 +12,7 @@ public class BattleScreen extends ScreenAdapter
 {
     PlatformerGame game;
     private SpriteBatch batch;
-    Player[] player = new Player[2];
+    Player[] player = new Player[3];
     Enemy[] enemy = new Enemy[2];
     BattleNew battle;
 
@@ -23,8 +23,12 @@ public class BattleScreen extends ScreenAdapter
         this.player[0] = player;
         this.player[1] = new Player();
         this.player[1].setName("Player 2");
+        this.player[2] = new Player();
+        this.player[2].setName("Player 3");
         this.enemy[0] = enemy;
         this.enemy[1] = new Enemy(0,0);
+        this.enemy[0].setName("Enemy 1");
+        this.enemy[1].setName("Enemy 2");
         battle = new BattleNew(this.player,this.enemy);
     }
 
@@ -45,11 +49,14 @@ public class BattleScreen extends ScreenAdapter
             game.setScreen(GameState.gameScreen);
         }
 
+        /*
         if (enemy[0].getHealth() <= 0)
         {
             //battle.music.stop();
             game.setScreen(GameState.gameScreen);
         }
+
+         */
 
     }
 

@@ -18,7 +18,6 @@ public class BattleOld {
     Player player;
     Enemy enemy;
     PlatformerInput platformerInput;
-
     ShapeRenderer shapeRenderer;
     SpriteBatch spriteBatch;
     private Rectangle rectangle;

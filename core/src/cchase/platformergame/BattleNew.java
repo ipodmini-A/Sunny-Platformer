@@ -14,12 +14,19 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Timer;
 
 import java.util.LinkedList;
+import java.util.Random;
 
 /**
  * BattleNew.java
  * BattleNew serves as the UI as well as controls the flow of battle.
- * Currently this is being made to replace Battle.java and allow features such as multiple characters and selecting which
+ * Currently, this is being made to replace Battle.java and allow features such as multiple characters and selecting which
  * enemy you would like to attack.
+ * TODO: Implement Magic and Abilities,
+ *      Implement a flag for when all enemies are defeated.
+ *      Put code in place to test for status (Maybe have a enum called status, with things like dead?)
+ *      With above, when the player is dead, they shouldn't be able to do anything, or be attacked... It would be funny though
+ *
+ * Current Bugs:
  */
 public class BattleNew
 {
@@ -43,6 +50,7 @@ public class BattleNew
     private boolean battleOccurring;
     private boolean playerTurn;
     private boolean enemyTurn;
+    private Random rand;
     enum Turn
     {
         PLAYER_TURN, ENEMY_TURN
@@ -61,6 +69,7 @@ public class BattleNew
     private int currentEnemyTurn;
     private float scale;
     private LinkedList<Action> actions;
+    private boolean allEnemiesDefeated;
 
     public class Action
     {
@@ -75,29 +84,56 @@ public class BattleNew
             this.typeOfAttack = typeOfAttack;
         }
 
+        public Action(Player defender, TypeOfAttack typeOfAttack)
+        {
+            this.defender = defender;
+            this.typeOfAttack = typeOfAttack;
+        }
+
         public void performMoves()
         {
 
-            if (typeOfAttack == (BattleNew.TypeOfAttack.ATTACK)) {
-                Timer.schedule(new Timer.Task() {
-                    @Override
-                    public void run() {
-                        // Code to execute after the delay
-                        attacker.state = Player.State.ATTACKING;
-                        System.out.println("Currently moving: " + attacker.getName());
-                        BattleCalculation.damageCalculation(attacker, defender);
-                        // This is here to update the players health every time this method is called.
-                    }
-                }, 0.1f);
+            if (typeOfAttack == (BattleNew.TypeOfAttack.ATTACK))
+            {
+                if (defender.defending)
+                {
+                    Timer.schedule(new Timer.Task() {
+                        @Override
+                        public void run() {
+                            // Code to execute after the delay
+                            attacker.state = Player.State.ATTACKING;
+                            defender.state = Player.State.DEFENDING;
+                            System.out.println("Currently moving: " + attacker.getName());
+                            BattleCalculation.defenseDamageCalculation(attacker,defender);
+                            defender.setDefending(false);
+                            // This is here to update the players health every time this method is called.
+                        }
+                    }, 0.5f);
+
+                } else
+                {
+                    Timer.schedule(new Timer.Task() {
+                        @Override
+                        public void run() {
+                            // Code to execute after the delay
+                            attacker.state = Player.State.ATTACKING;
+                            System.out.println("Currently moving: " + attacker.getName());
+                            BattleCalculation.damageCalculation(attacker, defender);
+                            // This is here to update the players health every time this method is called.
+                        }
+                    }, 0.5f);
+                }
             } else if (typeOfAttack == (BattleNew.TypeOfAttack.DEFENSE))
             {
                 Timer.schedule(new Timer.Task() {
                     @Override
                     public void run() {
                         defender.state = Player.State.DEFENDING;
-                        BattleCalculation.defenseDamageCalculation(attacker,defender);
+                        //attacker.state = Player.State.ATTACKING;
+                        System.out.println("Currently moving: " + defender.getName());
+                        //BattleCalculation.defenseDamageCalculation(attacker,defender);
                     }
-                }, 0.1f);
+                }, 0.5f);
             }
         }
     }
@@ -108,6 +144,8 @@ public class BattleNew
         this.player = player;
         this.enemy = enemy;
 
+        // Random initializer
+        rand = new Random();
 
         // Battle occuring set to false
         battleOccurring = false;
@@ -159,20 +197,20 @@ public class BattleNew
         abilityButton.setPosition(20,50);
         backButton.setPosition(20,20);
 
-        currentCharacterTurnLabel = new Label(currentCharacterTurnLabel + "",skin);
+        currentCharacterTurnLabel = new Label(String.valueOf(currentCharacterTurnLabel),skin);
 
         // Moves list
         movesGroup = new VerticalGroup();
         movesScrollPane = new ScrollPane(movesGroup, skin);
         movesScrollPane.setSize(300,200);
-        movesScrollPane.setPosition(Gdx.graphics.getWidth() - movesScrollPane.getWidth() - 20, 20);
+        movesScrollPane.setPosition(fightButton.getX() + 100, 20);
         movesScrollPane.setVisible(false);
 
         // enemy List
         enemyGroup = new VerticalGroup();
         enemyScrollPane = new ScrollPane(enemyGroup, skin);
         enemyScrollPane.setSize(300,200);
-        enemyScrollPane.setPosition(Gdx.graphics.getWidth() - movesScrollPane.getWidth() - 20, 20);
+        enemyScrollPane.setPosition(fightButton.getX() + 100, 20);
         enemyScrollPane.setVisible(false);
 
         fightButton.addListener(new ClickListener()
@@ -215,6 +253,13 @@ public class BattleNew
             public void clicked(InputEvent event, float x, float y)
             {
                 // TODO: Implement defend logic
+                if (turn.equals(Turn.PLAYER_TURN))
+                {
+                    typeOfAttack[currentCharacterTurn] = TypeOfAttack.DEFENSE;
+                    actions.add(new Action(player[currentCharacterTurn],TypeOfAttack.DEFENSE));
+                    player[currentCharacterTurn].setDefending(true);
+                    currentCharacterTurn++;
+                }
             }
         });
 
@@ -314,19 +359,26 @@ public class BattleNew
         }
         for (int i = 0; i < enemy.length; i++)
         {
-            enemySpriteUpdate(delta, i);
-            enemy[i].renderBattle(spriteBatch,delta,scale);
+            {
+                if (enemy[i].getHealth() >= 0)
+                {
+                    enemySpriteUpdate(delta, i);
+                    enemy[i].renderBattle(spriteBatch, delta, scale);
+                }
+            }
         }
 
         currentCharacterTurnLabel.setText(currentCharacterTurn + "");
+        //enemyKilled();
         healthBarUpdate();
         turnManager();
+
+        setEnemyStatus();
 
     }
 
     public void playerSpriteUpdate(float delta, int index)
     {
-
         for (int i = 0; i < player.length; i++)
         {
             if (!battleOccurring)
@@ -340,13 +392,7 @@ public class BattleNew
     {
         for (int i = 0; i < enemy.length; i++)
         {
-            if (enemyTurn && enemyTypeOfAttack[index] == TypeOfAttack.ATTACK)
-            {
-                enemy[i].state = Enemy.State.ATTACKING;
-            } else if (enemyTurn && enemyTypeOfAttack[index] == TypeOfAttack.DEFENSE)
-            {
-                enemy[i].state = Enemy.State.ATTACKING;
-            } else
+            if (!battleOccurring)
             {
                 enemy[i].state = Enemy.State.STANCE;
             }
@@ -380,7 +426,26 @@ public class BattleNew
             showActionMenu();
         }
 
+        if (battleOccurring)
+        {
+            hideActionMenu();
+            hidePreActionMenu();
+            hideMovesList();
+            hideEnemyList();
+        }
+
         executeTurn();
+    }
+
+    public void enemyTurnExecution()
+    {
+        for (int i = 0; i < enemy.length; i++)
+        {
+            int choice = rand.nextInt(2);
+            actions.add(new Action(enemy[i],player[choice], TypeOfAttack.ATTACK));
+            System.out.println("Added enemy");
+        }
+
     }
 
 
@@ -490,20 +555,25 @@ public class BattleNew
 
         for (int i = 0; i < enemy.length; i++)
         {
-            enemyButton[i] = new TextButton("AAAAA", skin);
-            enemyGroup.addActor(enemyButton[i]);
-            final int finalI = i;
-            enemyButton[i].addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    // TODO: add selection logic
-                    actions.add(new Action(player[currentCharacterTurn],enemy[finalI],TypeOfAttack.ATTACK));
-                    currentCharacterTurn++;
-                    hideEnemyList();
-                    actionMenu = false;
-                    showActionMenu();
-                }
-            });
+            if (!(enemy[i].getHealth() <= 0))
+            {
+                enemyButton[i] = new TextButton(enemy[i].getName(), skin);
+                enemyGroup.addActor(enemyButton[i]);
+                final int finalI = i;
+                enemyButton[i].addListener(new ClickListener()
+                {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y)
+                    {
+                        // TODO: add selection logic
+                        actions.add(new Action(player[currentCharacterTurn], enemy[finalI], TypeOfAttack.ATTACK));
+                        currentCharacterTurn++;
+                        hideEnemyList();
+                        actionMenu = false;
+                        showActionMenu();
+                    }
+                });
+            }
         }
     }
 
@@ -556,24 +626,34 @@ public class BattleNew
         {
             playerStatusLabel[i].setText("Player HP: " + player[i].getHealth());
         }
-        for (int i = 0; i < player.length; i++)
+        for (int i = 0; i < enemy.length; i++)
         {
-            enemyStatusLabel[i].setText("Enemy HP: " + enemy[i].getHealth());
+            if (!(enemy[i].status == Player.Status.DEAD))
+            {
+                enemyStatusLabel[i].setText("Enemy HP: " + enemy[i].getHealth());
+            }else
+            {
+                enemyStatusLabel[i].setVisible(false);
+            }
         }
     }
 
     private int actionsPerformed = 0;
-    private void executeTurn() {
-        if (actions.size() == player.length)
+    private int actionListSize = 0;
+    private void executeTurn()
+    {
+
+        if (currentCharacterTurn == player.length)
         {
-            hideMovesList();
-            hideActionMenu();
-            hideEnemyList();
+            System.out.println("Hiding menu");
+            actionListSize = actions.size();
+            currentCharacterTurn = 0;
+            enemyTurnExecution();
             battleOccurring = true;
+            int i = 0;
 
-            for (int i = 0; i < actions.size(); i++) {
+            for (; i < actions.size(); i++) {
                 final Action action = actions.get(i);
-
                 Timer.schedule(new Timer.Task() {
                     @Override
                     public void run() {
@@ -582,19 +662,59 @@ public class BattleNew
                     }
                 }, i * 0.5f); // Delay each action by i * 0.5 seconds
             }
-
             actions.clear();
         }
 
-        if (currentCharacterTurn == player.length && actionsPerformed == player.length)
+        if (actionsPerformed == actionListSize && battleOccurring)
         {
-            battleOccurring = false;
-            showPreActionMenu();
+            System.out.println("Starting reset timer");
             actionsPerformed = 0;
-            currentCharacterTurn = 0;
+            Timer.schedule(new Timer.Task()
+            {
+                @Override
+                public void run() {
+                    battleOccurring = false;
+                    actionMenu = false;
+                    showPreActionMenu();
+                    //actionsPerformed = 0;
+                    actionListSize = 0;
+                    currentCharacterTurn = 0;
+                    typeOfAttack = new TypeOfAttack[player.length];
+                }
+            }, 1f * actionListSize); // Delay each action by i * 0.5 seconds
         }
     }
 
+    public void enemyKilled()
+    {
+        for (int i = 0; i < enemy.length; i++)
+        {
+            
+            if (enemy[i].getHealth() <= 0)
+            {
+                enemy[i].dispose();
+                enemy[i] = null;
+            }
+        }
+    }
+
+    public void setEnemyStatus()
+    {
+        for (int i = 0; i < enemy.length; i++)
+        {
+            if (enemy[i].getHealth() <= 0)
+            {
+                enemy[i].setStatus(Player.Status.DEAD);
+            }
+        }
+    }
+
+    /*
+    public boolean playerWon()
+    {
+
+    }
+     */
 
     /**
      * Disposes the stage when the battle is done

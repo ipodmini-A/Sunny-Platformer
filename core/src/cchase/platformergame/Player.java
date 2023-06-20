@@ -68,7 +68,12 @@ public class Player
     {
         STANDING, WALKING, JUMPING, FALLING, WALL_RIDING, LOOKING_DOWN, LOOKING_UP,TOUCHING_WALL, ATTACKING, DEFENDING, STANCE
     }
+    enum Status
+    {
+        DEAD
+    }
     protected State state;
+    protected Status status;
     protected boolean facingRight = false;
     protected boolean doubleJumped = false;
     protected boolean wallRiding = false;
@@ -921,10 +926,31 @@ public class Player
         this.jump = jump;
     }
 
+    public State getState()
+    {
+        return state;
+    }
+
+    public void setState(State state)
+    {
+        this.state = state;
+    }
+
+    public Status getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(Status status)
+    {
+        this.status = status;
+    }
+
     public void dispose()
     {
         texture.dispose();
         textureAtlas.dispose();
+        //spriteBatch.dispose();
     }
 }
 
