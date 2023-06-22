@@ -35,6 +35,7 @@ public class BattleNew
     private Stage stage;
     private Skin skin;
     private Label[] playerStatusLabel;
+    private ProgressBar[] playerHealthBar;
     private Label[] enemyStatusLabel;
     private Label currentCharacterTurnLabel;
     private TextButton fightButton, fleeButton, attackButton, defendButton, magicButton, abilityButton, backButton;
@@ -92,49 +93,71 @@ public class BattleNew
 
         public void performMoves()
         {
-
-            if (typeOfAttack == (BattleNew.TypeOfAttack.ATTACK))
-            {
-                if (defender.defending)
+            //if (attacker.status != Player.Status.DEAD)
+            //{
+                if (typeOfAttack == (BattleNew.TypeOfAttack.ATTACK))
                 {
-                    Timer.schedule(new Timer.Task() {
+                    if (defender.defending)
+                    {
+                        Timer.schedule(new Timer.Task()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                // Code to execute after the delay
+                                attacker.state = Player.State.ATTACKING;
+                                defender.state = Player.State.DEFENDING;
+                                System.out.println("Currently moving: " + attacker.getName());
+                                BattleCalculation.defenseDamageCalculation(attacker, defender);
+                                defender.setDefending(false);
+                                // This is here to update the players health every time this method is called.
+                            }
+                        }, 0.5f);
+
+                    } else
+                    {
+                        Timer.schedule(new Timer.Task()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                // Code to execute after the delay
+                                attacker.state = Player.State.ATTACKING;
+                                System.out.println("Currently moving: " + attacker.getName());
+                                if (defender.status == Player.Status.DEAD)
+                                {
+                                    int indexOfNextEnemy = 0;
+                                    for (int i = 0; i < enemy.length; i++)
+                                    {
+                                        if (enemy[i].status != Player.Status.DEAD)
+                                        {
+                                            indexOfNextEnemy = i;
+                                        }
+                                    }
+                                    BattleCalculation.damageCalculation(attacker, enemy[indexOfNextEnemy]);
+                                } else
+                                {
+                                    BattleCalculation.damageCalculation(attacker, defender);
+                                }
+                                // This is here to update the players health every time this method is called.
+                            }
+                        }, 0.5f);
+                    }
+                } else if (typeOfAttack == (BattleNew.TypeOfAttack.DEFENSE))
+                {
+                    Timer.schedule(new Timer.Task()
+                    {
                         @Override
-                        public void run() {
-                            // Code to execute after the delay
-                            attacker.state = Player.State.ATTACKING;
+                        public void run()
+                        {
                             defender.state = Player.State.DEFENDING;
-                            System.out.println("Currently moving: " + attacker.getName());
-                            BattleCalculation.defenseDamageCalculation(attacker,defender);
-                            defender.setDefending(false);
-                            // This is here to update the players health every time this method is called.
-                        }
-                    }, 0.5f);
-
-                } else
-                {
-                    Timer.schedule(new Timer.Task() {
-                        @Override
-                        public void run() {
-                            // Code to execute after the delay
-                            attacker.state = Player.State.ATTACKING;
-                            System.out.println("Currently moving: " + attacker.getName());
-                            BattleCalculation.damageCalculation(attacker, defender);
-                            // This is here to update the players health every time this method is called.
+                            //attacker.state = Player.State.ATTACKING;
+                            System.out.println("Currently moving: " + defender.getName());
+                            //BattleCalculation.defenseDamageCalculation(attacker,defender);
                         }
                     }, 0.5f);
                 }
-            } else if (typeOfAttack == (BattleNew.TypeOfAttack.DEFENSE))
-            {
-                Timer.schedule(new Timer.Task() {
-                    @Override
-                    public void run() {
-                        defender.state = Player.State.DEFENDING;
-                        //attacker.state = Player.State.ATTACKING;
-                        System.out.println("Currently moving: " + defender.getName());
-                        //BattleCalculation.defenseDamageCalculation(attacker,defender);
-                    }
-                }, 0.5f);
-            }
+            //}
         }
     }
 
@@ -162,6 +185,7 @@ public class BattleNew
 
         // Array initialization
         playerStatusLabel = new Label[player.length];
+        playerHealthBar = new ProgressBar[player.length];
         enemyStatusLabel = new Label[enemy.length];
         typeOfAttack = new TypeOfAttack[player.length];
         enemyTypeOfAttack = new TypeOfAttack[enemy.length];
@@ -202,14 +226,14 @@ public class BattleNew
         // Moves list
         movesGroup = new VerticalGroup();
         movesScrollPane = new ScrollPane(movesGroup, skin);
-        movesScrollPane.setSize(300,200);
+        movesScrollPane.setSize(300,Gdx.graphics.getHeight() / 5f);
         movesScrollPane.setPosition(fightButton.getX() + 100, 20);
         movesScrollPane.setVisible(false);
 
         // enemy List
         enemyGroup = new VerticalGroup();
         enemyScrollPane = new ScrollPane(enemyGroup, skin);
-        enemyScrollPane.setSize(300,200);
+        enemyScrollPane.setSize(300,Gdx.graphics.getHeight() / 5f);
         enemyScrollPane.setPosition(fightButton.getX() + 100, 20);
         enemyScrollPane.setVisible(false);
 
@@ -311,14 +335,16 @@ public class BattleNew
             player[i].updateCamera(camera);
             player[i].setPositionX(Gdx.graphics.getWidth() / 60f);
             System.out.println("X Position set to: " + player[i].getPosition().x);
-            player[i].setPositionY(Gdx.graphics.getHeight() / playerLocationY);
+            player[i].setPositionY((Gdx.graphics.getHeight() / -16f) + (playerLocationY * 240f));
             System.out.println("Y Position set to: " + player[i].getPosition().y);
 
-            playerStatusLabel[i] = new Label("Player HP: " + player[i].getHealth(), skin);
-            playerStatusLabel[i].setPosition(player[i].getPosition().x, player[i].getPosition().y - 100);
+            playerStatusLabel[i] = new Label(player[i].getName() + " HP: " + player[i].getHealth(), skin);
+            playerStatusLabel[i].setPosition(Gdx.graphics.getWidth() / 2f, (Gdx.graphics.getHeight() / 4f) - (playerLocationY * 80f));
+            //playerHealthBar[i] = new ProgressBar(0f, player[i].health, 1f, false, skin);
+            //playerHealthBar[i].setPosition(movesScrollPane.getX() + movesGroup.getMaxWidth(), movesGroup.getY() * playerLocationY);
             stage.addActor(playerStatusLabel[i]);
 
-            playerLocationY -= 0.4f;
+            playerLocationY -= 0.5f;
         }
         float enemyLocationY = 2f;
         for (int i = 0; i < enemy.length; i++)
@@ -354,7 +380,7 @@ public class BattleNew
 
         for (int i = 0; i < player.length; i++)
         {
-            playerSpriteUpdate(delta, i);
+            playerSpriteUpdate();
             player[i].renderBattle(spriteBatch,delta, scale);
         }
         for (int i = 0; i < enemy.length; i++)
@@ -362,7 +388,7 @@ public class BattleNew
             {
                 if (enemy[i].getHealth() >= 0)
                 {
-                    enemySpriteUpdate(delta, i);
+                    enemySpriteUpdate();
                     enemy[i].renderBattle(spriteBatch, delta, scale);
                 }
             }
@@ -377,7 +403,10 @@ public class BattleNew
 
     }
 
-    public void playerSpriteUpdate(float delta, int index)
+    /**
+     * Updates the players sprites. Uses a for loop and as long as a battle isn't occuring, their state is set to stance.
+     */
+    public void playerSpriteUpdate()
     {
         for (int i = 0; i < player.length; i++)
         {
@@ -388,7 +417,10 @@ public class BattleNew
         }
     }
 
-    public void enemySpriteUpdate(float delta, int index)
+    /**
+     * Updates the enemies sprites. Uses a for loop and as long as a battle isn't occurring, their state is set to stance
+     */
+    public void enemySpriteUpdate()
     {
         for (int i = 0; i < enemy.length; i++)
         {
@@ -401,6 +433,7 @@ public class BattleNew
 
     /**
      * This might be broken. Currently, manages turns.
+     *
      */
     public void turnManager()
     {
@@ -414,6 +447,10 @@ public class BattleNew
         }
     }
 
+    /**
+     * Assists with how the menus are handled within battle. Does not account for everything, such as the magic or
+     * abilities list.
+     */
     public void menuFlow()
     {
         if (preActionMenu)
@@ -437,18 +474,29 @@ public class BattleNew
         executeTurn();
     }
 
+    /**
+     * Lines up the enemies moves to be added to the action linked list. If the enemy isn't dead, they attack a random
+     * player.
+     * TODO: The enemy can attack from the dead.
+     */
     public void enemyTurnExecution()
     {
         for (int i = 0; i < enemy.length; i++)
         {
-            int choice = rand.nextInt(2);
-            actions.add(new Action(enemy[i],player[choice], TypeOfAttack.ATTACK));
-            System.out.println("Added enemy");
+            if (enemy[i].status != Enemy.Status.DEAD)
+            {
+                int choice = rand.nextInt(2);
+                actions.add(new Action(enemy[i], player[choice], TypeOfAttack.ATTACK));
+                System.out.println("Added enemy");
+            }
         }
 
     }
 
-
+    /**
+     * Shows the pre action menu. Sets the fight and flee button to true. In the event of where the back button is pressed
+     * to go back to the pre action menu, the moves and enemy scroll pane are set to false as well.
+     */
     private void showPreActionMenu()
     {
         fightButton.setVisible(true);
@@ -457,12 +505,18 @@ public class BattleNew
         enemyScrollPane.setVisible(false);
     }
 
+    /**
+     * Hides the pre action menu. Sets the fight and flee button to false
+     */
     private void hidePreActionMenu()
     {
         fightButton.setVisible(false);
         fleeButton.setVisible(false);
     }
 
+    /**
+     * Shows the action menu. Sets the attack, defend, magic, ability, and back button to true
+     */
     private void showActionMenu()
     {
         attackButton.setVisible(true);
@@ -472,6 +526,9 @@ public class BattleNew
         backButton.setVisible(true);
     }
 
+    /**
+     * Hides the action menu. Sets the attack, defend, magic, ability, and back button to false
+     */
     private void hideActionMenu()
     {
         attackButton.setVisible(false);
@@ -481,6 +538,9 @@ public class BattleNew
         backButton.setVisible(false);
     }
 
+    /**
+     * Toggles the magic moves
+     */
     private void toggleMagicMoves()
     {
         magicClicked = !magicClicked;
@@ -495,8 +555,8 @@ public class BattleNew
     }
 
     /**
-     * Displays a move list depending on the category. Currently only used for the magic list.
-     * @param category
+     * Displays a move list depending on the category.
+     * @param category "Magic" for the magic list. "Abilities" for the ability list.
      */
     private void showMovesList(String category)
     {
@@ -540,10 +600,17 @@ public class BattleNew
         movesScrollPane.setVisible(true);
     }
 
+    /**
+     * Hides the moves list.
+     */
     private void hideMovesList() {
         movesScrollPane.setVisible(false);
     }
 
+    /**
+     * Shows the enemy list.
+     * Uses a for loop to generate buttons to correspond with the enemies.
+     */
     private void showEnemyList()
     {
         enemyGroup.clear();
@@ -577,11 +644,17 @@ public class BattleNew
         }
     }
 
+    /**
+     * Hides the enemy list.
+     */
     private void hideEnemyList()
     {
         enemyScrollPane.setVisible(false);
     }
 
+    /**
+     * Toggles the enemy list.
+     */
     private void toggleEnemyList()
     {
         attackClicked = !attackClicked;
@@ -595,6 +668,10 @@ public class BattleNew
         }
     }
 
+    /**
+     * Controls the logic of the fight button. If its clicked the pre action menu is set to false and hidden, while the
+     * action menu is set to true and shown
+     */
     private void fightButton()
     {
         preActionMenu = false;
@@ -602,6 +679,11 @@ public class BattleNew
         currentCharacterTurn = 0;
     }
 
+    /**
+     * Controls the logic of the back button. If the current character turn is 0, pre actions menu is shown.
+     * if the current character turn equals or is over 1, the current character turn goes back one, and that action is removed
+     * from the linked list.
+     */
     private void backButton()
     {
         if (currentCharacterTurn == 0)
@@ -615,16 +697,22 @@ public class BattleNew
         }
     }
 
+    /**
+     * Not in use.
+     */
     private void attackMenu()
     {
 
     }
 
+    /**
+     * Updates the health bar. Health bar won't show if the enemy status is set to dead.
+     */
     private void healthBarUpdate()
     {
         for (int i = 0; i < player.length; i++)
         {
-            playerStatusLabel[i].setText("Player HP: " + player[i].getHealth());
+            playerStatusLabel[i].setText(player[i].getName() + " HP: " + player[i].getHealth());
         }
         for (int i = 0; i < enemy.length; i++)
         {
@@ -640,6 +728,15 @@ public class BattleNew
 
     private int actionsPerformed = 0;
     private int actionListSize = 0;
+
+    /**
+     * Method that executes once all players have selected an action. It checks to see if the currentCharacterTurn is
+     * equal to the player length, which then executes the turn.
+     * Once actionsPerformed equals the size of the Linked List and the battleOccuring boolean is set to false, the
+     * pre action menu is called to be shown.
+     * TODO: See if it is possible to refactor
+     *  Currently if a players status is set to dead, they can still move.
+     */
     private void executeTurn()
     {
 
@@ -698,6 +795,10 @@ public class BattleNew
         }
     }
 
+    /**
+     * Sets the enemy status to dead if their health is at or below 0.
+     * To be placed within a render method so that health status is constantly updated.
+     */
     public void setEnemyStatus()
     {
         for (int i = 0; i < enemy.length; i++)
@@ -709,12 +810,25 @@ public class BattleNew
         }
     }
 
-    /*
+
+    /**
+     * Returns true if the player has won yet.
+     * This method runs through each enemy to see if all of them are alive.
+     * @return true if all enemy objects status is reported dead, false if otherwise
+     */
     public boolean playerWon()
     {
-
+        boolean allEnemiesKilled = true;
+        for (int i = 0; i < enemy.length; i++)
+        {
+            if (enemy[i].getStatus() != Player.Status.DEAD)
+            {
+                allEnemiesKilled = false;
+            }
+        }
+        return allEnemiesKilled;
     }
-     */
+
 
     /**
      * Disposes the stage when the battle is done

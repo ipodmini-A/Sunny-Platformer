@@ -49,14 +49,12 @@ public class BattleScreen extends ScreenAdapter
             game.setScreen(GameState.gameScreen);
         }
 
-        /*
-        if (enemy[0].getHealth() <= 0)
+
+        if (battle.playerWon())
         {
             //battle.music.stop();
             game.setScreen(GameState.gameScreen);
         }
-
-         */
 
     }
 
