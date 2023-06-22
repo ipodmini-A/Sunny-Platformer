@@ -27,6 +27,8 @@ import java.util.Random;
  *      With above, when the player is dead, they shouldn't be able to do anything, or be attacked... It would be funny though
  *
  * Current Bugs:
+ * Null pointer exception is caused when the player selects Defend on all characters. Code that is causing the bug is currently
+ * commented out
  */
 public class BattleNew
 {
@@ -68,7 +70,7 @@ public class BattleNew
     private boolean actionMenu;
     private int currentCharacterTurn;
     private int currentEnemyTurn;
-    private float scale;
+    private float spriteScale;
     private LinkedList<Action> actions;
     private boolean allEnemiesDefeated;
 
@@ -93,71 +95,88 @@ public class BattleNew
 
         public void performMoves()
         {
-            //if (attacker.status != Player.Status.DEAD)
-            //{
-                if (typeOfAttack == (BattleNew.TypeOfAttack.ATTACK))
+            try
+            {
+                if (attacker.status != Player.Status.DEAD)
                 {
-                    if (defender.defending)
+                    if (typeOfAttack == (BattleNew.TypeOfAttack.ATTACK))
                     {
-                        Timer.schedule(new Timer.Task()
+                        if (defender.defending)
                         {
-                            @Override
-                            public void run()
+                            Timer.schedule(new Timer.Task()
                             {
-                                // Code to execute after the delay
-                                attacker.state = Player.State.ATTACKING;
-                                defender.state = Player.State.DEFENDING;
-                                System.out.println("Currently moving: " + attacker.getName());
-                                BattleCalculation.defenseDamageCalculation(attacker, defender);
-                                defender.setDefending(false);
-                                // This is here to update the players health every time this method is called.
-                            }
-                        }, 0.5f);
-
-                    } else
-                    {
-                        Timer.schedule(new Timer.Task()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                // Code to execute after the delay
-                                attacker.state = Player.State.ATTACKING;
-                                System.out.println("Currently moving: " + attacker.getName());
-                                if (defender.status == Player.Status.DEAD)
+                                @Override
+                                public void run()
                                 {
-                                    int indexOfNextEnemy = 0;
-                                    for (int i = 0; i < enemy.length; i++)
-                                    {
-                                        if (enemy[i].status != Player.Status.DEAD)
-                                        {
-                                            indexOfNextEnemy = i;
-                                        }
-                                    }
-                                    BattleCalculation.damageCalculation(attacker, enemy[indexOfNextEnemy]);
-                                } else
-                                {
-                                    BattleCalculation.damageCalculation(attacker, defender);
+                                    // Code to execute after the delay
+                                    attacker.state = Player.State.ATTACKING;
+                                    defender.state = Player.State.DEFENDING;
+                                    System.out.println("Currently moving: " + attacker.getName());
+                                    BattleCalculation.defenseDamageCalculation(attacker, defender);
+                                    defender.setDefending(false);
+                                    // This is here to update the players health every time this method is called.
                                 }
-                                // This is here to update the players health every time this method is called.
+                            }, 0.5f);
+
+                        } else
+                        {
+                            Timer.schedule(new Timer.Task()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    // Code to execute after the delay
+                                    attacker.state = Player.State.ATTACKING;
+                                    System.out.println("Currently moving: " + attacker.getName());
+                                    if (defender.status == Player.Status.DEAD)
+                                    {
+                                        int indexOfNextEnemy = 0;
+                                        for (int i = 0; i < enemy.length; i++)
+                                        {
+                                            if (enemy[i].status != Player.Status.DEAD)
+                                            {
+                                                indexOfNextEnemy = i;
+                                            }
+                                        }
+                                        BattleCalculation.damageCalculation(attacker, enemy[indexOfNextEnemy]);
+                                    } else
+                                    {
+                                        BattleCalculation.damageCalculation(attacker, defender);
+                                    }
+                                    // This is here to update the players health every time this method is called.
+                                }
+                            }, 0.5f);
+                        }
+                    } else if (typeOfAttack == (BattleNew.TypeOfAttack.DEFENSE))
+                    {
+                        Timer.schedule(new Timer.Task()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                defender.state = Player.State.DEFENDING;
+                                //attacker.state = Player.State.ATTACKING;
+                                System.out.println("Currently moving: " + defender.getName());
+                                //BattleCalculation.defenseDamageCalculation(attacker,defender);
                             }
                         }, 0.5f);
                     }
-                } else if (typeOfAttack == (BattleNew.TypeOfAttack.DEFENSE))
-                {
-                    Timer.schedule(new Timer.Task()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            defender.state = Player.State.DEFENDING;
-                            //attacker.state = Player.State.ATTACKING;
-                            System.out.println("Currently moving: " + defender.getName());
-                            //BattleCalculation.defenseDamageCalculation(attacker,defender);
-                        }
-                    }, 0.5f);
                 }
-            //}
+            } catch (Exception e)
+            {
+                // The assumption is that if there is no attacker, then this player must be defending.
+                Timer.schedule(new Timer.Task()
+                {
+                    @Override
+                    public void run()
+                    {
+                        defender.state = Player.State.DEFENDING;
+                        //attacker.state = Player.State.ATTACKING;
+                        System.out.println("Currently moving: " + defender.getName());
+                        //BattleCalculation.defenseDamageCalculation(attacker,defender);
+                    }
+                }, 0.5f);
+            }
         }
     }
 
@@ -176,8 +195,8 @@ public class BattleNew
         // New sprite batch
         spriteBatch = new SpriteBatch();
 
-        float referenceScreenWidth = 1280;  // The reference screen width for scaling
-        scale = 1.8f * (Gdx.graphics.getWidth() / referenceScreenWidth);
+        float referenceScreenWidth = 1280f;  // The reference screen width for scaling
+        spriteScale = 1.8f * (Gdx.graphics.getWidth() / referenceScreenWidth);
 
         // Stage creation
         stage = new Stage();
@@ -329,13 +348,15 @@ public class BattleNew
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0); // Set the camera position to the center of the screen
         camera.update();
+
+        //TODO: Fix scaling issue when playing at higher resolutions
         float playerLocationY = 2f;
         for (int i = 0; i < player.length; i++)
         {
             player[i].updateCamera(camera);
             player[i].setPositionX(Gdx.graphics.getWidth() / 60f);
             System.out.println("X Position set to: " + player[i].getPosition().x);
-            player[i].setPositionY((Gdx.graphics.getHeight() / -16f) + (playerLocationY * 240f));
+            player[i].setPositionY(((Gdx.graphics.getHeight() / 720f) / -16f) + (playerLocationY * (Gdx.graphics.getHeight() / 720f) * 240f));
             System.out.println("Y Position set to: " + player[i].getPosition().y);
 
             playerStatusLabel[i] = new Label(player[i].getName() + " HP: " + player[i].getHealth(), skin);
@@ -381,7 +402,7 @@ public class BattleNew
         for (int i = 0; i < player.length; i++)
         {
             playerSpriteUpdate();
-            player[i].renderBattle(spriteBatch,delta, scale);
+            player[i].renderBattle(spriteBatch,delta, spriteScale);
         }
         for (int i = 0; i < enemy.length; i++)
         {
@@ -389,7 +410,7 @@ public class BattleNew
                 if (enemy[i].getHealth() >= 0)
                 {
                     enemySpriteUpdate();
-                    enemy[i].renderBattle(spriteBatch, delta, scale);
+                    enemy[i].renderBattle(spriteBatch, delta, spriteScale);
                 }
             }
         }
