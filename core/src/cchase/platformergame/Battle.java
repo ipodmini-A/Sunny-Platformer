@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.Timer;
  * Current Bugs: Pressing attack multiple times causes a overload which causes the game to think you won? This bug is crazy
  * - Possible fix: Remove the menu when attack, defend or magic attack is clicked.
  * TODO: Implement Magic system (requires some work)
+ * @deprecated
  */
 public class Battle {
     private Player player;

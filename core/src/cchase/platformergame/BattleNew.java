@@ -73,6 +73,7 @@ public class BattleNew
     private float spriteScale;
     private LinkedList<Action> actions;
     private boolean allEnemiesDefeated;
+    private boolean playerFled = false;
 
     public class Action
     {
@@ -272,6 +273,8 @@ public class BattleNew
             public void clicked(InputEvent event, float x, float y)
             {
                 // TODO: Implement flee logic
+                playerFled = true;
+
             }
         });
 
@@ -848,6 +851,11 @@ public class BattleNew
             }
         }
         return allEnemiesKilled;
+    }
+
+    public boolean playerFlee()
+    {
+        return playerFled;
     }
 
 

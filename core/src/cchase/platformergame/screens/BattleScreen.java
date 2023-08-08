@@ -56,6 +56,11 @@ public class BattleScreen extends ScreenAdapter
             game.setScreen(GameState.gameScreen);
         }
 
+        if (battle.playerFlee())
+        {
+            game.setScreen(GameState.gameScreen);
+        }
+
     }
 
     public void dispose()
