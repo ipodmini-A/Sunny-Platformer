@@ -2,8 +2,11 @@ package cchase.platformergame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Array;
 
 import java.util.LinkedList;
 
@@ -20,7 +23,9 @@ public class NonPlayableCharacter extends Player {
 
     public NonPlayableCharacter(float x, float y)
     {
-        super(x, y);
+        super(x, y); // NonPlayableCharacter inherits everything from Player.java at first. Things such as sprites.
+        textureAtlas = new TextureAtlas("npcsprites.txt");
+        addSprites();
         font = new BitmapFont();
         shapeRenderer = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
@@ -85,6 +90,16 @@ public class NonPlayableCharacter extends Player {
         displayMessage = false;
     }
 
+    private void addSprites()
+    {
+        Array<TextureAtlas.AtlasRegion> regions = textureAtlas.getRegions();
+
+        for (TextureAtlas.AtlasRegion region : regions) {
+            Sprite sprite = textureAtlas.createSprite(region.name);
+
+            sprites.put(region.name, sprite);
+        }
+    }
 
 
     public void displayMessage(boolean active)

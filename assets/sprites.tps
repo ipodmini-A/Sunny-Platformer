@@ -208,7 +208,6 @@
                     <filename>sprites/falling.PNG</filename>
                     <filename>sprites/jumping.PNG</filename>
                     <filename>sprites/running.PNG</filename>
-                    <filename>sprites/standing.PNG</filename>
                     <filename>sprites/wallriding.PNG</filename>
                     <filename>sprites/lookingDown.PNG</filename>
                     <filename>sprites/lookingUp.PNG</filename>
@@ -216,6 +215,7 @@
                     <filename>sprites/attacking.PNG</filename>
                     <filename>sprites/defending.PNG</filename>
                     <filename>sprites/stance.PNG</filename>
+                    <filename>sprites/standing.PNG</filename>
                 </array>
             </struct>
         </map>

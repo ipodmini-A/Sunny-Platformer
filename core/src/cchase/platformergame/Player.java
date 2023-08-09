@@ -40,7 +40,7 @@ public class Player
     protected float speed;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
 
-    private Texture texture;
+    protected Texture texture;
     protected Sprite sprite;
     protected Vector2 position;
     protected Vector2 velocity;
@@ -54,7 +54,7 @@ public class Player
     private boolean flying;
     protected OrthographicCamera camera;
     protected SpriteBatch spriteBatch;
-    private TextureAtlas textureAtlas;
+    protected TextureAtlas textureAtlas;
     private boolean disableControls;
     private boolean leftMove;
     private boolean rightMove;
