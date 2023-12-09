@@ -1,0 +1,12 @@
+npcsprites.png
+size: 400, 400
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+standing
+  rotate: false
+  xy: 0, 0
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
