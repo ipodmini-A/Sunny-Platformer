@@ -41,6 +41,7 @@ public class World
     protected Player player;
     public Enemy enemy;
     public  NonPlayableCharacter nonPlayableCharacter;
+    public Item item;
     private final TiledMap map;
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -91,6 +92,9 @@ public class World
 
         //NPC creation
         nonPlayableCharacter = new NonPlayableCharacter(300 , 300);
+
+        //Item creation
+        item = new Item(300,300);
 
         // Debug
         debugRenderer = new ShapeRenderer();
@@ -491,6 +495,11 @@ public class World
         return false;
     }
 
+    public void isItemTouchingFloor()
+    {
+
+    }
+
 
     /**
      * Map renderer
@@ -547,6 +556,9 @@ public class World
         checkCollisions(delta,player);
         player.updateCamera(camera);
         player.render(spriteBatch,delta);
+
+        // Item render
+        item.render(spriteBatch,camera,delta);
 
         // render debug rectangles
         if (debug) renderDebug();

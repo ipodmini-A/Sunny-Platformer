@@ -298,7 +298,6 @@ public class BattleNew
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                // TODO: Implement defend logic
                 if (turn.equals(Turn.PLAYER_TURN))
                 {
                     typeOfAttack[currentCharacterTurn] = TypeOfAttack.DEFENSE;

@@ -57,8 +57,8 @@ public class NonPlayableCharacter extends Player {
             {
                 disablePlayerInput();
                 shapeRenderer.setAutoShapeType(true);
-                shapeRenderer.begin();
-                shapeRenderer.setColor(1, 0, 0, 0.5f);
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(255f / 255f, 165f / 255f, 0, 0.1f);
                 shapeRenderer.rect(100, 100, Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 4f);
                 shapeRenderer.end();
 
