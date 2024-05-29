@@ -10,8 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 /**
  * Item.java
  *
- * This class is supposed to show objects in the world.
- * TODO: Give objects collision and gravity
+ * This class serves as a platform to be extended from to create collectable objects
  * TODO: Allow the player to collect objects
  */
 public class Item
@@ -29,50 +28,79 @@ public class Item
     private boolean touchingCeiling;
     protected Rectangle bounds;
     protected boolean grounded;
+    protected boolean collected;
     protected Vector2 velocity;
-    float x;
-    float y;
 
 
     public Item(float x, float y)
     {
         position = new Vector2(x,y);
         velocity = new Vector2();
+        grounded = true;
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
+        bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
         touchingWall = false;
-        this.x = x;
-        this.y = y;
+
+        collected = false;
+
+        position.x = x;
+        position.y = y;
+
         spriteBatch = new SpriteBatch();
         texture = new Texture("debugSquare.png");
         sprite = new Sprite(texture);
+
         camera = new OrthographicCamera();
-        grounded = true;
     }
 
-    public void render(SpriteBatch spriteBatch,OrthographicCamera camera, float delta)
+    /**
+     * Updates the items camera
+     * Ensures that the item is utilizing the right camera
+     * @param camera
+     */
+    public void updateCamera(OrthographicCamera camera)
     {
         this.camera = camera;
-        this.spriteBatch = spriteBatch;
-        spriteBatch.setProjectionMatrix(this.camera.combined);
-        spriteBatch.begin();
-        update(delta);
-        //drawSprite("standing", position.x, position.y);
-        spriteBatch.end();
     }
 
+    /**
+     * Renders the item on screen.
+     * Utilizes update and spriteBatch
+     * @param spriteBatch
+     * @param delta
+     */
+    public void render(SpriteBatch spriteBatch, float delta)
+    {
+        if (!collected) {
+            this.spriteBatch = spriteBatch;
+            spriteBatch.setProjectionMatrix(this.camera.combined);
+            spriteBatch.begin();
+            update(delta);
+            spriteBatch.end();
+        }
+    }
+
+    /**
+     * Updates the position of the sprite
+     * @param delta
+     */
     public void update(float delta)
     {
         sprite.setBounds(
-                x,
-                y,
+                position.x,
+                position.y,
                 WIDTH,
                 HEIGHT);
         sprite.draw(spriteBatch);
+        bounds.setPosition(position.x, position.y);
     }
 
+    //                              //
+    // Various setters and getters  //
+    //                              //
     public Vector2 getPosition() {
         return position;
     }
@@ -143,5 +171,19 @@ public class Item
 
     public float getHeight() {
         return HEIGHT;
+    }
+
+    public boolean isCollected() {
+        return collected;
+    }
+
+    public void setCollected(boolean collected) {
+        this.collected = collected;
+    }
+
+    public void dispose()
+    {
+        texture.dispose();
+        //spriteBatch.dispose();
     }
 }

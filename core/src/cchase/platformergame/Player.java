@@ -11,12 +11,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 
 /**
  * Player.java
  * Contains code that controls various aspects of the player. This class is intended to extend from, making various
- * characters from it. Currently, Enemy.java extends it.
+ * characters from it. Currently, Enemy.java and NonPlayableCharacter extends it.
  * Objects include the characters stats, their sprites, their moves, and their bounds.
  * TODO: As time goes on, Player may not be the best name for this class.
  */
@@ -81,6 +82,7 @@ public class Player
     protected boolean lookingDown;
     protected boolean attacking;
     protected boolean defending;
+    protected LinkedList<Item> collectedItems;
 
     /**
      * Default constructor. The location of the player is set to 0,0
@@ -114,6 +116,8 @@ public class Player
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
+
+        collectedItems = new LinkedList<Item>();
 
         textureAtlas = new TextureAtlas("sprites.txt");
         spriteBatch = new SpriteBatch();
@@ -154,6 +158,8 @@ public class Player
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
+
+        collectedItems = new LinkedList<Item>();
 
         textureAtlas = new TextureAtlas("sprites.txt");
         spriteBatch = new SpriteBatch();
@@ -204,6 +210,7 @@ public class Player
 
             if (platformerInput.isUpPressed() && !flying)
             {
+                superJump();
                 jump();
             }
 
@@ -253,6 +260,7 @@ public class Player
             }
             if (jump)
             {
+                superJump();
                 jump();
             }
             doubleJumpCheck();
@@ -372,12 +380,26 @@ public class Player
      */
     public void jump()
     {
-        if (grounded && jump)
+        if (grounded && jump && !isLookingDown())
         {
             position.y += 1;
             velocity.y = JUMP_VELOCITY;
             jump = false;
             //grounded = false;
+        }
+    }
+
+    /**
+     * Allows the player to super jump. Similar to the jump() method
+     * TODO: Player has to hold down for at least 2 seconds before a super jump is granted. In its current state it can be spammed
+     */
+    public void superJump()
+    {
+        if (grounded && jump && isLookingDown())
+        {
+            position.y +=1;
+            velocity.y = JUMP_VELOCITY * 2f;
+            jump = false;
         }
     }
 
@@ -497,6 +519,11 @@ public class Player
         }
     }
 
+    public void itemCollected(Item item)
+    {
+        collectedItems.add(item);
+    }
+
 
     public Vector2 getPosition()
     {
@@ -539,6 +566,7 @@ public class Player
      */
     public void update(float delta)
     {
+
         sprite.setBounds(
                 position.x,
                 position.y,
@@ -626,7 +654,7 @@ public class Player
     }
 
     /**
-     * drawSpriteBattle draws the sprite on screen inside of a battle screen.
+     * drawSpriteBattle draws the sprite on screen inside a battle screen.
      * Going to be honest... I made this method so that I can scale up the sprite, and in hindsight I could have just
      * overloaded drawSprite.
      * @param name name of the sprite to be drawn
@@ -649,7 +677,9 @@ public class Player
         }
         sprite.draw(spriteBatch);
     }
-
+    //                      //
+    //Setters and Getters   //
+    //                      //
 
     public boolean isGrounded()
     {
@@ -944,6 +974,14 @@ public class Player
     public void setStatus(Status status)
     {
         this.status = status;
+    }
+
+    public LinkedList<Item> getCollectedItems() {
+        return collectedItems;
+    }
+
+    public void setCollectedItems(LinkedList<Item> collectedItems) {
+        this.collectedItems = collectedItems;
     }
 
     public void dispose()

@@ -36,10 +36,11 @@ public class World
     private static final float SCALE = 2f;
     private static final float FRICTION = 5f;
     private final OrthographicCamera camera;
-    protected Player i;
+    protected Player player;
     public Enemy enemy;
     public  NonPlayableCharacter nonPlayableCharacter;
     public Item item;
+    public Item item2;
     private final TiledMap map;
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -92,7 +93,8 @@ public class World
         nonPlayableCharacter = new NonPlayableCharacter(300 , 300);
 
         //Item creation
-        item = new Item(300,300);
+        item = new Item(100,400);
+        item2 = new Item(150,400);
 
         // Debug
         debugRenderer = new ShapeRenderer();
@@ -107,7 +109,7 @@ public class World
      */
     public void WorldUpdate(Player player)
     {
-        this.i = player;
+        this.player = player;
     }
 
 
@@ -355,6 +357,17 @@ public class World
         //System.out.println(isTouchingAnything());
     }
 
+    /**
+     * checkCollisions()
+     *
+     * A method that is used to test items for collisions
+     * Using MapLayer, the collision layer is gathered. It then iterates through the objects to see if each object had some
+     * form of interaction
+     * Currently in progress
+     * Note: This method is overloaded. Currently this has to be modified to fit with items.
+     * @param delta
+     * @param item
+     */
     public void checkCollisions(float delta, Item item)
     {
         float itemBottom;
@@ -392,7 +405,7 @@ public class World
                 if (item.getBounds().overlaps(rect))
                 {
                     // Check for ground collision
-                    if (itemBottom < objectTop + 5f && itemTop - 50f > objectTop)
+                    if (itemBottom < objectTop && itemTop > objectTop)
                     {
                         if (!(itemLeft < objectRight) || !(itemRight > objectLeft))
                         {
@@ -619,7 +632,7 @@ public class World
         return touching; // Return the result
     }
 
-    public boolean isTouchingAnything(Item i) {
+    public boolean isTouchingAnything(Item item) {
         float tolerance = 1f;
 
         boolean touching = false;
@@ -635,10 +648,10 @@ public class World
                 float top = rect.y + rect.height + tolerance;
 
                 // Check if any part of the player's bounding box overlaps with the object's rectangle
-                if (i.getPosition().x + i.getWidth() > left &&
-                        i.getPosition().x < right &&
-                        i.getPosition().y + i.getHeight() > bottom &&
-                        i.getPosition().y < top) {
+                if (item.getPosition().x + item.getWidth() > left &&
+                        item.getPosition().x < right &&
+                        item.getPosition().y + item.getHeight() > bottom &&
+                        item.getPosition().y < top) {
                     touching = true; // Player is touching the object
                     break; // Exit the loop, no need to check further
                 }
@@ -646,7 +659,7 @@ public class World
         }
 
         // Check if the player is not touching any object and is in the air
-        if (!touching && !i.isGrounded()) {
+        if (!touching && !item.isGrounded()) {
             return false;
         }
 
@@ -683,7 +696,7 @@ public class World
 
         return false;
     }
-    public boolean isTouchingWall(Item i) {
+    public boolean isTouchingWall(Item item) {
         float tolerance = 1f;
 
         for (MapObject object : objects) {
@@ -696,11 +709,11 @@ public class World
                 float bottom = rect.y - tolerance;
                 float top = rect.y + rect.height + tolerance;
 
-                boolean touchingLeftWall = i.getPosition().x + i.getWidth() >= left && i.getPosition().x <= left;
-                boolean touchingRightWall = i.getPosition().x <= right && i.getPosition().x + i.getWidth() >= right;
-                boolean aboveTop = i.getPosition().y + i.getHeight() >= top;
+                boolean touchingLeftWall = item.getPosition().x + item.getWidth() >= left && item.getPosition().x <= left;
+                boolean touchingRightWall = item.getPosition().x <= right && item.getPosition().x + item.getWidth() >= right;
+                boolean aboveTop = item.getPosition().y + item.getHeight() >= top;
 
-                if ((touchingLeftWall || touchingRightWall) && i.getPosition().y > bottom && i.getPosition().y < top && !aboveTop) {
+                if ((touchingLeftWall || touchingRightWall) && item.getPosition().y > bottom && item.getPosition().y < top && !aboveTop) {
                     return true;
                 }
             }
@@ -726,8 +739,8 @@ public class World
                 float bottom = rect.y - tolerance;
                 float top = rect.y + rect.height + tolerance;
 
-                if (i.getPosition().x < right && i.getPosition().x + i.getWidth() > left &&
-                        i.getPosition().y < top && i.getPosition().y + i.getHeight() > bottom) {
+                if (player.getPosition().x < right && player.getPosition().x + player.getWidth() > left &&
+                        player.getPosition().y < top && player.getPosition().y + player.getHeight() > bottom) {
                     return true; // Player is touching the end goal
                 }
             }
@@ -746,7 +759,7 @@ public class World
     {
         try
         {
-            if (i.getBounds().overlaps(enemy.getBounds()))
+            if (player.getBounds().overlaps(enemy.getBounds()))
             {
                 return true;
             }
@@ -760,24 +773,31 @@ public class World
 
     public boolean isCollidingWithNPC()
     {
-        if (i.getBounds().overlaps(nonPlayableCharacter.getBounds()))
+        if (player.getBounds().overlaps(nonPlayableCharacter.getBounds()))
         {
             //System.out.println("Colliding with NPC");
             nonPlayableCharacter.setTouchingPlayer(true);
-            i.setNpcInteraction(true);
+            player.setNpcInteraction(true);
             return true;
         }
         //System.out.println("Not colliding with NPC");
         nonPlayableCharacter.setTouchingPlayer(false);
-        i.setNpcInteraction(false);
+        player.setNpcInteraction(false);
         return false;
     }
 
-    public void isItemTouchingFloor()
+    public boolean isCollidingWithObject()
     {
-
+        if (player.getBounds().overlaps(item.getBounds()))
+        {
+            //item.setCollected(true);
+            //Add logic for when the player collects items (Maybe have a array of items within Player.java)
+            return true;
+        }
+        //item.setCollected(false);
+        //player.setiteminteraction(false)
+        return false;
     }
-
 
     /**
      * Map renderer
@@ -789,8 +809,8 @@ public class World
         camera.update();
 
         // Set the camera's position to follow the player, considering half of the screen size
-        camera.position.x = i.getPosition().x + i.getWidth() / SCALE;
-        camera.position.y = i.getPosition().y + i.getHeight() / SCALE;
+        camera.position.x = player.getPosition().x + player.getWidth() / SCALE;
+        camera.position.y = player.getPosition().y + player.getHeight() / SCALE;
 
         mapRenderer.setView(camera);
         mapRenderer.render();
@@ -801,14 +821,14 @@ public class World
         checkCollisions(delta,nonPlayableCharacter);
         //System.out.println(player.nextMessage);
         //System.out.println(isCollidingWithNPC());
-        if (isCollidingWithNPC() && i.isDisplayMessage())
+        if (isCollidingWithNPC() && player.isDisplayMessage())
         {
             //System.out.println("NPC interaction");
             nonPlayableCharacter.setDisplayMessage(true);
         }
         if (nonPlayableCharacter.isDisplayMessage())
         {
-            nonPlayableCharacter.Message(i);
+            nonPlayableCharacter.Message(player);
         }
 
         try
@@ -830,13 +850,41 @@ public class World
         }
 
         // Player render
-        checkCollisions(delta, i);
-        i.updateCamera(camera);
-        i.render(spriteBatch,delta);
+        checkCollisions(delta, player);
+        player.updateCamera(camera);
+        player.render(spriteBatch,delta);
 
         // Item render
-        checkCollisions(delta, item);
-        item.render(spriteBatch,camera,delta);
+        try {
+            checkCollisions(delta, item);
+            item.updateCamera(camera);
+            item.render(spriteBatch, delta);
+            if (isCollidingWithObject() && !item.isCollected())
+            {
+                item.setCollected(true);
+                player.itemCollected(item);
+                item = null;
+            }
+        } catch (Exception e)
+        {
+            // Catch item null errors
+        }
+
+        try{
+            checkCollisions(delta, item2);
+            item2.updateCamera(camera);
+            item2.render(spriteBatch, delta);
+            if (isCollidingWithObject() && !item2.isCollected())
+            {
+                item2.setCollected(true);
+                player.itemCollected(item2);
+                item2 = null;
+            }
+        } catch (Exception e)
+        {
+
+        }
+
 
         // render debug rectangles
         if (debug) renderDebug();
@@ -849,8 +897,9 @@ public class World
     {
 
         debugBatch.begin();
-        debugFont.draw(debugBatch, "Velocity: " + i.getVelocity(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .95f);
-        debugFont.draw(debugBatch, "Position: " + i.getPosition(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
+        debugFont.draw(debugBatch, "Velocity: " + player.getVelocity(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .95f);
+        debugFont.draw(debugBatch, "Position: " + player.getPosition(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
+        debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .75f);
         debugBatch.end();
 
         debugRenderer.setProjectionMatrix(camera.combined);
@@ -858,7 +907,7 @@ public class World
 
         //Player Debug
         debugRenderer.setColor(Color.RED);
-        debugRenderer.rect(i.getPosition().x, i.getPosition().y, i.getWidth(), i.getHeight());
+        debugRenderer.rect(player.getPosition().x, player.getPosition().y, player.getWidth(), player.getHeight());
         //System.out.println("debugRender X:" + player.getPosition().x + " debugRender Y:" + player.getPosition().y);
 
         //Enemy Debug
@@ -875,6 +924,15 @@ public class World
         //NPC Debug
         debugRenderer.setColor(Color.PURPLE);
         debugRenderer.rect(nonPlayableCharacter.getPosition().x, nonPlayableCharacter.getPosition().y, nonPlayableCharacter.getWidth(), nonPlayableCharacter.getHeight());
+
+        //Item Debug
+        try {
+            debugRenderer.setColor(Color.GREEN);
+            debugRenderer.rect(item.getPosition().x, item.getPosition().y, item.getWidth(), item.getHeight());
+        } catch (Exception e)
+        {
+            // Handle item removal
+        }
 
         debugRenderer.setColor(Color.YELLOW);
         for (MapObject object : objects)
@@ -894,8 +952,9 @@ public class World
     {
         mapRenderer.dispose();
         map.dispose();
-        i.dispose();
+        player.dispose();
         enemy.dispose();
+        item.dispose();
         spriteBatch.dispose();
         music.dispose();
     }
