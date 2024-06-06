@@ -95,6 +95,8 @@ public class GameScreen extends ScreenAdapter
         Following code stores the state of the game screen and the player.
         TODO: Put into a method
          */
+        // The code below is commented out for now. I am testing out normal platform attacks instead of RPG battle mechanics
+        /*
         if (world.isCollidingWithEnemy())
         {
             GameState.gameScreen = game.getScreen();
@@ -106,6 +108,7 @@ public class GameScreen extends ScreenAdapter
             world.music.pause();
             game.setScreen(new BattleScreen(game,player,world.enemy));
         }
+         */
 
         if (Gdx.input.isKeyPressed(Input.Keys.I))
         {

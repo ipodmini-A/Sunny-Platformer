@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,8 +35,8 @@ public class Player
     protected String name;
     // Player stats
     protected float health;
-    protected float attack;
-    protected float defense;
+    protected float attackPoints;
+    protected float defensePoints;
     protected float magic;
     protected float wisdom;
     protected float speed;
@@ -46,6 +47,7 @@ public class Player
     protected Vector2 position;
     protected Vector2 velocity;
     protected Rectangle bounds;
+    protected Rectangle attackHitbox;
     private PlatformerInput platformerInput;
     private boolean grounded;
     private boolean touchingLeftWall;
@@ -61,6 +63,7 @@ public class Player
     private boolean rightMove;
     private boolean downMove;
     private boolean jump;
+    private boolean attack;
     private boolean displayMessage;
     private boolean nextMessage;
     private boolean npcInteraction;
@@ -97,8 +100,8 @@ public class Player
         grounded = false;
         name = "CHARACTER";
         health = 100f;
-        attack = 10f;
-        defense = 10f;
+        attackPoints = 10f;
+        defensePoints = 10f;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
@@ -148,8 +151,8 @@ public class Player
         grounded = false;
         name = "CHARACTER";
         health = 100f;
-        attack = 10f;
-        defense = 10f;
+        attackPoints = 10f;
+        defensePoints = 10f;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
@@ -299,10 +302,10 @@ public class Player
     {
         if (velocity.x < 0)
         {
-            facingRight = true;
+            facingRight = false;
         } else if (velocity.x > 0)
         {
-            facingRight = false;
+            facingRight = true;
         }
 
         switch (state)
@@ -398,7 +401,7 @@ public class Player
         if (grounded && jump && isLookingDown())
         {
             position.y +=1;
-            velocity.y = JUMP_VELOCITY * 2f;
+            velocity.y = JUMP_VELOCITY * 1.3f;
             jump = false;
         }
     }
@@ -480,10 +483,10 @@ public class Player
     {
         if (rightMove)
         {
-            velocity.x += 3000f;
+            velocity.x += 700f;
         }else if (leftMove)
         {
-            velocity.x -= 3000f;
+            velocity.x -= 700f;
         }
     }
 
@@ -516,6 +519,56 @@ public class Player
         if (wallRiding)
         {
             velocity.y = -MAX_VELOCITY / 2f;
+        }
+    }
+
+    /**
+     * Allows the player to attack. When the attack button is pressed, a box is placed in front of the player briefly.
+     *
+     * This method works with attackRender()
+     */
+    public void attack()
+    {
+        attack = true;
+        if (attack)
+        {
+            //attack = false;
+            if (facingRight) {
+                attackHitbox = new Rectangle(position.x - WIDTH, position.y + (HEIGHT / 3f), 50f, 50f);
+            } else
+            {
+                attackHitbox = new Rectangle(position.x + WIDTH, position.y + (HEIGHT / 3f), 50f, 50f);
+            }
+            System.out.println("Hitbox present");
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    // Code to execute after the delay
+                    attackHitbox = null;
+                    System.out.println("HitBox removed");
+                    attack = false;
+                }
+            }, 0.001f);
+        }
+    }
+
+    /**
+     * Renders the hitbox for attack.
+     */
+    public void attackRender()
+    {
+        try {
+            if (attack) {
+                if (facingRight) {
+                    attackHitbox = attackHitbox.set(position.x + WIDTH, position.y + (HEIGHT / 3f), 50f, 50f);
+                } else
+                {
+                    attackHitbox = attackHitbox.set(position.x - 50f, position.y + (HEIGHT / 3f), 50f, 50f);
+                }
+            }
+        } catch (Exception e)
+        {
+            // what
         }
     }
 
@@ -601,6 +654,9 @@ public class Player
             state = State.WALL_RIDING;
         }
 
+        //hitbox render test
+        attackRender();
+
     }
 
     public void updateBattle(float delta, float scale)
@@ -643,10 +699,10 @@ public class Player
 
         sprite.setBounds(x - (WIDTH / 2f) - 5f,y,SPRITE_WIDTH,SPRITE_HEIGHT);
 
-        if (facingRight && sprite.isFlipX())
+        if (facingRight && !sprite.isFlipX())
         {
             sprite.flip(true,false);
-        } else if (!facingRight && !sprite.isFlipX())
+        } else if (!facingRight && sprite.isFlipX())
         {
             sprite.flip(true, false);
         }
@@ -824,24 +880,24 @@ public class Player
         this.name = name;
     }
 
-    public float getAttack()
+    public float getAttackPoints()
     {
-        return attack;
+        return attackPoints;
     }
 
-    public void setAttack(float attack)
+    public void setAttackPoints(float attackPoints)
     {
-        this.attack = attack;
+        this.attackPoints = attackPoints;
     }
 
-    public float getDefense()
+    public float getDefensePoints()
     {
-        return defense;
+        return defensePoints;
     }
 
-    public void setDefense(float defense)
+    public void setDefensePoints(float defensePoints)
     {
-        this.defense = defense;
+        this.defensePoints = defensePoints;
     }
 
     public float getMagic()
@@ -982,6 +1038,22 @@ public class Player
 
     public void setCollectedItems(LinkedList<Item> collectedItems) {
         this.collectedItems = collectedItems;
+    }
+
+    public Rectangle getAttackHitbox() {
+        return attackHitbox;
+    }
+
+    public void setAttackHitbox(Rectangle attackHitbox) {
+        this.attackHitbox = attackHitbox;
+    }
+
+    public boolean isAttack() {
+        return attack;
+    }
+
+    public void setAttack(boolean attack) {
+        this.attack = attack;
     }
 
     public void dispose()

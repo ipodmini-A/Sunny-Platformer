@@ -16,6 +16,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.LinkedList;
+
 /**
  * This class is a mess, im not even joking
  * TODO: Clean up
@@ -39,8 +41,10 @@ public class World
     protected Player player;
     public Enemy enemy;
     public  NonPlayableCharacter nonPlayableCharacter;
-    public Item item;
-    public Item item2;
+    // I'm not sure if having "Collectables" be a linked list is a good idea.
+    // For now, it works. When creating a new level, each collectable will be added to this linked list.
+    // Each item in the linked list has its coordience
+    protected LinkedList<Item> collectables;
     private final TiledMap map;
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -93,8 +97,9 @@ public class World
         nonPlayableCharacter = new NonPlayableCharacter(300 , 300);
 
         //Item creation
-        item = new Item(100,400);
-        item2 = new Item(150,400);
+        collectables = new LinkedList<>();
+        collectables.add(new Item(100,400));
+        collectables.add(new Item(150, 400));
 
         // Debug
         debugRenderer = new ShapeRenderer();
@@ -786,17 +791,18 @@ public class World
         return false;
     }
 
-    public boolean isCollidingWithObject()
+    public boolean isCollidingWithObject(Item item)
     {
-        if (player.getBounds().overlaps(item.getBounds()))
-        {
-            //item.setCollected(true);
-            //Add logic for when the player collects items (Maybe have a array of items within Player.java)
-            return true;
-        }
+        //item.setCollected(true);
+        //Add logic for when the player collects items (Maybe have a array of items within Player.java)
+        return player.getBounds().overlaps(item.getBounds());
         //item.setCollected(false);
         //player.setiteminteraction(false)
-        return false;
+    }
+
+    public boolean isAttackingEnemy()
+    {
+        return player.attackHitbox.overlaps(enemy.getBounds());
     }
 
     /**
@@ -855,36 +861,33 @@ public class World
         player.render(spriteBatch,delta);
 
         // Item render
+        for (int i = 0; i < collectables.size(); i++)
+        {
+            try {
+                checkCollisions(delta, collectables.get(i));
+                collectables.get(i).updateCamera(camera);
+                collectables.get(i).render(spriteBatch, delta);
+                if (isCollidingWithObject(collectables.get(i)) && !collectables.get(i).isCollected())
+                {
+                    collectables.get(i).setCollected(true);
+                    player.itemCollected(collectables.get(i));
+                    collectables.remove(i);
+                }
+            } catch (Exception e)
+            {
+                // Catch item null errors
+            }
+        }
+
+        //Attack Check
         try {
-            checkCollisions(delta, item);
-            item.updateCamera(camera);
-            item.render(spriteBatch, delta);
-            if (isCollidingWithObject() && !item.isCollected())
-            {
-                item.setCollected(true);
-                player.itemCollected(item);
-                item = null;
+            if (isAttackingEnemy()) {
+                enemy.setHealth(enemy.getHealth() - 10f);
             }
         } catch (Exception e)
         {
-            // Catch item null errors
+            //
         }
-
-        try{
-            checkCollisions(delta, item2);
-            item2.updateCamera(camera);
-            item2.render(spriteBatch, delta);
-            if (isCollidingWithObject() && !item2.isCollected())
-            {
-                item2.setCollected(true);
-                player.itemCollected(item2);
-                item2 = null;
-            }
-        } catch (Exception e)
-        {
-
-        }
-
 
         // render debug rectangles
         if (debug) renderDebug();
@@ -897,9 +900,16 @@ public class World
     {
 
         debugBatch.begin();
-        debugFont.draw(debugBatch, "Velocity: " + player.getVelocity(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .95f);
-        debugFont.draw(debugBatch, "Position: " + player.getPosition(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
-        debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .75f);
+        try {
+            debugFont.draw(debugBatch, "Velocity: " + player.getVelocity(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .95f);
+            debugFont.draw(debugBatch, "Position: " + player.getPosition(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
+            debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .75f);
+            debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .65f);
+            debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .55f);
+        } catch (Exception e)
+        {
+            //
+        }
         debugBatch.end();
 
         debugRenderer.setProjectionMatrix(camera.combined);
@@ -908,6 +918,14 @@ public class World
         //Player Debug
         debugRenderer.setColor(Color.RED);
         debugRenderer.rect(player.getPosition().x, player.getPosition().y, player.getWidth(), player.getHeight());
+
+        debugRenderer.setColor(Color.LIME);
+        try {
+            debugRenderer.rect(player.getAttackHitbox().x, player.getAttackHitbox().y, player.getAttackHitbox().getWidth(), player.getAttackHitbox().getHeight());
+        } catch (Exception e)
+        {
+            // uhhh
+        }
         //System.out.println("debugRender X:" + player.getPosition().x + " debugRender Y:" + player.getPosition().y);
 
         //Enemy Debug
@@ -926,12 +944,14 @@ public class World
         debugRenderer.rect(nonPlayableCharacter.getPosition().x, nonPlayableCharacter.getPosition().y, nonPlayableCharacter.getWidth(), nonPlayableCharacter.getHeight());
 
         //Item Debug
-        try {
-            debugRenderer.setColor(Color.GREEN);
-            debugRenderer.rect(item.getPosition().x, item.getPosition().y, item.getWidth(), item.getHeight());
-        } catch (Exception e)
-        {
-            // Handle item removal
+        for (Item collectable : collectables) {
+            try {
+                debugRenderer.setColor(Color.GREEN);
+                debugRenderer.rect(collectable.getPosition().x, collectable.getPosition().y,
+                        collectable.getWidth(), collectable.getHeight());
+            } catch (Exception e) {
+                // Handle item removal
+            }
         }
 
         debugRenderer.setColor(Color.YELLOW);
@@ -954,7 +974,9 @@ public class World
         map.dispose();
         player.dispose();
         enemy.dispose();
-        item.dispose();
+        for (Item collectable : collectables) {
+            collectable.dispose();
+        }
         spriteBatch.dispose();
         music.dispose();
     }

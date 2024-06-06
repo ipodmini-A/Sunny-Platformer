@@ -1,7 +1,9 @@
 package cchase.platformergame;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Enemy.java
@@ -14,9 +16,11 @@ public class Enemy extends Player
     public Enemy(float x, float y)
     {
         super(x,y);
+        textureAtlas = new TextureAtlas("enemysprites.txt");
+        addSprites();
         health = 100f;
-        attack = 10f;
-        defense = 3f;
+        attackPoints = 10f;
+        defensePoints = 3f;
     }
 
     /**
@@ -34,6 +38,17 @@ public class Enemy extends Player
         }
          */
         //jump();
+    }
+
+    private void addSprites()
+    {
+        Array<TextureAtlas.AtlasRegion> regions = textureAtlas.getRegions();
+
+        for (TextureAtlas.AtlasRegion region : regions) {
+            Sprite sprite = textureAtlas.createSprite(region.name);
+
+            sprites.put(region.name, sprite);
+        }
     }
 
     public void updateBattle(float delta, float scale)

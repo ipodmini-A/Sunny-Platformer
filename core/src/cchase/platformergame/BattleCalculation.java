@@ -17,12 +17,12 @@ public class BattleCalculation
     public static void damageCalculation(Player attacker, Player defender)
     {
         float damage = 0;
-        if (attacker.getAttack() >= defender.getDefense())
+        if (attacker.getAttackPoints() >= defender.getDefensePoints())
         {
-            damage = (attacker.getAttack() * 2 - defender.getDefense()) * randomCheck();
+            damage = (attacker.getAttackPoints() * 2 - defender.getDefensePoints()) * randomCheck();
         } else
         {
-            damage = (attacker.getAttack() * attacker.getAttack() / attacker.getDefense()) * randomCheck();
+            damage = (attacker.getAttackPoints() * attacker.getAttackPoints() / attacker.getDefensePoints()) * randomCheck();
         }
         defender.setHealth(defender.getHealth() - damage);
     }
@@ -43,7 +43,7 @@ public class BattleCalculation
     public static void defenseDamageCalculation(Player attacker, Player defender)
     {
         float damage = 0;
-        damage = (attacker.getAttack() / ((defender.getDefense() + 100) / 100)) * randomCheck();
+        damage = (attacker.getAttackPoints() / ((defender.getDefensePoints() + 100) / 100)) * randomCheck();
         defender.setHealth(defender.getHealth() - damage);
     }
 
