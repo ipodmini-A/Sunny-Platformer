@@ -526,6 +526,7 @@ public class Player
      * Allows the player to attack. When the attack button is pressed, a box is placed in front of the player briefly.
      *
      * This method works with attackRender()
+     * TODO: Put a check in place that wont cause the hitbox to continuously hurt the enemy when its out.
      */
     public void attack()
     {
@@ -548,7 +549,7 @@ public class Player
                     System.out.println("HitBox removed");
                     attack = false;
                 }
-            }, 0.001f);
+            }, 0.01f);
         }
     }
 

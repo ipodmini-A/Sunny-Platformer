@@ -14,10 +14,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  */
 public class GameScreen extends ScreenAdapter
 {
-    PlatformerGame game;
+    protected PlatformerGame game;
     private SpriteBatch batch;
-    World world;
-    Player player;
+    protected World world;
+    protected Player player;
 
     float x = 100f;
     float y = 300f;
