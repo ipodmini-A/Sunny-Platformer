@@ -52,7 +52,7 @@ public class World
     private MapLayer endGoalLayer;
     private MapObjects objects;
     private MapObjects endGameObject;
-    private boolean debug = true;
+    private boolean debug = false;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -64,7 +64,7 @@ public class World
         // Sound creation
         music = Gdx.audio.newMusic(Gdx.files.internal("sound/Tiny_Sheriff.mp3"));
         music.play();
-        music.setVolume(1.0f);
+        music.setVolume(0.0f);
 
         // Map creation
         loader = new TmxMapLoader();

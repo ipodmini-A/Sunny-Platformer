@@ -497,6 +497,8 @@ public class Player
      * wallRiding is set to true, which is handled by wallRideCheck().
      * Within the input class, key down and key up help control when wallRiding is set to true or false.
      *
+     * TODO: Fix bug where player will continue to wallride once they are off the wall.
+     *
      */
     public void wallRide()
     {
@@ -549,7 +551,7 @@ public class Player
                     System.out.println("HitBox removed");
                     attack = false;
                 }
-            }, 0.01f);
+            }, 0.1f);
         }
     }
 
@@ -653,6 +655,11 @@ public class Player
 
         if (touchingWall && wallRiding) {
             state = State.WALL_RIDING;
+        }
+
+        if (attack)
+        {
+            state = State.ATTACKING;
         }
 
         //hitbox render test
