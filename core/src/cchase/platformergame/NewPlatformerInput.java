@@ -97,7 +97,6 @@ public class NewPlatformerInput implements InputProcessor
                 }
                 break;
             case Input.Keys.X:
-                System.out.println("Dash");
                 p.dash();
                 break;
             default:

@@ -81,10 +81,16 @@ public class Player
     protected boolean facingRight = false;
     protected boolean doubleJumped = false;
     protected boolean wallRiding = false;
+    protected boolean superJumpReady = false;
+    protected float superJumpCharge = 0f;
+    protected float superJumpChargeTime = 3f;
     protected boolean lookingUp;
     protected boolean lookingDown;
     protected boolean attacking;
     protected boolean defending;
+    protected boolean allowedToDash;
+    protected boolean dashing;
+    protected float dashTimer = 3f;
     protected LinkedList<Item> collectedItems;
 
     /**
@@ -112,6 +118,8 @@ public class Player
         attacking = false;
         defending = false;
         flying = false;
+        dashing = false;
+        allowedToDash = true;
         npcInteraction = false;
         displayMessage = false;
         nextMessage = false;
@@ -158,6 +166,8 @@ public class Player
         touchingRightWall = false;
         touchingWall = false;
         flying = false;
+        dashing = false;
+        allowedToDash = true;
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
@@ -244,27 +254,32 @@ public class Player
         }
         //System.out.println(flying);
     }
+
+    /**
+     * Controls the basic movement of the player. The original input() has been taken over by this method.
+     * How fast the player can move is controlled by MAX_VELOCITY
+     *
+     * Currently messing around with the method.
+     */
     public void newInput()
     {
         if (!disableControls) {
-            if (leftMove) {
-                if (velocity.x >= -1 * MAX_VELOCITY) {
-                    velocity.x -= 10;
-                } else {
-                    velocity.x = -MAX_VELOCITY;
-                }
+            if (leftMove && (velocity.x >= -1 * MAX_VELOCITY)) {
+                velocity.x -= 10;
             }
-            if (rightMove) {
-                if (velocity.x <= MAX_VELOCITY) {
-                    velocity.x += 10;
-                } else {
-                    velocity.x = MAX_VELOCITY;
-                }
+            if (rightMove && (velocity.x <= MAX_VELOCITY)) {
+                velocity.x += 10;
             }
+
             if (jump)
             {
                 superJump();
                 jump();
+            }
+
+            if (lookingDown && grounded && velocity.x == 0)
+            {
+                superJumpCharge();
             }
             doubleJumpCheck();
             wallRideCheck();
@@ -398,11 +413,28 @@ public class Player
      */
     public void superJump()
     {
-        if (grounded && jump && isLookingDown())
+        if (grounded && jump && isLookingDown() && superJumpReady)
         {
+            System.out.println("Super Jump");
             position.y +=1;
             velocity.y = JUMP_VELOCITY * 1.3f;
+            superJumpReady = false;
             jump = false;
+        }
+    }
+
+    public void superJumpCharge()
+    {
+        if (lookingDown && !superJumpReady)
+        {
+            superJumpCharge += Gdx.graphics.getDeltaTime();
+            System.out.println(superJumpCharge);
+            if (superJumpCharge >= superJumpChargeTime)
+            {
+                System.out.println("Super jump ready");
+                superJumpCharge = 0;
+                superJumpReady = true;
+            }
         }
     }
 
@@ -444,12 +476,12 @@ public class Player
             if (rightMove && !doubleJumped) // If the player is holding left they will go forwards diagonally.
             {
                 velocity.y = JUMP_VELOCITY;
-                velocity.x = JUMP_VELOCITY;
+                velocity.x = JUMP_VELOCITY / 2f;
                 doubleJumped = true;
             }else if (leftMove && !doubleJumped) // If the player is holding left they will go backwards diagonally
             {
                 velocity.y = JUMP_VELOCITY;
-                velocity.x = -JUMP_VELOCITY;
+                velocity.x = -JUMP_VELOCITY / 2f;
                 doubleJumped = true;
             }
             if (!doubleJumped)
@@ -475,19 +507,53 @@ public class Player
 
     /**
      * dash allows the player to dash forward.
+     * dash works together with dashing() to handle timing.
      *
-     * Currently bugged
-     * TODO: Fix teleporting
+     * TODO: Possibly fuse the two methods to make it less messy
+     *
      */
     public void dash()
     {
-        if (rightMove)
-        {
-            velocity.x += 700f;
-        }else if (leftMove)
-        {
-            velocity.x -= 700f;
+        if(allowedToDash) {
+
+            if (rightMove) {
+                dashing();
+                velocity.x += 300f;
+
+            } else if (leftMove) {
+                dashing();
+                velocity.x -= 300f;
+            }
         }
+    }
+
+    /**
+     * dashing is intended to work together with dash(). Dashing handles the timer based actions.
+     *
+     * The method marks the player that they have dashed, and doesn't allow them to do the action again for a specified
+     * amount of time that can be found under "dashTimer"
+     */
+    public void dashing()
+    {
+        dashing = true;
+        allowedToDash = false;
+        System.out.println("Dash");
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                // Code to execute after the delay
+                dashing = false;
+            }
+        },0.2f);
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                // Code to execute after the delay
+                allowedToDash = true;
+            }
+        },dashTimer);
+
     }
 
     /**
@@ -496,6 +562,8 @@ public class Player
      * This method has a few things making it work. If the player is touching a wall and either right or left is being held,
      * wallRiding is set to true, which is handled by wallRideCheck().
      * Within the input class, key down and key up help control when wallRiding is set to true or false.
+     *
+     * TODO: Fix bug that allows the player to continue to wallride despite not touching a wall
      *
      */
     public void wallRide()
@@ -549,7 +617,7 @@ public class Player
                     System.out.println("HitBox removed");
                     attack = false;
                 }
-            }, 0.01f);
+            }, 0.20f);
         }
     }
 
@@ -653,6 +721,16 @@ public class Player
 
         if (touchingWall && wallRiding) {
             state = State.WALL_RIDING;
+        }
+
+        if (attack)
+        {
+            state = State.ATTACKING;
+        }
+
+        if (dashing)
+        {
+            state = State.ATTACKING;
         }
 
         //hitbox render test
