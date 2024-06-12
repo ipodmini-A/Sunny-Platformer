@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>6</int>
         <key>texturePackerVersion</key>
-        <string>7.0.3</string>
+        <string>7.4.0</string>
         <key>autoSDSettings</key>
         <array>
             <struct type="AutoSDSettings">
@@ -179,6 +179,7 @@
             <key type="filename">sprites/jumping.PNG</key>
             <key type="filename">sprites/lookingDown.PNG</key>
             <key type="filename">sprites/lookingUp.PNG</key>
+            <key type="filename">sprites/punching.png</key>
             <key type="filename">sprites/running.PNG</key>
             <key type="filename">sprites/stance.PNG</key>
             <key type="filename">sprites/standing.PNG</key>
@@ -216,6 +217,7 @@
                     <filename>sprites/defending.PNG</filename>
                     <filename>sprites/stance.PNG</filename>
                     <filename>sprites/standing.PNG</filename>
+                    <filename>sprites/punching.png</filename>
                 </array>
             </struct>
         </map>

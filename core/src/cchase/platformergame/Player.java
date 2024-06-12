@@ -3,6 +3,7 @@ package cchase.platformergame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -72,7 +73,8 @@ public class Player
 
     enum State
     {
-        STANDING, WALKING, JUMPING, FALLING, WALL_RIDING, LOOKING_DOWN, LOOKING_UP,TOUCHING_WALL, ATTACKING, DEFENDING, STANCE
+        STANDING, WALKING, JUMPING, FALLING, WALL_RIDING, LOOKING_DOWN, LOOKING_UP,TOUCHING_WALL,
+        ATTACKING, DEFENDING, PUNCHING, STANCE
     }
     enum Status
     {
@@ -92,8 +94,10 @@ public class Player
     protected boolean defending;
     protected boolean allowedToDash;
     protected boolean dashing;
-    protected float dashTimer = 2f;
+    protected float dashTimer = 1f;
     protected LinkedList<Item> collectedItems;
+    protected Animation<Sprite> animation;
+    float stateTime = 0;
     protected Random random;
 
     /**
@@ -141,6 +145,8 @@ public class Player
 
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
+
+        animation = new Animation<>(0.066f, textureAtlas.createSprites("running"), Animation.PlayMode.LOOP);
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
@@ -197,6 +203,8 @@ public class Player
 
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
+
+        animation = new Animation<>(0.066f, textureAtlas.createSprites("running"), Animation.PlayMode.LOOP);
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
@@ -279,7 +287,10 @@ public class Player
                 drawSprite("standing", position.x, position.y);
                 break;
             case WALKING:
-                drawSprite("running", position.x, position.y);
+                stateTime += Gdx.graphics.getDeltaTime();
+                Sprite sprite = animation.getKeyFrame(stateTime, true);
+                sprite.setX(stateTime * 250 % (Gdx.graphics.getWidth() + 400) - 200);
+                //drawSprite("running", position.x, position.y);
                 break;
             case JUMPING:
                 drawSprite("jumping", position.x, position.y);
@@ -304,6 +315,9 @@ public class Player
                 break;
             case DEFENDING:
                 drawSprite("defending", position.x, position.y);
+                break;
+            case PUNCHING:
+                drawSprite("punching", position.x, position.y);
                 break;
             case STANCE:
                 drawSprite("stance", position.x, position.y);
@@ -697,7 +711,7 @@ public class Player
 
         if (attacking)
         {
-            state = State.ATTACKING;
+            state = State.PUNCHING;
         }
 
         if (dashing)

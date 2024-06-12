@@ -20,7 +20,7 @@ public class GameScreen extends ScreenAdapter
     protected Player player;
 
     float x = 400f;
-    float y = 1200f;
+    float y = 1300f;
     private boolean firstSpawnCheck = false;
     public boolean playerWon = false;
 
