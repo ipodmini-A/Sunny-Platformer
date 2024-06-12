@@ -41,7 +41,6 @@ public class NewPlatformerInput implements InputProcessor
                     p.wallJump();
                 } else if (!p.isGrounded() && !p.isTouchingWall()) // Double Jump input
                 {
-                    System.out.println("Double jump");
                     p.doubleJump();
                 } else if (p.wallRiding)
                 {
@@ -97,7 +96,6 @@ public class NewPlatformerInput implements InputProcessor
                 }
                 break;
             case Input.Keys.X:
-                System.out.println("Dash");
                 p.dash();
                 break;
             default:

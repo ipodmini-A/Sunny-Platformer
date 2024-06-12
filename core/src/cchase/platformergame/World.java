@@ -29,8 +29,7 @@ import java.util.LinkedList;
  * endgoal: The end goal of the game.
  * collision: The collision of the map.
  */
-public class World
-{
+public class World {
     //private TiledMapRenderer mapRenderer; // What does this do?
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
     private static final float MAX_FALL = -500f;
@@ -40,7 +39,7 @@ public class World
     private final OrthographicCamera camera;
     protected Player player;
     public Enemy enemy;
-    public  NonPlayableCharacter nonPlayableCharacter;
+    public NonPlayableCharacter nonPlayableCharacter;
     // I'm not sure if having "Collectables" be a linked list is a good idea.
     // For now, it works. When creating a new level, each collectable will be added to this linked list.
     // Each item in the linked list has its coordience
@@ -59,8 +58,7 @@ public class World
     private SpriteBatch debugBatch;
     public Music music;
 
-    public World(Player player)
-    {
+    public World(Player player) {
         // Sound creation
         music = Gdx.audio.newMusic(Gdx.files.internal("sound/Tiny_Sheriff.mp3"));
         music.play();
@@ -94,11 +92,11 @@ public class World
         enemy.setSCALE(SCALE);
 
         //NPC creation
-        nonPlayableCharacter = new NonPlayableCharacter(300 , 300);
+        nonPlayableCharacter = new NonPlayableCharacter(300, 300);
 
         //Item creation
         collectables = new LinkedList<>();
-        collectables.add(new Item(100,400));
+        collectables.add(new Item(100, 400));
         collectables.add(new Item(150, 400));
 
         // Debug
@@ -110,17 +108,17 @@ public class World
     /**
      * WorldUpdate updates the World class with the player class from GameScreen. Removing this shouldn't cause a null
      * exception but it does :/
+     *
      * @param player
      */
-    public void WorldUpdate(Player player)
-    {
+    public void WorldUpdate(Player player) {
         this.player = player;
     }
 
 
     /**
      * checkCollisions()
-     *
+     * <p>
      * A method that is used to test for collisions
      * Using MapLayer, the collision layer is gathered. It then iterates through the objects to see if each object had some
      * form of interaction.
@@ -130,10 +128,9 @@ public class World
      * TODO: Refactor
      *
      * @param delta float
-     * @param p A player object. This includes players and objects that are extended from it such as enemies.
+     * @param p     A player object. This includes players and objects that are extended from it such as enemies.
      */
-    public void checkCollisions(float delta, Player p)
-    {
+    public void checkCollisions(float delta, Player p) {
         float playerBottom;
         float playerTop;
         float playerLeft;
@@ -158,7 +155,7 @@ public class World
 
                 playerBottom = p.getPosition().y;
                 playerTop = p.getPosition().y + p.getHeight();
-                playerLeft = p.getPosition().x ;
+                playerLeft = p.getPosition().x;
                 playerRight = p.getPosition().x + p.getWidth();
 
                 objectBottom = rect.y;
@@ -166,16 +163,12 @@ public class World
                 objectLeft = rect.x;
                 objectRight = rect.x + rect.width;
 
-                if (p.getBounds().overlaps(rect))
-                {
+                if (p.getBounds().overlaps(rect)) {
                     // Check for ground collision
-                    if (playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
-                    {
-                        if (!(playerLeft < objectRight) || !(playerRight > objectLeft))
-                        {
+                    if (playerBottom < objectTop + 5f && playerTop - 50f > objectTop) {
+                        if (!(playerLeft < objectRight) || !(playerRight > objectLeft)) {
                             p.getPosition().x = 0;
-                        } else
-                        {
+                        } else {
                             p.getPosition().y = objectTop;
                             //isTouchingGround = true;
                             p.setGrounded(true);
@@ -183,21 +176,16 @@ public class World
                     }
 
                     // Check for left wall collision
-                    if (playerRight > objectLeft && playerLeft < objectLeft)
-                    {
-                        if (p.getVelocity().x > 0 && playerRight <= objectLeft + p.getVelocity().x)
-                        {
-                            if (p.isGrounded() && playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
-                            {
+                    if (playerRight > objectLeft && playerLeft < objectLeft) {
+                        if (p.getVelocity().x > 0 && playerRight <= objectLeft + p.getVelocity().x) {
+                            if (p.isGrounded() && playerBottom < objectTop + 5f && playerTop - 50f > objectTop) {
                                 p.getVelocity().y = 0;
-                            } else
-                            {
+                            } else {
                                 //p.getPosition().x = objectLeft - p.getWidth();
                                 p.getVelocity().x = 0;
                             }
 
-                        } else if (p.isGrounded() && (playerBottom < objectLeft))
-                        {
+                        } else if (p.isGrounded() && (playerBottom < objectLeft)) {
                             /*
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
@@ -205,8 +193,7 @@ public class World
                             System.out.println("Pushing wall");
                             //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
-                        } else
-                        {
+                        } else {
                             p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         }
                         //p.setTouchingWall(true);
@@ -218,20 +205,15 @@ public class World
                     // If you're reading this, and you're not the owner of this repository, don't try to make sense of it
                     // because I currently don't know how it works
                     // Check for right wall collision
-                    if (playerLeft < objectRight && playerRight > objectRight)
-                    {
-                        if (p.getVelocity().x < 0 && playerLeft >= objectRight + p.getVelocity().x)
-                        {
-                            if (p.isGrounded() && playerBottom < objectTop + 5f && playerTop - 50f > objectTop)
-                            {
+                    if (playerLeft < objectRight && playerRight > objectRight) {
+                        if (p.getVelocity().x < 0 && playerLeft >= objectRight + p.getVelocity().x) {
+                            if (p.isGrounded() && playerBottom < objectTop + 5f && playerTop - 50f > objectTop) {
                                 p.getVelocity().y = 0;
-                            }else
-                            {
+                            } else {
                                 //p.getPosition().x = objectRight;
                                 p.getVelocity().x = 0;
                             }
-                        } else if (p.isGrounded() && (playerBottom > objectRight))
-                        {
+                        } else if (p.isGrounded() && (playerBottom > objectRight)) {
                             /*
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
@@ -239,8 +221,7 @@ public class World
                             System.out.println("Pushing wall");
                             //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
-                        } else
-                        {
+                        } else {
                             p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
                         }
                         p.setTouchingRightWall(true);
@@ -248,10 +229,8 @@ public class World
                     }
 
                     // Check for ceiling collision
-                    if (playerTop > objectBottom - 5f && playerBottom + 50f < objectBottom)
-                    {
-                        if (!p.isGrounded())
-                        {
+                    if (playerTop > objectBottom - 5f && playerBottom + 50f < objectBottom) {
+                        if (!p.isGrounded()) {
                             System.out.println("Touching ceiling");
                             p.getPosition().y = objectBottom - p.getHeight();
                             p.getVelocity().y = 0;
@@ -263,88 +242,71 @@ public class World
             }
         }
 
-        if (p.getVelocity().y > 1)
-        {
+        if (p.getVelocity().y > 1) {
             p.setGrounded(false);
             //isTouchingGround = false;
         }
-        if (p.getVelocity().x > 1)
-        {
+        if (p.getVelocity().x > 1) {
             //isTouchingLeftWall = false;
             p.setTouchingLeftWall(false);
         }
 
-        if (p.getVelocity().x < -1)
-        {
+        if (p.getVelocity().x < -1) {
             //isTouchingRightWall = false;
             p.setTouchingRightWall(false);
         }
-        if (!p.isTouchingLeftWall() || !p.isTouchingRightWall())
-        {
+        if (!p.isTouchingLeftWall() || !p.isTouchingRightWall()) {
             //isTouchingWall = false;
             p.setTouchingWall(false);
         }
-        if (p.getVelocity().y < 1)
-        {
+        if (p.getVelocity().y < 1) {
             p.setTouchingCeiling(false);
             //isTouchingCeiling = false;
         }
 
         // Apply gravity
-        if (p.isGrounded())
-        {
+        if (p.isGrounded()) {
             p.getVelocity().y = 0;
             //player.getPosition().y = oldY;
-        } else
-        {
-            if (p.getVelocity().y >= MAX_FALL)
-            {
+        } else {
+            if (p.getVelocity().y >= MAX_FALL) {
                 p.getVelocity().add(0, GRAVITY * delta);
-            }else
-            {
+            } else {
                 p.getVelocity().y = MAX_FALL;
             }
         }
 
-        if (p.getVelocity().x > 0)
-        {
-            p.getVelocity().sub(FRICTION,0);
+        if (p.getVelocity().x > 0) {
+            p.getVelocity().sub(FRICTION, 0);
         }
 
-        if (p.getVelocity().x < 0)
-        {
-            p.getVelocity().add(FRICTION,0);
+        if (p.getVelocity().x < 0) {
+            p.getVelocity().add(FRICTION, 0);
         }
 
-        if (p.isGrounded())
-        {
+        if (p.isGrounded()) {
             p.getPosition().x += p.getVelocity().x * delta;
-        } else
-        {
+        } else {
             p.getPosition().add(p.getVelocity().x * delta, p.getVelocity().y * delta);
         }
 
 
         if (!p.isRightMove() && !p.isLeftMove() &&
-                (p.getVelocity().x <= 2 && p.getVelocity().x > 0))
-        {
+                (p.getVelocity().x <= 2 && p.getVelocity().x > 0)) {
             p.getVelocity().x = 0;
         }
 
-        if (!isTouchingWall(p))
-        {
+        if (!isTouchingWall(p)) {
             p.setTouchingWall(false);
             p.setTouchingLeftWall(false);
             p.setTouchingRightWall(false);
         }
 
-        if (p.isTouchingLeftWall() || p.isTouchingRightWall())
-        {
+        if (p.isTouchingLeftWall() || p.isTouchingRightWall()) {
             p.setTouchingWall(true);
         }
 
-        if (!isTouchingAnything(p))
-        {
+        if (!isTouchingAnything(p)) {
             p.setGrounded(false);
             //isTouchingGround = false;
         }
@@ -364,17 +326,17 @@ public class World
 
     /**
      * checkCollisions()
-     *
+     * <p>
      * A method that is used to test items for collisions
      * Using MapLayer, the collision layer is gathered. It then iterates through the objects to see if each object had some
      * form of interaction
      * Currently in progress
      * Note: This method is overloaded. Currently this has to be modified to fit with items.
+     *
      * @param delta
      * @param item
      */
-    public void checkCollisions(float delta, Item item)
-    {
+    public void checkCollisions(float delta, Item item) {
         float itemBottom;
         float itemTop;
         float itemLeft;
@@ -399,7 +361,7 @@ public class World
 
                 itemBottom = item.getPosition().y;
                 itemTop = item.getPosition().y + item.getHeight();
-                itemLeft = item.getPosition().x ;
+                itemLeft = item.getPosition().x;
                 itemRight = item.getPosition().x + item.getWidth();
 
                 objectBottom = rect.y;
@@ -407,16 +369,12 @@ public class World
                 objectLeft = rect.x;
                 objectRight = rect.x + rect.width;
 
-                if (item.getBounds().overlaps(rect))
-                {
+                if (item.getBounds().overlaps(rect)) {
                     // Check for ground collision
-                    if (itemBottom < objectTop && itemTop > objectTop)
-                    {
-                        if (!(itemLeft < objectRight) || !(itemRight > objectLeft))
-                        {
+                    if (itemBottom < objectTop && itemTop > objectTop) {
+                        if (!(itemLeft < objectRight) || !(itemRight > objectLeft)) {
                             item.getPosition().x = 0;
-                        } else
-                        {
+                        } else {
                             item.getPosition().y = objectTop;
                             //isTouchingGround = true;
                             item.setGrounded(true);
@@ -424,21 +382,16 @@ public class World
                     }
 
                     // Check for left wall collision
-                    if (itemRight > objectLeft && itemLeft < objectLeft)
-                    {
-                        if (item.getVelocity().x > 0 && itemRight <= objectLeft + item.getVelocity().x)
-                        {
-                            if (item.isGrounded() && itemBottom < objectTop + 5f && itemTop - 50f > objectTop)
-                            {
+                    if (itemRight > objectLeft && itemLeft < objectLeft) {
+                        if (item.getVelocity().x > 0 && itemRight <= objectLeft + item.getVelocity().x) {
+                            if (item.isGrounded() && itemBottom < objectTop + 5f && itemTop - 50f > objectTop) {
                                 item.getVelocity().y = 0;
-                            } else
-                            {
+                            } else {
                                 //p.getPosition().x = objectLeft - p.getWidth();
                                 item.getVelocity().x = 0;
                             }
 
-                        } else if (item.isGrounded() && (itemBottom < objectLeft))
-                        {
+                        } else if (item.isGrounded() && (itemBottom < objectLeft)) {
                             /*
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
@@ -446,8 +399,7 @@ public class World
                             System.out.println("Pushing wall");
                             //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
-                        } else
-                        {
+                        } else {
                             item.getPosition().x = oldX - 1; // Reset the player's position to the previous x-coordinate
                         }
                         //p.setTouchingWall(true);
@@ -459,20 +411,15 @@ public class World
                     // If you're reading this, and you're not the owner of this repository, don't try to make sense of it
                     // because I currently don't know how it works
                     // Check for right wall collision
-                    if (itemLeft < objectRight && itemRight > objectRight)
-                    {
-                        if (item.getVelocity().x < 0 && itemLeft >= objectRight + item.getVelocity().x)
-                        {
-                            if (item.isGrounded() && itemBottom < objectTop + 5f && itemTop - 50f > objectTop)
-                            {
+                    if (itemLeft < objectRight && itemRight > objectRight) {
+                        if (item.getVelocity().x < 0 && itemLeft >= objectRight + item.getVelocity().x) {
+                            if (item.isGrounded() && itemBottom < objectTop + 5f && itemTop - 50f > objectTop) {
                                 item.getVelocity().y = 0;
-                            }else
-                            {
+                            } else {
                                 //p.getPosition().x = objectRight;
                                 item.getVelocity().x = 0;
                             }
-                        } else if (item.isGrounded() && (itemBottom > objectRight))
-                        {
+                        } else if (item.isGrounded() && (itemBottom > objectRight)) {
                             /*
                             This mess of code is a little much.
                             Uncommenting the velocity code prevents the player from jumping.
@@ -480,8 +427,7 @@ public class World
                             System.out.println("Pushing wall");
                             //p.getVelocity().y = 0; // Stop the player's horizontal movement
                             //p.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
-                        } else
-                        {
+                        } else {
                             item.getPosition().x = oldX + 1; // Reset the player's position to the previous x-coordinate
                         }
                         item.setTouchingRightWall(true);
@@ -489,10 +435,8 @@ public class World
                     }
 
                     // Check for ceiling collision
-                    if (itemTop > objectBottom - 5f && itemBottom + 50f < objectBottom)
-                    {
-                        if (!item.isGrounded())
-                        {
+                    if (itemTop > objectBottom - 5f && itemBottom + 50f < objectBottom) {
+                        if (!item.isGrounded()) {
                             System.out.println("Touching ceiling");
                             item.getPosition().y = objectBottom - item.getHeight();
                             item.getVelocity().y = 0;
@@ -504,81 +448,65 @@ public class World
             }
         }
 
-        if (item.getVelocity().y > 1)
-        {
+        if (item.getVelocity().y > 1) {
             item.setGrounded(false);
             //isTouchingGround = false;
         }
-        if (item.getVelocity().x > 1)
-        {
+        if (item.getVelocity().x > 1) {
             //isTouchingLeftWall = false;
             item.setTouchingLeftWall(false);
         }
 
-        if (item.getVelocity().x < -1)
-        {
+        if (item.getVelocity().x < -1) {
             //isTouchingRightWall = false;
             item.setTouchingRightWall(false);
         }
-        if (!item.isTouchingLeftWall() || !item.isTouchingRightWall())
-        {
+        if (!item.isTouchingLeftWall() || !item.isTouchingRightWall()) {
             //isTouchingWall = false;
             item.setTouchingWall(false);
         }
-        if (item.getVelocity().y < 1)
-        {
+        if (item.getVelocity().y < 1) {
             item.setTouchingCeiling(false);
             //isTouchingCeiling = false;
         }
 
         // Apply gravity
-        if (item.isGrounded())
-        {
+        if (item.isGrounded()) {
             item.getVelocity().y = 0;
             //player.getPosition().y = oldY;
-        } else
-        {
-            if (item.getVelocity().y >= MAX_FALL)
-            {
+        } else {
+            if (item.getVelocity().y >= MAX_FALL) {
                 item.getVelocity().add(0, GRAVITY * delta);
-            }else
-            {
+            } else {
                 item.getVelocity().y = MAX_FALL;
             }
         }
 
-        if (item.getVelocity().x > 0)
-        {
-            item.getVelocity().sub(FRICTION,0);
+        if (item.getVelocity().x > 0) {
+            item.getVelocity().sub(FRICTION, 0);
         }
 
-        if (item.getVelocity().x < 0)
-        {
-            item.getVelocity().add(FRICTION,0);
+        if (item.getVelocity().x < 0) {
+            item.getVelocity().add(FRICTION, 0);
         }
 
-        if (item.isGrounded())
-        {
+        if (item.isGrounded()) {
             item.getPosition().x += item.getVelocity().x * delta;
-        } else
-        {
+        } else {
             item.getPosition().add(item.getVelocity().x * delta, item.getVelocity().y * delta);
         }
 
-        if (!isTouchingWall(item))
-        {
+        if (!isTouchingWall(item)) {
             item.setTouchingWall(false);
             item.setTouchingLeftWall(false);
             item.setTouchingRightWall(false);
         }
 
-        if (item.isTouchingLeftWall() || item.isTouchingRightWall())
-        {
+        if (item.isTouchingLeftWall() || item.isTouchingRightWall()) {
             item.setTouchingWall(true);
         }
 
-        if (!isTouchingAnything(item))
-        {
+        if (!isTouchingAnything(item)) {
             item.setGrounded(false);
             //isTouchingGround = false;
         }
@@ -600,6 +528,7 @@ public class World
      * isTouchingAnything returns true if the player is currently colliding with a level object, false if otherwise.
      * Note that this only checks for level floors, ceilings and walls. This does not check for objects such as the
      * end level
+     *
      * @param player
      * @return
      */
@@ -673,6 +602,7 @@ public class World
 
     /**
      * isTouchingWall returns true if the player is touching a wall, returns false if otherwise.
+     *
      * @param player
      * @return True if the player is touching wall, false if otherwise.
      */
@@ -701,6 +631,7 @@ public class World
 
         return false;
     }
+
     public boolean isTouchingWall(Item item) {
         float tolerance = 1f;
 
@@ -730,6 +661,7 @@ public class World
 
     /**
      * isTouchingEndGoal returns true if the player has collided with the end goal object. Returns false if otherwise.
+     *
      * @return True if player has collided with the end game object, false if otherwise
      */
     public boolean isTouchingEndGoal() {
@@ -755,31 +687,26 @@ public class World
 
     /**
      * Returns true if the player is colliding with an enemy, false if otherwise
-     * @return True if the player is colliding with an enemy, false if otherwise
      *
+     * @return True if the player is colliding with an enemy, false if otherwise
+     * <p>
      * TODO: If there are multiple enemies within the level, it's most likely this method will have to iterate through
      *       each enemy to test to see if collision has occurred. Is this idea optimal? No. Will I do it? Probably.
      */
-    public boolean isCollidingWithEnemy()
-    {
-        try
-        {
-            if (player.getBounds().overlaps(enemy.getBounds()))
-            {
+    public boolean isCollidingWithEnemy() {
+        try {
+            if (player.getBounds().overlaps(enemy.getBounds())) {
                 return true;
             }
             return false;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             // Try catch is here to prevent null exceptions when a enemy is missing.
             return false;
         }
     }
 
-    public boolean isCollidingWithNPC()
-    {
-        if (player.getBounds().overlaps(nonPlayableCharacter.getBounds()))
-        {
+    public boolean isCollidingWithNPC() {
+        if (player.getBounds().overlaps(nonPlayableCharacter.getBounds())) {
             //System.out.println("Colliding with NPC");
             nonPlayableCharacter.setTouchingPlayer(true);
             player.setNpcInteraction(true);
@@ -791,8 +718,7 @@ public class World
         return false;
     }
 
-    public boolean isCollidingWithObject(Item item)
-    {
+    public boolean isCollidingWithObject(Item item) {
         //item.setCollected(true);
         //Add logic for when the player collects items (Maybe have a array of items within Player.java)
         return player.getBounds().overlaps(item.getBounds());
@@ -800,9 +726,13 @@ public class World
         //player.setiteminteraction(false)
     }
 
-    public boolean isAttackingEnemy()
-    {
+    public boolean isAttackingEnemy() {
         return player.attackHitbox.overlaps(enemy.getBounds());
+    }
+
+    public boolean isAttackingPlayer()
+    {
+        return player.bounds.overlaps(enemy.getBounds());
     }
 
     /**
@@ -882,7 +812,18 @@ public class World
         //Attack Check
         try {
             if (isAttackingEnemy()) {
-                enemy.setHealth(enemy.getHealth() - 10f);
+                player.deployAttack(enemy);
+            }
+        } catch (Exception e)
+        {
+            //
+        }
+
+        //Hurt Check
+        try
+        {
+            if (isAttackingPlayer()) {
+                player.hurt(enemy);
             }
         } catch (Exception e)
         {
@@ -905,7 +846,8 @@ public class World
             debugFont.draw(debugBatch, "Position: " + player.getPosition(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
             debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .75f);
             debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .65f);
-            debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .55f);
+            debugFont.draw(debugBatch, "Player Health: " + player.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .55f);
+            debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
         } catch (Exception e)
         {
             //

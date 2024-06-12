@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Timer;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
 
 
 /**
@@ -48,6 +49,7 @@ public class Player
     protected Vector2 velocity;
     protected Rectangle bounds;
     protected Rectangle attackHitbox;
+    protected boolean attackedAlready;
     private PlatformerInput platformerInput;
     private boolean grounded;
     private boolean touchingLeftWall;
@@ -81,11 +83,18 @@ public class Player
     protected boolean facingRight = false;
     protected boolean doubleJumped = false;
     protected boolean wallRiding = false;
+    protected boolean superJumpReady = false;
+    protected float superJumpCharge = 0f;
+    protected float superJumpChargeTime = 1f;
     protected boolean lookingUp;
     protected boolean lookingDown;
     protected boolean attacking;
     protected boolean defending;
+    protected boolean allowedToDash;
+    protected boolean dashing;
+    protected float dashTimer = 2f;
     protected LinkedList<Item> collectedItems;
+    protected Random random;
 
     /**
      * Default constructor. The location of the player is set to 0,0
@@ -110,8 +119,11 @@ public class Player
         lookingUp = false;
         lookingDown = false;
         attacking = false;
+        attackedAlready = false;
         defending = false;
         flying = false;
+        dashing = false;
+        allowedToDash = true;
         npcInteraction = false;
         displayMessage = false;
         nextMessage = false;
@@ -132,6 +144,8 @@ public class Player
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
+
+        random = new Random();
 
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
@@ -157,7 +171,19 @@ public class Player
         touchingLeftWall = false;
         touchingRightWall = false;
         touchingWall = false;
+        doubleJumped = false;
+        lookingUp = false;
+        lookingDown = false;
+        attacking = false;
+        attackedAlready = false;
+        defending = false;
         flying = false;
+        dashing = false;
+        allowedToDash = true;
+        npcInteraction = false;
+        displayMessage = false;
+        nextMessage = false;
+        disableControls = false;
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
@@ -175,101 +201,40 @@ public class Player
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
 
+        random = new Random();
+
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
 
     /**
-     * input() controls the input for the player.
+     * Controls the basic movement of the player. The original input() has been taken over by this method.
+     * How fast the player can move is controlled by MAX_VELOCITY
      *
-     * @Depricated
+     * Currently messing around with the method.
      */
     public void input()
     {
-        //platformerInput.update();
-
-        if (!disableControls)
-        {
-            if (platformerInput.isLeftPressed())
-            {
-                if (velocity.x >= -1 * MAX_VELOCITY)
-                {
-                    velocity.x -= 5;
-                } else
-                {
-                    velocity.x = -150;
-                }
-            }
-
-            if (platformerInput.isRightPressed())
-            {
-                if (velocity.x <= MAX_VELOCITY)
-                {
-                    velocity.x += 5;
-                } else
-                {
-                    velocity.x = 150;
-                }
-            }
-
-            if (platformerInput.isUpPressed() && !flying)
-            {
-                superJump();
-                jump();
-            }
-
-            if (platformerInput.isDownPressed())
-            {
-                velocity.y -= 5;
-            }
-            //System.out.println(touchingWall);
-            //System.out.println(grounded);
-            if (platformerInput.isUpPressed() && !grounded && touchingWall)
-            {
-                System.out.println("Walljump");
-                wallJump();
-            }
-
-            if (platformerInput.isUpPressed() && !grounded)
-            {
-                System.out.println("Double jump");
-                //TODO: When input is entered, it should only allow one input, as currently it is letting many through
-                // Causing wacky behavior.
-                //doubleJump();
-            }
-            if (grounded)
-            {
-                doubleJumped = false;
-            }
-            flying = platformerInput.isDebugPressed();
-        }
-        //System.out.println(flying);
-    }
-    public void newInput()
-    {
         if (!disableControls) {
-            if (leftMove) {
-                if (velocity.x >= -1 * MAX_VELOCITY) {
-                    velocity.x -= 10;
-                } else {
-                    velocity.x = -MAX_VELOCITY;
-                }
+            if (leftMove && (velocity.x >= -1 * MAX_VELOCITY)) {
+                velocity.x -= 10;
             }
-            if (rightMove) {
-                if (velocity.x <= MAX_VELOCITY) {
-                    velocity.x += 10;
-                } else {
-                    velocity.x = MAX_VELOCITY;
-                }
+            if (rightMove && (velocity.x <= MAX_VELOCITY)) {
+                velocity.x += 10;
             }
+
             if (jump)
             {
                 superJump();
                 jump();
             }
+
+            if (lookingDown && grounded && velocity.x == 0)
+            {
+                superJumpCharge();
+            }
             doubleJumpCheck();
             wallRideCheck();
         }
-
     }
 
     /**
@@ -283,7 +248,7 @@ public class Player
         this.spriteBatch = spriteBatch;
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        newInput();
+        input();
         //input();
         update(delta);
         renderMovement();
@@ -398,11 +363,28 @@ public class Player
      */
     public void superJump()
     {
-        if (grounded && jump && isLookingDown())
+        if (grounded && jump && isLookingDown() && superJumpReady)
         {
+            System.out.println("Super Jump");
             position.y +=1;
             velocity.y = JUMP_VELOCITY * 1.3f;
+            superJumpReady = false;
             jump = false;
+        }
+    }
+
+    public void superJumpCharge()
+    {
+        if (lookingDown && !superJumpReady)
+        {
+            superJumpCharge += Gdx.graphics.getDeltaTime();
+            System.out.println(superJumpCharge);
+            if (superJumpCharge >= superJumpChargeTime)
+            {
+                System.out.println("Super jump ready");
+                superJumpCharge = 0;
+                superJumpReady = true;
+            }
         }
     }
 
@@ -419,6 +401,7 @@ public class Player
     {
         if (!grounded && touchingWall)
         {
+            doubleJumped = false;
             if (touchingLeftWall)
             {
                 position.y += 1;
@@ -441,15 +424,16 @@ public class Player
     {
         if (!grounded)
         {
+            System.out.println("Double Jump");
             if (rightMove && !doubleJumped) // If the player is holding left they will go forwards diagonally.
             {
                 velocity.y = JUMP_VELOCITY;
-                velocity.x = JUMP_VELOCITY;
+                velocity.x = JUMP_VELOCITY / 2f;
                 doubleJumped = true;
             }else if (leftMove && !doubleJumped) // If the player is holding left they will go backwards diagonally
             {
                 velocity.y = JUMP_VELOCITY;
-                velocity.x = -JUMP_VELOCITY;
+                velocity.x = -JUMP_VELOCITY / 2f;
                 doubleJumped = true;
             }
             if (!doubleJumped)
@@ -475,19 +459,53 @@ public class Player
 
     /**
      * dash allows the player to dash forward.
+     * dash works together with dashing() to handle timing.
      *
-     * Currently bugged
-     * TODO: Fix teleporting
+     * TODO: Possibly fuse the two methods to make it less messy
+     *
      */
     public void dash()
     {
-        if (rightMove)
-        {
-            velocity.x += 700f;
-        }else if (leftMove)
-        {
-            velocity.x -= 700f;
+        if(allowedToDash) {
+
+            if (rightMove) {
+                dashing();
+                velocity.x += 300f;
+
+            } else if (leftMove) {
+                dashing();
+                velocity.x -= 300f;
+            }
         }
+    }
+
+    /**
+     * dashing is intended to work together with dash(). Dashing handles the timer based actions.
+     *
+     * The method marks the player that they have dashed, and doesn't allow them to do the action again for a specified
+     * amount of time that can be found under "dashTimer"
+     */
+    public void dashing()
+    {
+        dashing = true;
+        allowedToDash = false;
+        System.out.println("Dash");
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                // Code to execute after the delay
+                dashing = false;
+            }
+        },0.2f);
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                // Code to execute after the delay
+                allowedToDash = true;
+            }
+        },dashTimer);
+
     }
 
     /**
@@ -497,7 +515,7 @@ public class Player
      * wallRiding is set to true, which is handled by wallRideCheck().
      * Within the input class, key down and key up help control when wallRiding is set to true or false.
      *
-     * TODO: Fix bug where player will continue to wallride once they are off the wall.
+     * TODO: Fix bug that allows the player to continue to wallride despite not touching a wall
      *
      */
     public void wallRide()
@@ -528,46 +546,69 @@ public class Player
      * Allows the player to attack. When the attack button is pressed, a box is placed in front of the player briefly.
      *
      * This method works with attackRender()
-     * TODO: Put a check in place that wont cause the hitbox to continuously hurt the enemy when its out.
+     * TODO: Have the animation play separate from the attack
      */
     public void attack()
     {
         attack = true;
+        attacking = true;
         if (attack)
         {
             //attack = false;
             if (facingRight) {
-                attackHitbox = new Rectangle(position.x - WIDTH, position.y + (HEIGHT / 3f), 50f, 50f);
+                attackHitbox = new Rectangle(position.x - WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
             } else
             {
-                attackHitbox = new Rectangle(position.x + WIDTH, position.y + (HEIGHT / 3f), 50f, 50f);
+                attackHitbox = new Rectangle(position.x + WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
             }
+            // Jump to attackRender() //
             System.out.println("Hitbox present");
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
                     // Code to execute after the delay
                     attackHitbox = null;
+                    attacking = false;
                     System.out.println("HitBox removed");
                     attack = false;
                 }
-            }, 0.1f);
+            }, 0.20f);
         }
     }
 
     /**
+     * deployAttack deals damage to the enemy and then sets attack to "false" to stop the player from dealing damage
+     * @param e Enemy
+     */
+    public void deployAttack(Enemy e)
+    {
+        e.setHealth(e.getHealth() - (5f * random.nextInt(1,3)));
+        if (facingRight) {
+            e.setVelocity(e.velocity.x + 150f, e.velocity.y + 150f);
+        } else
+        {
+            e.setVelocity(e.velocity.x - 150f, e.velocity.y + 150f);
+        }
+        attack = false;
+    }
+
+    /**
      * Renders the hitbox for attack.
+     * This is more for debugging purposes and this method will soon include something such as an attack image
      */
     public void attackRender()
     {
         try {
             if (attack) {
                 if (facingRight) {
-                    attackHitbox = attackHitbox.set(position.x + WIDTH, position.y + (HEIGHT / 3f), 50f, 50f);
+                    attackHitbox = attackHitbox.set(position.x + WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
                 } else
                 {
-                    attackHitbox = attackHitbox.set(position.x - 50f, position.y + (HEIGHT / 3f), 50f, 50f);
+                    attackHitbox = attackHitbox.set(position.x - 25f, position.y + (HEIGHT / 3f), 25f, 25f);
                 }
+            } else
+            {
+                attackHitbox = null;
             }
         } catch (Exception e)
         {
@@ -575,30 +616,27 @@ public class Player
         }
     }
 
+    /**
+     * Handles how the player character responds to getting hurt.
+     *
+     * Currently, when the player is hurt they will bounce back. The direction of how far they get thrown back is hard coded,
+     * and is dependent on which direction the player is facing
+     * @param e
+     */
+    public void hurt(Enemy e)
+    {
+        health = health - e.attackPoints;
+        if (facingRight) {
+            velocity.set(-200, 200);
+        } else
+        {
+            velocity.set(200, 200);
+        }
+    }
+
     public void itemCollected(Item item)
     {
         collectedItems.add(item);
-    }
-
-
-    public Vector2 getPosition()
-    {
-        return position;
-    }
-
-    public void setVelocity(float x, float y)
-    {
-        velocity.set(x, y);
-    }
-
-    public Vector2 getVelocity()
-    {
-        return velocity;
-    }
-
-    public Rectangle getBounds()
-    {
-        return bounds;
     }
 
     public void updateCamera(OrthographicCamera camera)
@@ -657,7 +695,12 @@ public class Player
             state = State.WALL_RIDING;
         }
 
-        if (attack)
+        if (attacking)
+        {
+            state = State.ATTACKING;
+        }
+
+        if (dashing)
         {
             state = State.ATTACKING;
         }
@@ -741,9 +784,30 @@ public class Player
         }
         sprite.draw(spriteBatch);
     }
+
     //                      //
     //Setters and Getters   //
     //                      //
+
+    public Vector2 getPosition()
+    {
+        return position;
+    }
+
+    public void setVelocity(float x, float y)
+    {
+        velocity.set(x, y);
+    }
+
+    public Vector2 getVelocity()
+    {
+        return velocity;
+    }
+
+    public Rectangle getBounds()
+    {
+        return bounds;
+    }
 
     public boolean isGrounded()
     {
