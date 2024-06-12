@@ -19,9 +19,10 @@ public class GameScreen extends ScreenAdapter
     protected World world;
     protected Player player;
 
-    float x = 100f;
-    float y = 300f;
+    float x = 400f;
+    float y = 1200f;
     private boolean firstSpawnCheck = false;
+    public boolean playerWon = false;
 
 
     /**
@@ -88,7 +89,8 @@ public class GameScreen extends ScreenAdapter
         world.render(delta);
         if (world.isTouchingEndGoal())
         {
-            game.setScreen(new EndScreen(game));
+            playerWon = true;
+            game.setScreen(new EndScreen(game, playerWon));
         }
 
         /*
@@ -124,7 +126,8 @@ public class GameScreen extends ScreenAdapter
 
         if (player.getHealth() <= 0)
         {
-            game.setScreen(new EndScreen(game));
+
+            game.setScreen(new EndScreen(game, playerWon));
         }
 
         //System.out.println(player.isTouchingWall());

@@ -13,8 +13,9 @@ public class EndScreen extends ScreenAdapter
     PlatformerGame game;
     boolean playerWon;
 
-    public EndScreen(PlatformerGame game)
+    public EndScreen(PlatformerGame game, boolean win)
     {
+        playerWon = win;
         this.game = game;
     }
 
@@ -38,12 +39,22 @@ public class EndScreen extends ScreenAdapter
     @Override
     public void render(float delta)
     {
-        Gdx.gl.glClearColor(0f, .25f, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        game.batch.begin();
-        game.font.draw(game.batch, "You Win", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .75f);
-        game.font.draw(game.batch, "Press enter to restart.", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .25f);
-        game.batch.end();
+        if (playerWon) {
+            Gdx.gl.glClearColor(0f, .25f, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            game.batch.begin();
+            game.font.draw(game.batch, "You Won!", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .75f);
+            game.font.draw(game.batch, "Press enter to restart.", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .25f);
+            game.batch.end();
+        } else
+        {
+            Gdx.gl.glClearColor(.25f, 0f, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            game.batch.begin();
+            game.font.draw(game.batch, "You Died...", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .75f);
+            game.font.draw(game.batch, "Press enter to restart.", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .25f);
+            game.batch.end();
+        }
     }
 
     @Override

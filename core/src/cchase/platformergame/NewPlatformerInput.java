@@ -41,7 +41,6 @@ public class NewPlatformerInput implements InputProcessor
                     p.wallJump();
                 } else if (!p.isGrounded() && !p.isTouchingWall()) // Double Jump input
                 {
-                    System.out.println("Double jump");
                     p.doubleJump();
                 } else if (p.wallRiding)
                 {
