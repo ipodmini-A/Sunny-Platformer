@@ -58,14 +58,14 @@ running
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: -1
-running2
+  index: 0
+running
   rotate: false
   xy: 1200, 400
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: -1
+  index: 1
 stance
   rotate: false
   xy: 1600, 400

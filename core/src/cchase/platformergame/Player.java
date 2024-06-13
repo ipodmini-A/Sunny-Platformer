@@ -3,10 +3,7 @@ package cchase.platformergame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -61,6 +58,7 @@ public class Player
     protected OrthographicCamera camera;
     protected SpriteBatch spriteBatch;
     protected TextureAtlas textureAtlas;
+    //protected TextureAtlas textureAtlasRunning;
     private boolean disableControls;
     private boolean leftMove;
     private boolean rightMove;
@@ -96,8 +94,10 @@ public class Player
     protected boolean dashing;
     protected float dashTimer = 1f;
     protected LinkedList<Item> collectedItems;
-    protected Animation<Sprite> animation;
-    float stateTime = 0;
+    SpriteBatch batch;
+    TextureAtlas textureAtlasRunning;
+    Animation<TextureRegion> animation;
+    float elapsedTime;
     protected Random random;
 
     /**
@@ -146,7 +146,8 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
-        animation = new Animation<>(0.066f, textureAtlas.createSprites("running"), Animation.PlayMode.LOOP);
+        animation = new Animation<TextureRegion>(1/2f, textureAtlas.findRegions("running")); // 2 frames per second
+        elapsedTime = 0f;
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
@@ -204,7 +205,8 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
-        animation = new Animation<>(0.066f, textureAtlas.createSprites("running"), Animation.PlayMode.LOOP);
+        animation = new Animation<TextureRegion>(1/2f, textureAtlas.findRegions("running")); // 2 frames per second
+        elapsedTime = 0f;
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
@@ -287,10 +289,24 @@ public class Player
                 drawSprite("standing", position.x, position.y);
                 break;
             case WALKING:
-                stateTime += Gdx.graphics.getDeltaTime();
-                Sprite sprite = animation.getKeyFrame(stateTime, true);
-                sprite.setX(stateTime * 250 % (Gdx.graphics.getWidth() + 400) - 200);
                 //drawSprite("running", position.x, position.y);
+                elapsedTime += Gdx.graphics.getDeltaTime();
+
+
+                // I don't know why this works but... for know it works fine.
+                // This is very flawed, as its using "sprite" even though this block of code doesn't rely on sprite at all.
+                // That being said, it's a great way to check the direction of the player.
+                if (facingRight && !sprite.isFlipX()) {
+                    // Flip the sprite horizontally
+                    TextureRegion flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    flippedFrame.flip(true, false);
+                    spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+                } else
+                {
+                    TextureRegion flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    flippedFrame.flip(false, false);
+                    spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+                }
                 break;
             case JUMPING:
                 drawSprite("jumping", position.x, position.y);

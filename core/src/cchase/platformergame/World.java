@@ -49,6 +49,7 @@ public class World {
     private OrthogonalTiledMapRenderer mapRenderer;
     private MapLayer collisionLayer;
     private MapLayer endGoalLayer;
+    private MapLayer playerSpawnPoint;
     private MapObjects objects;
     private MapObjects endGameObject;
     private boolean debug = false;
@@ -75,6 +76,7 @@ public class World {
         // Layers from the map that was spawned above.
         collisionLayer = map.getLayers().get("collision");
         endGoalLayer = map.getLayers().get("endgoal");
+        playerSpawnPoint = map.getLayers().get("playerSpawn");
         objects = collisionLayer.getObjects();
         endGameObject = endGoalLayer.getObjects();
 
@@ -83,6 +85,14 @@ public class World {
         camera.setToOrtho(false, 480, 270);
         camera.update();
         //mapRenderer.setView(camera);
+
+        //TODO: Move playerSpawn here.
+        //I LOVE JAVA I LOVE OOP
+        float xSpawnPoint = playerSpawnPoint.getObjects().get(0).getProperties().get("x", Float.class);
+        float ySpawnPoint = playerSpawnPoint.getObjects().get(0).getProperties().get("y", Float.class);
+        player.setPositionX(xSpawnPoint);
+        System.out.println(xSpawnPoint);
+        player.setPositionY(ySpawnPoint);
 
         // Sets the size of the player. Going to be honest, forgot what this does.
         player.setSCALE(SCALE);
