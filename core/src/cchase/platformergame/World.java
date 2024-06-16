@@ -285,7 +285,17 @@ public class World {
             //isTouchingCeiling = false;
         }
 
+        // Apply Friction
+        if (p.getVelocity().x > 0) {
+            p.getVelocity().sub(FRICTION, 0);
+        }
+
+        if (p.getVelocity().x < 0) {
+            p.getVelocity().add(FRICTION, 0);
+        }
+
         // Apply gravity
+        /*
         if (p.isGrounded()) {
             p.getVelocity().y = 0;
             //player.getPosition().y = oldY;
@@ -297,13 +307,7 @@ public class World {
             }
         }
 
-        if (p.getVelocity().x > 0) {
-            p.getVelocity().sub(FRICTION, 0);
-        }
-
-        if (p.getVelocity().x < 0) {
-            p.getVelocity().add(FRICTION, 0);
-        }
+         */
 
         if (p.isGrounded()) {
             p.getPosition().x += p.getVelocity().x * delta;
@@ -343,6 +347,21 @@ public class World {
         //p.setTouchingCeiling(isTouchingCeiling);
         //System.out.println(isTouchingEndGoal());
         //System.out.println(isTouchingAnything());
+    }
+
+    public void applyGravity(float delta, Player p)
+    {
+        // Apply gravity
+        if (p.isGrounded()) {
+            p.getVelocity().y = 0;
+            //player.getPosition().y = oldY;
+        } else {
+            if (p.getVelocity().y >= MAX_FALL) {
+                p.getVelocity().add(0, GRAVITY * delta);
+            } else {
+                p.getVelocity().y = MAX_FALL;
+            }
+        }
     }
 
     /**
@@ -491,18 +510,7 @@ public class World {
             //isTouchingCeiling = false;
         }
 
-        // Apply gravity
-        if (item.isGrounded()) {
-            item.getVelocity().y = 0;
-            //player.getPosition().y = oldY;
-        } else {
-            if (item.getVelocity().y >= MAX_FALL) {
-                item.getVelocity().add(0, GRAVITY * delta);
-            } else {
-                item.getVelocity().y = MAX_FALL;
-            }
-        }
-
+        //Apply Friction
         if (item.getVelocity().x > 0) {
             item.getVelocity().sub(FRICTION, 0);
         }
@@ -543,6 +551,21 @@ public class World {
         //p.setTouchingCeiling(isTouchingCeiling);
         //System.out.println(isTouchingEndGoal());
         //System.out.println(isTouchingAnything());
+    }
+
+    public void applyGravity(float delta, Item i)
+    {
+        // Apply gravity
+        if (i.isGrounded()) {
+            i.getVelocity().y = 0;
+            //player.getPosition().y = oldY;
+        } else {
+            if (i.getVelocity().y >= MAX_FALL) {
+                i.getVelocity().add(0, GRAVITY * delta);
+            } else {
+                i.getVelocity().y = MAX_FALL;
+            }
+        }
     }
 
     /**
@@ -776,6 +799,7 @@ public class World {
         nonPlayableCharacter.updateCamera(camera);
         nonPlayableCharacter.render(spriteBatch,delta);
         checkCollisions(delta,nonPlayableCharacter);
+        applyGravity(delta, nonPlayableCharacter);
         //System.out.println(player.nextMessage);
         //System.out.println(isCollidingWithNPC());
         if (isCollidingWithNPC() && player.isDisplayMessage())
@@ -796,6 +820,7 @@ public class World {
                 enemy.updateCamera(camera);
                 enemy.render(spriteBatch, delta);
                 checkCollisions(delta, enemy);
+                applyGravity(delta,enemy);
             } else
             {
                 // Enemy is removed from the world.
@@ -808,6 +833,7 @@ public class World {
 
         // Player render
         checkCollisions(delta, player);
+        applyGravity(delta,player);
         player.updateCamera(camera);
         player.render(spriteBatch,delta);
 
@@ -816,6 +842,7 @@ public class World {
         {
             try {
                 checkCollisions(delta, collectables.get(i));
+                applyGravity(delta, collectables.get(i));
                 collectables.get(i).updateCamera(camera);
                 collectables.get(i).render(spriteBatch, delta);
                 if (isCollidingWithObject(collectables.get(i)) && !collectables.get(i).isCollected())
