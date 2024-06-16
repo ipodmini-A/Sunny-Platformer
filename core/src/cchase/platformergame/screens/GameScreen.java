@@ -35,7 +35,7 @@ public class GameScreen extends ScreenAdapter
         System.out.println("GameScreen created");
         this.game = game;
         batch = new SpriteBatch();
-        player = new Player(x,y);
+        player = new Player();
         //Gdx.input.setInputProcessor(inputProcessor);
         world = new World(player);
     }

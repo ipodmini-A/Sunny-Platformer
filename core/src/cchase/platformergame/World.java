@@ -42,7 +42,7 @@ public class World {
     public NonPlayableCharacter nonPlayableCharacter;
     // I'm not sure if having "Collectables" be a linked list is a good idea.
     // For now, it works. When creating a new level, each collectable will be added to this linked list.
-    // Each item in the linked list has its coordience
+    // Each item in the linked list has its coordinates
     protected LinkedList<Item> collectables;
     private final TiledMap map;
     private TmxMapLoader loader;
@@ -52,7 +52,8 @@ public class World {
     private MapLayer playerSpawnPoint;
     private MapObjects objects;
     private MapObjects endGameObject;
-    private boolean debug = false;
+    private MapObjects playerSpawnPointObject;
+    private boolean debug = true;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -79,6 +80,7 @@ public class World {
         playerSpawnPoint = map.getLayers().get("playerSpawn");
         objects = collisionLayer.getObjects();
         endGameObject = endGoalLayer.getObjects();
+        playerSpawnPointObject = playerSpawnPoint.getObjects();
 
         // Camera creation
         camera = new OrthographicCamera();
@@ -88,10 +90,14 @@ public class World {
 
         //TODO: Move playerSpawn here.
         //I LOVE JAVA I LOVE OOP I LOVE 500 GETS
-        float xSpawnPoint = playerSpawnPoint.getObjects().get(0).getProperties().get("x", Float.class);
-        float ySpawnPoint = playerSpawnPoint.getObjects().get(0).getProperties().get("y", Float.class);
+
+        float xSpawnPoint = playerSpawnPointObject.get(0).getProperties().get("x", Float.class);
+        float ySpawnPoint = playerSpawnPointObject.get(0).getProperties().get("y", Float.class);
         player.setPositionX(xSpawnPoint);
-        System.out.println(xSpawnPoint);
+        if (debug)
+        {
+            System.out.println("Player Spawn Location: x: " + xSpawnPoint + " Y: " + ySpawnPoint);
+        }
         player.setPositionY(ySpawnPoint);
 
         // Sets the size of the player. Going to be honest, forgot what this does.
@@ -113,6 +119,11 @@ public class World {
         debugRenderer = new ShapeRenderer();
         debugFont = new BitmapFont();
         debugBatch = new SpriteBatch();
+
+        if (debug)
+        {
+            System.out.println("World created");
+        }
     }
 
     /**
@@ -341,7 +352,7 @@ public class World {
      * Using MapLayer, the collision layer is gathered. It then iterates through the objects to see if each object had some
      * form of interaction
      * Currently in progress
-     * Note: This method is overloaded. Currently this has to be modified to fit with items.
+     * Note: This method is overloaded. Currently, this has to be modified to fit with items.
      *
      * @param delta
      * @param item
