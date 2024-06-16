@@ -431,7 +431,6 @@ public class Player
     {
         if (!grounded && touchingWall)
         {
-            doubleJumped = false;
             if (touchingLeftWall)
             {
                 position.y += 1;

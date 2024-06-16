@@ -87,7 +87,7 @@ public class World {
         //mapRenderer.setView(camera);
 
         //TODO: Move playerSpawn here.
-        //I LOVE JAVA I LOVE OOP
+        //I LOVE JAVA I LOVE OOP I LOVE 500 GETS
         float xSpawnPoint = playerSpawnPoint.getObjects().get(0).getProperties().get("x", Float.class);
         float ySpawnPoint = playerSpawnPoint.getObjects().get(0).getProperties().get("y", Float.class);
         player.setPositionX(xSpawnPoint);
@@ -102,7 +102,7 @@ public class World {
         enemy.setSCALE(SCALE);
 
         //NPC creation
-        nonPlayableCharacter = new NonPlayableCharacter(300, 300);
+        nonPlayableCharacter = new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y);
 
         //Item creation
         collectables = new LinkedList<>();
