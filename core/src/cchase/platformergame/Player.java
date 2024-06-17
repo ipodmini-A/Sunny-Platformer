@@ -29,7 +29,7 @@ public class Player
     protected static final float WIDTH = 30f;
     protected static final float SPRITE_HEIGHT = 60f + 10f;
     protected static final float SPRITE_WIDTH = 60f + 10f; // I don't know why adding 10 makes the sprite the proper size.
-    protected static float MAX_VELOCITY = 300f;
+    protected static float MAX_VELOCITY = 600f;
     private static float SCALE = 1f;
     protected String name;
     // Player stats
@@ -95,12 +95,12 @@ public class Player
     protected float dashTimer = 1f;
     protected LinkedList<Item> collectedItems;
     SpriteBatch batch;
-    Animation<TextureRegion> animation;
-    float elapsedTime;
-    private float baseFrameDuration = 1/4f;
-    private float velocitySensitivity = 0.001f;
-    float frameDuration;
-    TextureRegion flippedFrame;
+    protected Animation<TextureRegion> animation;
+    protected float elapsedTime;
+    protected float baseFrameDuration = 1/4f;
+    protected float velocitySensitivity = 0.002f;
+    protected float frameDuration;
+    protected TextureRegion flippedFrame;
     protected Random random;
 
     /**
@@ -263,13 +263,11 @@ public class Player
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         input();
-        //input();
         changeAnimationSpeed(delta);
         update(delta);
-        renderMovement();
+        renderMovement(spriteBatch);
         //drawSprite("standing", position.x, position.y);
         spriteBatch.end();
-
         //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
         //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
     }
@@ -277,14 +275,18 @@ public class Player
     /**
      * renderMovement() controls movement and will display the correct sprite depending on what action is being performed
      * The method uses drawSprite(), and changes by using the enum State.
+     *
+     * TODO: Implement a new variable to position.x and position.y. I'd like to offset the sprite if it is necessary
      */
-    public void renderMovement()
+    public void renderMovement(SpriteBatch spriteBatch)
     {
         elapsedTime += Gdx.graphics.getDeltaTime();
         // If elapsedTime is left uncapped, it causes the current implementation of animation to continuously go faster
         // as long as the game is active. Until the animation implementation changes, the elapsed time is to remain capped.
         // A cap of two to four seems to work fine.
-        if (elapsedTime >= 2)
+        // Update: There was a looping error, causing the animation to abruptly cut in the middle of it and reset.
+        // Setting the cap to be the frameDuration * the amount of frames (in this case, 4) seems to fix the looping error.
+        if (elapsedTime >= (frameDuration * 4f))
         {
             elapsedTime = 0;
         }
@@ -303,9 +305,6 @@ public class Player
                 drawSprite("standing", position.x, position.y);
                 break;
             case WALKING:
-                //drawSprite("running", position.x, position.y);
-
-
                 // I don't know why this works but... for know it works fine.
                 // This is very flawed, as its using "sprite" even though this block of code doesn't rely on sprite at all.
                 // That being said, it's a great way to check the direction of the player.
@@ -589,7 +588,10 @@ public class Player
     {
         if (wallRiding)
         {
-            velocity.y = -MAX_VELOCITY / 2f;
+            velocity.y = -150f;
+            // TODO: Create a wall ride variable
+            // When modifying the maximum velocity, this variable would be affected. For example, changing it to
+            // 500f would cause the wall ride variable to change to 250f instead of 150f which is annoying.
         }
     }
 

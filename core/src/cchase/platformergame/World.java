@@ -3,6 +3,7 @@ package cchase.platformergame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -53,12 +54,13 @@ public class World {
     private MapObjects objects;
     private MapObjects endGameObject;
     private MapObjects playerSpawnPointObject;
-    private boolean debug = true;
+    private boolean debug = false;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
     private SpriteBatch debugBatch;
     public Music music;
+    // TODO: Implement a proper debug tool.
 
     public World(Player player) {
         // Sound creation
@@ -785,21 +787,25 @@ public class World {
      */
     public void render(float delta)
     {
+
         // Update the camera's view
         camera.update();
+        mapRenderer.setView(camera);
+
+        Gdx.gl.glClearColor(167f/255f, 199f/255f, 231f/255f, 1.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Set the camera's position to follow the player, considering half of the screen size
         camera.position.x = player.getPosition().x + player.getWidth() / SCALE;
         camera.position.y = player.getPosition().y + player.getHeight() / SCALE;
 
-        mapRenderer.setView(camera);
         mapRenderer.render();
 
         // NPC render
-        nonPlayableCharacter.updateCamera(camera);
-        nonPlayableCharacter.render(spriteBatch,delta);
         checkCollisions(delta,nonPlayableCharacter);
         applyGravity(delta, nonPlayableCharacter);
+        nonPlayableCharacter.updateCamera(camera);
+        nonPlayableCharacter.render(spriteBatch,delta);
         //System.out.println(player.nextMessage);
         //System.out.println(isCollidingWithNPC());
         if (isCollidingWithNPC() && player.isDisplayMessage())
@@ -812,23 +818,18 @@ public class World {
             nonPlayableCharacter.Message(player);
         }
 
-        try
-        {
-            // Enemy render
-            if (enemy.getHealth() > 0)
-            {
+
+        // Enemy render
+        if (enemy != null) {
+            if (enemy.getHealth() > 0) {
+                checkCollisions(delta, enemy);
+                applyGravity(delta, enemy);
                 enemy.updateCamera(camera);
                 enemy.render(spriteBatch, delta);
-                checkCollisions(delta, enemy);
-                applyGravity(delta,enemy);
-            } else
-            {
+            } else {
                 // Enemy is removed from the world.
                 enemy = null;
             }
-        } catch (Exception e)
-        {
-            // Handle error
         }
 
         // Player render

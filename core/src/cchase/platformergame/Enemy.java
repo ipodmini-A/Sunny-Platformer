@@ -1,8 +1,7 @@
 package cchase.platformergame;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -16,8 +15,13 @@ public class Enemy extends Player
     public Enemy(float x, float y)
     {
         super(x,y);
+
         textureAtlas = new TextureAtlas("enemysprites.txt");
         addSprites();
+        //This might cause issues in the future ¯\_(ツ)_/¯
+        elapsedTime = 0f;
+        flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+
         health = 100f;
         attackPoints = 10f;
         defensePoints = 3f;
@@ -38,6 +42,112 @@ public class Enemy extends Player
         }
          */
         //jump();
+    }
+
+    @Override
+    public void render(SpriteBatch spriteBatch,float delta)
+    {
+        this.spriteBatch = spriteBatch;
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+        //changeAnimationSpeed(delta);
+        update(delta);
+        renderMovement(spriteBatch);
+        //drawSprite("standing", position.x, position.y);
+        spriteBatch.end();
+    }
+
+    public void renderMovement(SpriteBatch spriteBatch)
+    {
+        elapsedTime += Gdx.graphics.getDeltaTime();
+        // If elapsedTime is left uncapped, it causes the current implementation of animation to continuously go faster
+        // as long as the game is active. Until the animation implementation changes, the elapsed time is to remain capped.
+        // A cap of two to four seems to work fine.
+        // Update: There was a looping error, causing the animation to abruptly cut in the middle of it and reset.
+        // Setting the cap to be the frameDuration * the amount of frames (in this case, 4) seems to fix the looping error.
+        if (elapsedTime >= (frameDuration * 4f))
+        {
+            elapsedTime = 0;
+        }
+        //System.out.println();
+        if (velocity.x < 0)
+        {
+            facingRight = false;
+        } else if (velocity.x > 0)
+        {
+            facingRight = true;
+        }
+
+        switch (state)
+        {
+            case STANDING:
+                drawSprite("standing", position.x, position.y);
+                break;
+            case WALKING:
+                // I don't know why this works but... for know it works fine.
+                // This is very flawed, as its using "sprite" even though this block of code doesn't rely on sprite at all.
+                // That being said, it's a great way to check the direction of the player.
+                if (facingRight && !sprite.isFlipX()) {
+                    // Flip the sprite horizontally
+                    flippedFrame.setRegion(animation.getKeyFrame(elapsedTime,true));
+                    //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    flippedFrame.flip(true, false);
+                    spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+                } else
+                {
+                    flippedFrame.setRegion(animation.getKeyFrame(elapsedTime,true));
+                    //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    flippedFrame.flip(false, false);
+                    spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+                }
+                break;
+            case JUMPING:
+                drawSprite("jumping", position.x, position.y);
+                break;
+            case FALLING:
+                drawSprite("falling", position.x, position.y);
+                break;
+            case WALL_RIDING:
+                drawSprite("wallriding", position.x, position.y);
+                break;
+            case LOOKING_UP:
+                drawSprite("lookingUp", position.x, position.y);
+                break;
+            case LOOKING_DOWN:
+                drawSprite("lookingDown", position.x, position.y);
+                break;
+            case TOUCHING_WALL:
+                drawSprite("touchingWall", position.x, position.y);
+                break;
+            case ATTACKING:
+                drawSprite("attacking", position.x, position.y);
+                break;
+            case DEFENDING:
+                drawSprite("defending", position.x, position.y);
+                break;
+            case PUNCHING:
+                drawSprite("punching", position.x, position.y);
+                break;
+            case STANCE:
+                drawSprite("stance", position.x, position.y);
+                break;
+        }
+    }
+
+    private void drawSprite(String name, float x, float y)
+    {
+        Sprite sprite = sprites.get(name);
+
+        sprite.setBounds(x - (WIDTH / 2f) - 5f,y,SPRITE_WIDTH,SPRITE_HEIGHT);
+
+        if (facingRight && !sprite.isFlipX())
+        {
+            sprite.flip(true,false);
+        } else if (!facingRight && sprite.isFlipX())
+        {
+            sprite.flip(true, false);
+        }
+        sprite.draw(spriteBatch);
     }
 
     private void addSprites()
