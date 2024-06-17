@@ -180,8 +180,10 @@
             <key type="filename">sprites/lookingDown.PNG</key>
             <key type="filename">sprites/lookingUp.PNG</key>
             <key type="filename">sprites/punching.png</key>
-            <key type="filename">sprites/running_0.PNG</key>
+            <key type="filename">sprites/running_0.png</key>
             <key type="filename">sprites/running_1.png</key>
+            <key type="filename">sprites/running_2.png</key>
+            <key type="filename">sprites/running_3.png</key>
             <key type="filename">sprites/stance.PNG</key>
             <key type="filename">sprites/standing.PNG</key>
             <key type="filename">sprites/touchingWall.PNG</key>
@@ -218,8 +220,10 @@
                     <filename>sprites/stance.PNG</filename>
                     <filename>sprites/standing.PNG</filename>
                     <filename>sprites/punching.png</filename>
-                    <filename>sprites/running_0.PNG</filename>
+                    <filename>sprites/running_0.png</filename>
                     <filename>sprites/running_1.png</filename>
+                    <filename>sprites/running_2.png</filename>
+                    <filename>sprites/running_3.png</filename>
                 </array>
             </struct>
         </map>

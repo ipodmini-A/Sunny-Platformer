@@ -29,7 +29,7 @@ public class Player
     protected static final float WIDTH = 30f;
     protected static final float SPRITE_HEIGHT = 60f + 10f;
     protected static final float SPRITE_WIDTH = 60f + 10f; // I don't know why adding 10 makes the sprite the proper size.
-    protected static float MAX_VELOCITY = 200f;
+    protected static float MAX_VELOCITY = 300f;
     private static float SCALE = 1f;
     protected String name;
     // Player stats
@@ -95,9 +95,12 @@ public class Player
     protected float dashTimer = 1f;
     protected LinkedList<Item> collectedItems;
     SpriteBatch batch;
-    TextureAtlas textureAtlasRunning;
     Animation<TextureRegion> animation;
     float elapsedTime;
+    private float baseFrameDuration = 1/4f;
+    private float velocitySensitivity = 0.001f;
+    float frameDuration;
+    TextureRegion flippedFrame;
     protected Random random;
 
     /**
@@ -146,8 +149,9 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
-        animation = new Animation<TextureRegion>(1/2f, textureAtlas.findRegions("running")); // 2 frames per second
+        animation = new Animation<TextureRegion>(frameDuration, textureAtlas.findRegions("running")); // 4 frames per second
         elapsedTime = 0f;
+        flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
@@ -205,7 +209,7 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
-        animation = new Animation<TextureRegion>(1/2f, textureAtlas.findRegions("running")); // 2 frames per second
+        animation = new Animation<TextureRegion>(frameDuration, textureAtlas.findRegions("running")); // 4 frames per second
         elapsedTime = 0f;
 
         platformerInput = new PlatformerInput(this);
@@ -260,6 +264,7 @@ public class Player
         spriteBatch.begin();
         input();
         //input();
+        changeAnimationSpeed(delta);
         update(delta);
         renderMovement();
         //drawSprite("standing", position.x, position.y);
@@ -275,6 +280,15 @@ public class Player
      */
     public void renderMovement()
     {
+        elapsedTime += Gdx.graphics.getDeltaTime();
+        // If elapsedTime is left uncapped, it causes the current implementation of animation to continuously go faster
+        // as long as the game is active. Until the animation implementation changes, the elapsed time is to remain capped.
+        // A cap of two to four seems to work fine.
+        if (elapsedTime >= 2)
+        {
+            elapsedTime = 0;
+        }
+        //System.out.println();
         if (velocity.x < 0)
         {
             facingRight = false;
@@ -290,7 +304,6 @@ public class Player
                 break;
             case WALKING:
                 //drawSprite("running", position.x, position.y);
-                elapsedTime += Gdx.graphics.getDeltaTime();
 
 
                 // I don't know why this works but... for know it works fine.
@@ -298,12 +311,14 @@ public class Player
                 // That being said, it's a great way to check the direction of the player.
                 if (facingRight && !sprite.isFlipX()) {
                     // Flip the sprite horizontally
-                    TextureRegion flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    flippedFrame.setRegion(animation.getKeyFrame(elapsedTime,true));
+                    //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
                     flippedFrame.flip(true, false);
                     spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
                 } else
                 {
-                    TextureRegion flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    flippedFrame.setRegion(animation.getKeyFrame(elapsedTime,true));
+                    //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
                     flippedFrame.flip(false, false);
                     spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
                 }
@@ -339,6 +354,13 @@ public class Player
                 drawSprite("stance", position.x, position.y);
                 break;
         }
+    }
+
+    public void changeAnimationSpeed(float delta)
+    {
+        frameDuration = baseFrameDuration / (1 + velocitySensitivity * Math.abs(velocity.x));
+        //System.out.println(frameDuration);
+        animation.setFrameDuration(frameDuration);
     }
 
     /**
@@ -1155,6 +1177,14 @@ public class Player
 
     public void setAttack(boolean attack) {
         this.attack = attack;
+    }
+
+    public float getFrameDuration() {
+        return frameDuration;
+    }
+
+    public void setFrameDuration(float frameDuration) {
+        this.frameDuration = frameDuration;
     }
 
     public void dispose()
