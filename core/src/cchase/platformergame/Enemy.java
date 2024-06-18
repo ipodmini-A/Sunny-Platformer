@@ -19,8 +19,8 @@ public class Enemy extends Player
         textureAtlas = new TextureAtlas("enemysprites.txt");
         addSprites();
         //This might cause issues in the future ¯\_(ツ)_/¯
-        elapsedTime = 0f;
-        flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+        runningElapsedTime = 0f;
+        runningFlippedFrame = new TextureRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
 
         health = 100f;
         attackPoints = 10f;
@@ -59,15 +59,15 @@ public class Enemy extends Player
 
     public void renderMovement(SpriteBatch spriteBatch)
     {
-        elapsedTime += Gdx.graphics.getDeltaTime();
+        runningElapsedTime += Gdx.graphics.getDeltaTime();
         // If elapsedTime is left uncapped, it causes the current implementation of animation to continuously go faster
         // as long as the game is active. Until the animation implementation changes, the elapsed time is to remain capped.
         // A cap of two to four seems to work fine.
         // Update: There was a looping error, causing the animation to abruptly cut in the middle of it and reset.
         // Setting the cap to be the frameDuration * the amount of frames (in this case, 4) seems to fix the looping error.
-        if (elapsedTime >= (frameDuration * 4f))
+        if (runningElapsedTime >= (runningFrameDuration * 4f))
         {
-            elapsedTime = 0;
+            runningElapsedTime = 0;
         }
         //System.out.println();
         if (velocity.x < 0)
@@ -89,16 +89,16 @@ public class Enemy extends Player
                 // That being said, it's a great way to check the direction of the player.
                 if (facingRight && !sprite.isFlipX()) {
                     // Flip the sprite horizontally
-                    flippedFrame.setRegion(animation.getKeyFrame(elapsedTime,true));
+                    runningFlippedFrame.setRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
                     //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
-                    flippedFrame.flip(true, false);
-                    spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+                    runningFlippedFrame.flip(true, false);
+                    spriteBatch.draw(runningFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
                 } else
                 {
-                    flippedFrame.setRegion(animation.getKeyFrame(elapsedTime,true));
+                    runningFlippedFrame.setRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
                     //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
-                    flippedFrame.flip(false, false);
-                    spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+                    runningFlippedFrame.flip(false, false);
+                    spriteBatch.draw(runningFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
                 }
                 break;
             case JUMPING:

@@ -54,7 +54,7 @@ public class World {
     private MapObjects objects;
     private MapObjects endGameObject;
     private MapObjects playerSpawnPointObject;
-    private boolean debug = true;
+    private boolean debug = false;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;

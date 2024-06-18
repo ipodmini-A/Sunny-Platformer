@@ -43,6 +43,8 @@ public class Player
 
     protected Texture texture;
     protected Sprite sprite;
+    protected float spriteXPositionOffset = 7f;
+    protected float spriteYPosition = 7f;
     protected Vector2 position;
     protected Vector2 velocity;
     protected Rectangle bounds;
@@ -95,12 +97,16 @@ public class Player
     protected float dashTimer = 1f;
     protected LinkedList<Item> collectedItems;
     SpriteBatch batch;
-    protected Animation<TextureRegion> animation;
-    protected float elapsedTime;
+    protected Animation<TextureRegion> runningAnimation;
+    protected Animation<TextureRegion> standingAnimation;
+    protected float runningElapsedTime;
+    protected float standingElapsedTime;
     protected float baseFrameDuration = 1/4f;
     protected float velocitySensitivity = 0.002f;
-    protected float frameDuration;
-    protected TextureRegion flippedFrame;
+    protected float runningFrameDuration;
+    protected float standingFrameDuration = 1/6f;
+    protected TextureRegion runningFlippedFrame;
+    protected TextureRegion standingFlippedFrame;
     protected Random random;
 
     /**
@@ -149,9 +155,13 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
-        animation = new Animation<TextureRegion>(frameDuration, textureAtlas.findRegions("running")); // 4 frames per second
-        elapsedTime = 0f;
-        flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+        runningAnimation = new Animation<TextureRegion>(runningFrameDuration, textureAtlas.findRegions("running")); // 4 frames per second
+        runningElapsedTime = 0f;
+        runningFlippedFrame = new TextureRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
+
+        standingAnimation = new Animation<TextureRegion>(1/6f, textureAtlas.findRegions("standing"));
+        standingElapsedTime = 0f;
+        standingFlippedFrame = new TextureRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
@@ -209,8 +219,13 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
-        animation = new Animation<TextureRegion>(frameDuration, textureAtlas.findRegions("running")); // 4 frames per second
-        elapsedTime = 0f;
+        runningAnimation = new Animation<TextureRegion>(runningFrameDuration, textureAtlas.findRegions("running")); // 4 frames per second
+        runningElapsedTime = 0f;
+        runningFlippedFrame = new TextureRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
+
+        standingAnimation = new Animation<TextureRegion>(1/6f, textureAtlas.findRegions("standing"));
+        standingElapsedTime = 0f;
+        standingFlippedFrame = new TextureRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
@@ -280,15 +295,20 @@ public class Player
      */
     public void renderMovement(SpriteBatch spriteBatch)
     {
-        elapsedTime += Gdx.graphics.getDeltaTime();
+        runningElapsedTime += Gdx.graphics.getDeltaTime();
+        standingElapsedTime += Gdx.graphics.getDeltaTime();
         // If elapsedTime is left uncapped, it causes the current implementation of animation to continuously go faster
         // as long as the game is active. Until the animation implementation changes, the elapsed time is to remain capped.
         // A cap of two to four seems to work fine.
         // Update: There was a looping error, causing the animation to abruptly cut in the middle of it and reset.
         // Setting the cap to be the frameDuration * the amount of frames (in this case, 4) seems to fix the looping error.
-        if (elapsedTime >= (frameDuration * 4f))
+        if (runningElapsedTime >= (runningFrameDuration * 4f))
         {
-            elapsedTime = 0;
+            runningElapsedTime = 0;
+        }
+        if (standingElapsedTime >= (standingFrameDuration * 6f))
+        {
+            standingElapsedTime = 0;
         }
         //System.out.println();
         if (velocity.x < 0)
@@ -302,7 +322,20 @@ public class Player
         switch (state)
         {
             case STANDING:
-                drawSprite("standing", position.x, position.y);
+                //drawSprite("standing", position.x, position.y);
+                if (facingRight && !sprite.isFlipX()) {
+                    // Flip the sprite horizontally
+                    standingFlippedFrame.setRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
+                    //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    standingFlippedFrame.flip(true, false);
+                    spriteBatch.draw(standingFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y - 7f, SPRITE_WIDTH, SPRITE_HEIGHT);
+                } else
+                {
+                    standingFlippedFrame.setRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
+                    //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    standingFlippedFrame.flip(false, false);
+                    spriteBatch.draw(standingFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y - 7f, SPRITE_WIDTH, SPRITE_HEIGHT);
+                }
                 break;
             case WALKING:
                 // I don't know why this works but... for know it works fine.
@@ -310,16 +343,16 @@ public class Player
                 // That being said, it's a great way to check the direction of the player.
                 if (facingRight && !sprite.isFlipX()) {
                     // Flip the sprite horizontally
-                    flippedFrame.setRegion(animation.getKeyFrame(elapsedTime,true));
+                    runningFlippedFrame.setRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
                     //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
-                    flippedFrame.flip(true, false);
-                    spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+                    runningFlippedFrame.flip(true, false);
+                    spriteBatch.draw(runningFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y - spriteYPosition, SPRITE_WIDTH, SPRITE_HEIGHT);
                 } else
                 {
-                    flippedFrame.setRegion(animation.getKeyFrame(elapsedTime,true));
+                    runningFlippedFrame.setRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
                     //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
-                    flippedFrame.flip(false, false);
-                    spriteBatch.draw(flippedFrame, position.x - (WIDTH / 2f) - 5f, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+                    runningFlippedFrame.flip(false, false);
+                    spriteBatch.draw(runningFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y - spriteYPosition, SPRITE_WIDTH, SPRITE_HEIGHT);
                 }
                 break;
             case JUMPING:
@@ -332,10 +365,10 @@ public class Player
                 drawSprite("wallriding", position.x, position.y);
                 break;
             case LOOKING_UP:
-                drawSprite("lookingUp", position.x, position.y);
+                drawSprite("lookingUp", position.x, position.y - spriteYPosition);
                 break;
             case LOOKING_DOWN:
-                drawSprite("lookingDown", position.x, position.y);
+                drawSprite("lookingDown", position.x, position.y - spriteYPosition);
                 break;
             case TOUCHING_WALL:
                 drawSprite("touchingWall", position.x, position.y);
@@ -357,9 +390,10 @@ public class Player
 
     public void changeAnimationSpeed(float delta)
     {
-        frameDuration = baseFrameDuration / (1 + velocitySensitivity * Math.abs(velocity.x));
+        runningFrameDuration = baseFrameDuration / (1 + velocitySensitivity * Math.abs(velocity.x));
         //System.out.println(frameDuration);
-        animation.setFrameDuration(frameDuration);
+        runningAnimation.setFrameDuration(runningFrameDuration);
+        standingAnimation.setFrameDuration(standingFrameDuration);
     }
 
     /**
@@ -1181,12 +1215,12 @@ public class Player
         this.attack = attack;
     }
 
-    public float getFrameDuration() {
-        return frameDuration;
+    public float getRunningFrameDuration() {
+        return runningFrameDuration;
     }
 
-    public void setFrameDuration(float frameDuration) {
-        this.frameDuration = frameDuration;
+    public void setRunningFrameDuration(float runningFrameDuration) {
+        this.runningFrameDuration = runningFrameDuration;
     }
 
     public void dispose()
