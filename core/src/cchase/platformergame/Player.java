@@ -230,10 +230,10 @@ public class Player
     {
         if (!disableControls) {
             if (leftMove && (velocity.x >= -1 * MAX_VELOCITY)) {
-                velocity.x -= 10;
+                velocity.x -= 10f;
             }
             if (rightMove && (velocity.x <= MAX_VELOCITY)) {
-                velocity.x += 10;
+                velocity.x += 10f;
             }
 
             if (jump)

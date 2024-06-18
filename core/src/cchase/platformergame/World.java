@@ -54,7 +54,7 @@ public class World {
     private MapObjects objects;
     private MapObjects endGameObject;
     private MapObjects playerSpawnPointObject;
-    private boolean debug = false;
+    private boolean debug = true;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -897,7 +897,7 @@ public class World {
             debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .65f);
             debugFont.draw(debugBatch, "Player Health: " + player.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .55f);
             debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
-            debugFont.draw(debugBatch, ">:( " + player.getFrameDuration(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
+            debugFont.draw(debugBatch, "Delta Time: " + Gdx.graphics.getDeltaTime(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
         } catch (Exception e)
         {
             //

@@ -78,14 +78,25 @@ public class MainMenuScreen implements Screen {
         resolutionSelectBox.setItems("720x480","1280x720", "1920x1080", "2560x1440");
         optionsTable.add(resolutionSelectBox).padBottom(20f).row();
 
+        Label FPSLabel = new Label("FPS:", skin);
+        optionsTable.add(FPSLabel).padBottom(20f).row();
+
+        final SelectBox<String> FPSLabelBox = new SelectBox<>(skin);
+        FPSLabelBox.setItems("60","90", "120", "160");
+        optionsTable.add(FPSLabelBox).padBottom(20f).row();
+
         TextButton applyButton = new TextButton("Apply", skin);
         applyButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 String selectedResolution = resolutionSelectBox.getSelected();
+                String selectedFPS = FPSLabelBox.getSelected();
                 String[] parts = selectedResolution.split("x");
+
                 int width = Integer.parseInt(parts[0]);
                 int height = Integer.parseInt(parts[1]);
+
+                int FPSint = Integer.parseInt(selectedFPS);
 
                 int targetWidth = 1280;  // The target width for scaling
                 int targetHeight = 720;  // The target height for scaling
@@ -100,9 +111,13 @@ public class MainMenuScreen implements Screen {
 
                 Gdx.graphics.setWindowedMode(scaledWidth, scaledHeight);
                 stage.getViewport().update(scaledWidth, scaledHeight, true);
+
+                Gdx.graphics.setForegroundFPS(FPSint);
             }
 
         });
+
+
         optionsTable.add(applyButton).padBottom(20f).row();
 
         TextButton backButton = new TextButton("Back", skin);
