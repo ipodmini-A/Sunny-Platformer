@@ -54,7 +54,7 @@ public class World {
     private MapObjects objects;
     private MapObjects endGameObject;
     private MapObjects playerSpawnPointObject;
-    private boolean debug = false;
+    private boolean debug = true;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -792,7 +792,7 @@ public class World {
         camera.update();
         mapRenderer.setView(camera);
 
-        Gdx.gl.glClearColor(167f/255f, 199f/255f, 231f/255f, 1.0f);
+        Gdx.gl.glClearColor(37f/255f, 79f/255f, 126f/255f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Set the camera's position to follow the player, considering half of the screen size

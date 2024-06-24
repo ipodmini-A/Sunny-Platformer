@@ -20,12 +20,13 @@ import java.util.Random;
  * characters from it. Currently, Enemy.java and NonPlayableCharacter extends it.
  * Objects include the characters stats, their sprites, their moves, and their bounds.
  * TODO: As time goes on, Player may not be the best name for this class.
+ * TODO: Clean up this class.
  */
 public class Player
 {
     private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
     private static final float JUMP_VELOCITY = 450f; // Adjust the jump velocity as needed
-    protected static final float HEIGHT = 60f;
+    protected float HEIGHT = 60f;
     protected static final float WIDTH = 30f;
     protected static final float SPRITE_HEIGHT = 60f + 10f;
     protected static final float SPRITE_WIDTH = 60f + 10f; // I don't know why adding 10 makes the sprite the proper size.
@@ -85,16 +86,12 @@ public class Player
     protected boolean facingRight = false;
     protected boolean doubleJumped = false;
     protected boolean wallRiding = false;
-    protected boolean superJumpReady = false;
-    protected float superJumpCharge = 0f;
-    protected float superJumpChargeTime = 1f;
     protected boolean lookingUp;
     protected boolean lookingDown;
-    protected boolean attacking;
+    protected boolean spriteAttacking;
     protected boolean defending;
     protected boolean allowedToDash;
     protected boolean dashing;
-    protected float dashTimer = 1f;
     protected LinkedList<Item> collectedItems;
     SpriteBatch batch;
     protected Animation<TextureRegion> runningAnimation;
@@ -107,6 +104,7 @@ public class Player
     protected float standingFrameDuration = 1/6f;
     protected TextureRegion runningFlippedFrame;
     protected TextureRegion standingFlippedFrame;
+    protected boolean invincible;
     protected Random random;
 
     /**
@@ -131,11 +129,12 @@ public class Player
         doubleJumped = false;
         lookingUp = false;
         lookingDown = false;
-        attacking = false;
+        spriteAttacking = false;
         attackedAlready = false;
         defending = false;
         flying = false;
         dashing = false;
+        invincible = false;
         allowedToDash = true;
         npcInteraction = false;
         displayMessage = false;
@@ -195,11 +194,12 @@ public class Player
         doubleJumped = false;
         lookingUp = false;
         lookingDown = false;
-        attacking = false;
+        spriteAttacking = false;
         attackedAlready = false;
         defending = false;
         flying = false;
         dashing = false;
+        invincible = false;
         allowedToDash = true;
         npcInteraction = false;
         displayMessage = false;
@@ -317,6 +317,14 @@ public class Player
         } else if (velocity.x > 0)
         {
             facingRight = true;
+        }
+
+        if (lookingDown)
+        {
+            HEIGHT = 30f;
+        } else
+        {
+            HEIGHT = 60f;
         }
 
         switch (state)
@@ -446,6 +454,9 @@ public class Player
      * Allows the player to super jump. Similar to the jump() method
      * TODO: Player has to hold down for at least 2 seconds before a super jump is granted. In its current state it can be spammed
      */
+    protected boolean superJumpReady = false;
+    protected float superJumpCharge = 0f;
+    protected float superJumpChargeTime = 1f;
     public void superJump()
     {
         if (grounded && jump && isLookingDown() && superJumpReady)
@@ -569,6 +580,7 @@ public class Player
      * The method marks the player that they have dashed, and doesn't allow them to do the action again for a specified
      * amount of time that can be found under "dashTimer"
      */
+    protected float dashTimer = 1f;
     public void dashing()
     {
         dashing = true;
@@ -634,33 +646,26 @@ public class Player
      *
      * This method works with attackRender()
      * TODO: Have the animation play separate from the attack
+     * TODO: Think of better names then "attacking"
      */
     public void attack()
     {
         attack = true;
-        attacking = true;
-        if (attack)
-        {
-            //attack = false;
-            if (facingRight) {
-                attackHitbox = new Rectangle(position.x - WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
-            } else
-            {
-                attackHitbox = new Rectangle(position.x + WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
+        spriteAttacking = true;
+        //attack = false;
+        attackLogic();
+        // Jump to attackRender() //
+        System.out.println("Hitbox present");
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                // Code to execute after the delay
+                attackHitbox = null;
+                spriteAttacking = false;
+                System.out.println("HitBox removed");
+                attack = false;
             }
-            // Jump to attackRender() //
-            System.out.println("Hitbox present");
-            Timer.schedule(new Timer.Task() {
-                @Override
-                public void run() {
-                    // Code to execute after the delay
-                    attackHitbox = null;
-                    attacking = false;
-                    System.out.println("HitBox removed");
-                    attack = false;
-                }
-            }, 0.20f);
-        }
+        }, 0.20f);
     }
 
     /**
@@ -685,14 +690,10 @@ public class Player
      */
     public void attackRender()
     {
+
         try {
             if (attack) {
-                if (facingRight) {
-                    attackHitbox = attackHitbox.set(position.x + WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
-                } else
-                {
-                    attackHitbox = attackHitbox.set(position.x - 25f, position.y + (HEIGHT / 3f), 25f, 25f);
-                }
+                attackLogic();
             } else
             {
                 attackHitbox = null;
@@ -704,21 +705,60 @@ public class Player
     }
 
     /**
+     * AttackLogic is a method that condenses the code within attack() and attackRender()
+     * Both methods had the same exact code. This is to simplify the code.
+     * attack and attackRender cannot be combined, as they both serve different functions. attack() is linked to the
+     * actual key press, which can only be done once. attackRender is linked to the render method. This is so that it
+     * constantly shows where the hitbox is as long as the hitbox is active.
+     * I suppose there could be a way to fuse the methods depending on what is passed into the method, but for now
+     * this works.
+     */
+    public void attackLogic()
+    {
+        if (lookingUp)
+        {
+            attackHitbox = new Rectangle(position.x, position.y + 50f, 25f, 25f);
+            System.out.println("Hitting up");
+        } else {
+            if (facingRight) {
+                attackHitbox = new Rectangle(position.x + WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
+            } else {
+                attackHitbox = new Rectangle(position.x - WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
+            }
+        }
+    }
+
+    /**
      * Handles how the player character responds to getting hurt.
      *
      * Currently, when the player is hurt they will bounce back. The direction of how far they get thrown back is hard coded,
      * and is dependent on which direction the player is facing
+     * When the player is hit,
      * @param e
      */
+    float invincibleTimer = 3f;
     public void hurt(Enemy e)
     {
-        health = health - e.attackPoints;
-        if (facingRight) {
-            velocity.set(-200, 200);
-        } else
+        if (!invincible)
         {
-            velocity.set(200, 200);
+            invincible = true;
+            health = health - e.attackPoints;
+            if (facingRight) {
+                velocity.set(-200, 200);
+            } else {
+                velocity.set(200, 200);
+            }
+            //Allows the player to be invincible
+            // TODO: Is Timer the best thing to use?
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    // Code to execute after the delay
+                    invincible = false;
+                }
+            },invincibleTimer);
         }
+
     }
 
     public void itemCollected(Item item)
@@ -782,7 +822,7 @@ public class Player
             state = State.WALL_RIDING;
         }
 
-        if (attacking)
+        if (spriteAttacking)
         {
             state = State.PUNCHING;
         }
@@ -1147,12 +1187,12 @@ public class Player
         return rightMove;
     }
 
-    public boolean isAttacking() {
-        return attacking;
+    public boolean isSpriteAttacking() {
+        return spriteAttacking;
     }
 
-    public void setAttacking(boolean attacking) {
-        this.attacking = attacking;
+    public void setSpriteAttacking(boolean spriteAttacking) {
+        this.spriteAttacking = spriteAttacking;
     }
 
     public boolean isDefending() {
