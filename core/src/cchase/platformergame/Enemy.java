@@ -35,6 +35,7 @@ public class Enemy extends Player
     public void input()
     {
         //Currently this is here to override input.
+        position.add(velocity.x * dt, velocity.y * dt);
         /*
         if (velocity.x < 200)
         {
@@ -50,6 +51,7 @@ public class Enemy extends Player
         this.spriteBatch = spriteBatch;
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
+        input();
         //changeAnimationSpeed(delta);
         update(delta);
         renderMovement(spriteBatch);

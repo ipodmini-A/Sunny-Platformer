@@ -296,33 +296,6 @@ public class World {
             p.getVelocity().add(FRICTION, 0);
         }
 
-        // Apply gravity
-        /*
-        if (p.isGrounded()) {
-            p.getVelocity().y = 0;
-            //player.getPosition().y = oldY;
-        } else {
-            if (p.getVelocity().y >= MAX_FALL) {
-                p.getVelocity().add(0, GRAVITY * delta);
-            } else {
-                p.getVelocity().y = MAX_FALL;
-            }
-        }
-
-         */
-
-        if (p.isGrounded()) {
-            p.getPosition().x += p.getVelocity().x * delta;
-        } else {
-            p.getPosition().add(p.getVelocity().x * delta, p.getVelocity().y * delta);
-        }
-
-
-        if (!p.isRightMove() && !p.isLeftMove() &&
-                (p.getVelocity().x <= 2 && p.getVelocity().x > 0)) {
-            p.getVelocity().x = 0;
-        }
-
         if (!isTouchingWall(p)) {
             p.setTouchingWall(false);
             p.setTouchingLeftWall(false);

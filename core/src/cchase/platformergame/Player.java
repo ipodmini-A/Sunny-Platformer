@@ -240,15 +240,25 @@ public class Player
      * How fast the player can move is controlled by MAX_VELOCITY
      *
      * Currently messing around with the method.
+     *
+     * Update 6/25/2024:
+     * Moved some of the logic from World.java to Player.java. More specifically, the way the players position is handled.
      */
+    float dt = Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f);
     public void input()
     {
+        dt = Math.min(Gdx.graphics.getDeltaTime(), 1/ 60f);
+        if (!rightMove && !leftMove &&
+                (velocity.x <= 5 && velocity.x > 0)) {
+            velocity.x = 0;
+        }
+        position.add(velocity.x * dt, velocity.y * dt);
         if (!disableControls) {
             if (leftMove && (velocity.x >= -1 * MAX_VELOCITY)) {
-                velocity.x -= 10f;
+                velocity.x -= 800f * dt * 0.85f;
             }
             if (rightMove && (velocity.x <= MAX_VELOCITY)) {
-                velocity.x += 10f;
+                velocity.x += 800f * dt * 0.85f;
             }
 
             if (jump)
