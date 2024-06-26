@@ -91,6 +91,11 @@ public class GameScreen extends ScreenAdapter
             game.setScreen(new EndScreen(game, playerWon));
         }
 
+        if (player.menuPressed())
+        {
+            game.setScreen(new TitleScreen(game));
+        }
+
         /*
         Following code stores the state of the game screen and the player.
         TODO: Put into a method

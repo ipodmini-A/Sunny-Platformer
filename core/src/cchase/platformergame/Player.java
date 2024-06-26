@@ -30,7 +30,7 @@ public class Player
     protected static final float WIDTH = 30f;
     protected static final float SPRITE_HEIGHT = 60f + 10f;
     protected static final float SPRITE_WIDTH = 60f + 10f; // I don't know why adding 10 makes the sprite the proper size.
-    protected static float MAX_VELOCITY = 600f;
+    protected static float MAX_VELOCITY = 500f;
     private static float SCALE = 1f;
     protected String name;
     // Player stats
@@ -243,6 +243,9 @@ public class Player
      *
      * Update 6/25/2024:
      * Moved some of the logic from World.java to Player.java. More specifically, the way the players position is handled.
+     * Update 6/26/2024:
+     * For now I should just cap the FPS to 60. It runs great but for some reason, moving left and right with
+     * how velocity is currently handled doesn't work.
      */
     float dt = Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f);
     public void input()
@@ -255,10 +258,22 @@ public class Player
         position.add(velocity.x * dt, velocity.y * dt);
         if (!disableControls) {
             if (leftMove && (velocity.x >= -1 * MAX_VELOCITY)) {
-                velocity.x -= 800f * dt * 0.85f;
+                if (lookingDown)
+                {
+                    velocity.x -= 400f * dt * 0.85f;
+                }else {
+                    velocity.x -= 700f * dt * 0.85f;
+                    //velocity.x = -150f;
+                }
             }
             if (rightMove && (velocity.x <= MAX_VELOCITY)) {
-                velocity.x += 800f * dt * 0.85f;
+                if (lookingDown)
+                {
+                    velocity.x += 400f * dt * 0.85f;
+                } else {
+                    velocity.x += 700f * dt * 0.85f;
+                    //velocity.x = 150f;
+                }
             }
 
             if (jump)
@@ -329,7 +344,7 @@ public class Player
             facingRight = true;
         }
 
-        if (lookingDown)
+        if (lookingDown && grounded)
         {
             HEIGHT = 30f;
         } else
@@ -922,6 +937,12 @@ public class Player
         sprite.draw(spriteBatch);
     }
 
+    private boolean menuPressed = false;
+    public boolean menuPressed()
+    {
+        return menuPressed;
+    }
+
     //                      //
     //Setters and Getters   //
     //                      //
@@ -1271,6 +1292,14 @@ public class Player
 
     public void setRunningFrameDuration(float runningFrameDuration) {
         this.runningFrameDuration = runningFrameDuration;
+    }
+
+    public boolean isMenuPressed() {
+        return menuPressed;
+    }
+
+    public void setMenuPressed(boolean menuPressed) {
+        this.menuPressed = menuPressed;
     }
 
     public void dispose()
