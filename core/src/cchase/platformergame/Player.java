@@ -488,11 +488,14 @@ public class Player
                 velocity.y = 450f;
                 jumpPerformed = false;
             }
-            jumpTime += 0.01f;
+            jumpTime += Gdx.graphics.getDeltaTime();
         } else if(jumpReleased)
         {
             //position.y += 1;
-            velocity.y = velocity.y * (jumpTime / 0.5f);
+            if (velocity.y >= 0)
+            {
+                velocity.y = velocity.y / 2f;
+            }
             jumpTime = 0;
             jumpReleased = false;
         }
