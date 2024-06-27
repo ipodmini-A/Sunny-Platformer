@@ -479,6 +479,14 @@ public class Player
     public boolean jumpHeld = false;
     public boolean jumpReleased = false;
     public boolean jumpPerformed = false;
+
+    /**
+     * newJump() is meant to replace the currently existing jump. This method is supposed to implement a smoother jump movement,
+     * being dependent on how long the player presses the jump button. The method is similar to the original jump method,
+     * except in this case when the button is released it cuts the velocity in half immediately.
+     * Works with NewPlatformerInput to function properly.
+     * TODO: Replace jump with newJump
+     */
     public void newJump()
     {
         if (jumpHeld)
