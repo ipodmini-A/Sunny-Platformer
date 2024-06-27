@@ -305,6 +305,7 @@ public class Player
         input();
         changeAnimationSpeed(delta);
         update(delta);
+        newJump();
         renderMovement(spriteBatch);
         //drawSprite("standing", position.x, position.y);
         spriteBatch.end();
@@ -474,6 +475,30 @@ public class Player
             //grounded = false;
         }
     }
+    public float jumpTime = 0;
+    public boolean jumpHeld = false;
+    public boolean jumpReleased = false;
+    public boolean jumpPerformed = false;
+    public void newJump()
+    {
+        if (jumpHeld)
+        {
+            //position.y += 1;
+            if (jumpPerformed) {
+                velocity.y = 450f;
+                jumpPerformed = false;
+            }
+            jumpTime += 0.01f;
+        } else if(jumpReleased)
+        {
+            //position.y += 1;
+            velocity.y = velocity.y * (jumpTime / 0.5f);
+            jumpTime = 0;
+            jumpReleased = false;
+        }
+    }
+
+
 
     /**
      * Allows the player to super jump. Similar to the jump() method

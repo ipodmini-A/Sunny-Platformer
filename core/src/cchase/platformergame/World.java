@@ -16,6 +16,8 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 
 import java.util.LinkedList;
 
@@ -287,15 +289,6 @@ public class World {
             //isTouchingCeiling = false;
         }
 
-        // Apply Friction
-        if (p.getVelocity().x > 0) {
-            p.getVelocity().sub(FRICTION, 0);
-        }
-
-        if (p.getVelocity().x < 0) {
-            p.getVelocity().add(FRICTION, 0);
-        }
-
         if (!isTouchingWall(p)) {
             p.setTouchingWall(false);
             p.setTouchingLeftWall(false);
@@ -324,6 +317,11 @@ public class World {
         //System.out.println(isTouchingAnything());
     }
 
+    /**
+     * Applies gravity to player object
+     * @param delta
+     * @param p player
+     */
     public void applyGravity(float delta, Player p)
     {
         // Apply gravity
@@ -336,6 +334,17 @@ public class World {
             } else {
                 p.getVelocity().y = MAX_FALL;
             }
+        }
+    }
+
+    public void applyFriction(float delta, Player p)
+    {
+        if (p.getVelocity().x > 0) {
+            p.getVelocity().sub(FRICTION, 0);
+        }
+
+        if (p.getVelocity().x < 0) {
+            p.getVelocity().add(FRICTION, 0);
         }
     }
 
@@ -528,6 +537,11 @@ public class World {
         //System.out.println(isTouchingAnything());
     }
 
+    /**
+     * Applys gravity to an item
+     * @param delta
+     * @param i Item
+     */
     public void applyGravity(float delta, Item i)
     {
         // Apply gravity
@@ -777,6 +791,7 @@ public class World {
         // NPC render
         checkCollisions(delta,nonPlayableCharacter);
         applyGravity(delta, nonPlayableCharacter);
+        applyFriction(delta, nonPlayableCharacter);
         nonPlayableCharacter.updateCamera(camera);
         nonPlayableCharacter.render(spriteBatch,delta);
         //System.out.println(player.nextMessage);
@@ -797,6 +812,7 @@ public class World {
             if (enemy.getHealth() > 0) {
                 checkCollisions(delta, enemy);
                 applyGravity(delta, enemy);
+                applyFriction(delta, enemy);
                 enemy.updateCamera(camera);
                 enemy.render(spriteBatch, delta);
             } else {
@@ -807,7 +823,8 @@ public class World {
 
         // Player render
         checkCollisions(delta, player);
-        applyGravity(delta,player);
+        applyGravity(delta, player);
+        applyFriction(delta, player);
         player.updateCamera(camera);
         player.render(spriteBatch,delta);
 
@@ -870,7 +887,7 @@ public class World {
             debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .65f);
             debugFont.draw(debugBatch, "Player Health: " + player.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .55f);
             debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
-            debugFont.draw(debugBatch, "Delta Time: " + Gdx.graphics.getDeltaTime(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
+            debugFont.draw(debugBatch, "Jump Time (Not Actually):" + player.jumpTime, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
         } catch (Exception e)
         {
             //

@@ -60,6 +60,10 @@ public class NewPlatformerInput implements InputProcessor
             case Input.Keys.M:
                 p.setMenuPressed(true);
                 break;
+            case Input.Keys.A:
+                p.jumpPerformed = true;
+                p.jumpHeld = true;
+                break;
             case Input.Keys.UP:
                 System.out.println("Up");
                 p.setLookingUp(true);
@@ -119,6 +123,10 @@ public class NewPlatformerInput implements InputProcessor
         {
             case Input.Keys.Z:
                 p.setJump(false);
+                break;
+            case Input.Keys.A:
+                p.jumpHeld = false;
+                p.jumpReleased = true;
                 break;
             case Input.Keys.UP:
                 p.setLookingUp(false);
