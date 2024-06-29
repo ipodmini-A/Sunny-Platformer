@@ -51,7 +51,8 @@ public class NewPlatformerInput implements InputProcessor
                 else // Jump input
                 {
                     System.out.println("Jump");
-                    p.setJump(true);
+                    p.jumpPerformed = true;
+                    p.jumpHeld = true;
                 }
                 break;
             case Input.Keys.C:
@@ -59,10 +60,6 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.M:
                 p.setMenuPressed(true);
-                break;
-            case Input.Keys.A:
-                p.jumpPerformed = true;
-                p.jumpHeld = true;
                 break;
             case Input.Keys.UP:
                 System.out.println("Up");
@@ -122,9 +119,6 @@ public class NewPlatformerInput implements InputProcessor
         switch (keycode)
         {
             case Input.Keys.Z:
-                p.setJump(false);
-                break;
-            case Input.Keys.A:
                 p.jumpHeld = false;
                 p.jumpReleased = true;
                 break;

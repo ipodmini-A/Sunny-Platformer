@@ -279,7 +279,7 @@ public class Player
             if (jump)
             {
                 superJump();
-                jump();
+                //jump();
             }
 
             if (lookingDown && grounded && velocity.x == 0)
@@ -305,7 +305,7 @@ public class Player
         input();
         changeAnimationSpeed(delta);
         update(delta);
-        newJump();
+        jump();
         renderMovement(spriteBatch);
         //drawSprite("standing", position.x, position.y);
         spriteBatch.end();
@@ -465,36 +465,27 @@ public class Player
     /**
      * Allows the player to jump. If they are grounded, first the player is moved up one pixel, then jump velocity is applied
      */
-    public void jump()
-    {
-        if (grounded && jump && !isLookingDown())
-        {
-            position.y += 1;
-            velocity.y = JUMP_VELOCITY;
-            jump = false;
-            //grounded = false;
-        }
-    }
     public float jumpTime = 0;
     public boolean jumpHeld = false;
     public boolean jumpReleased = false;
     public boolean jumpPerformed = false;
 
     /**
-     * newJump() is meant to replace the currently existing jump. This method is supposed to implement a smoother jump movement,
+     * jump() replace the older jump method. This method is supposed to implement a smoother jump movement,
      * being dependent on how long the player presses the jump button. The method is similar to the original jump method,
      * except in this case when the button is released it cuts the velocity in half immediately.
      * Works with NewPlatformerInput to function properly.
-     * TODO: Replace jump with newJump
      */
-    public void newJump()
+    public void jump()
     {
         if (jumpHeld)
         {
-            //position.y += 1;
-            if (jumpPerformed) {
-                velocity.y = 450f;
-                jumpPerformed = false;
+            if (grounded && !lookingDown) {
+                //position.y += 1;
+                if (jumpPerformed) {
+                    velocity.y = 450f;
+                    jumpPerformed = false;
+                }
             }
             jumpTime += Gdx.graphics.getDeltaTime();
         } else if(jumpReleased)
