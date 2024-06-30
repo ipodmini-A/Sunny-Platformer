@@ -47,6 +47,7 @@ public class World {
     // For now, it works. When creating a new level, each collectable will be added to this linked list.
     // Each item in the linked list has its coordinates
     protected LinkedList<Item> collectables;
+    protected Item.Roulette roulette;
     private final TiledMap map;
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -116,8 +117,11 @@ public class World {
 
         //Item creation
         collectables = new LinkedList<>();
-        collectables.add(new Item(100, 400));
-        collectables.add(new Item(150, 400));
+        collectables.add(new Item(100, 400, true));
+        collectables.add(new Item(150, 400, false));
+
+        //Roulette Creation (Test)
+        roulette = new Item.Roulette(200, 400);
 
         // Debug
         debugRenderer = new ShapeRenderer();
@@ -754,7 +758,13 @@ public class World {
     public boolean isCollidingWithObject(Item item) {
         //item.setCollected(true);
         //Add logic for when the player collects items (Maybe have a array of items within Player.java)
-        return player.getBounds().overlaps(item.getBounds());
+        if (player.getBounds().overlaps(item.getBounds()))
+        {
+            item.setTouchingPlayer(true);
+            return true;
+        }
+        item.setTouchingPlayer(false);
+        return false;
         //item.setCollected(false);
         //player.setiteminteraction(false)
     }
@@ -836,7 +846,7 @@ public class World {
                 applyGravity(delta, collectables.get(i));
                 collectables.get(i).updateCamera(camera);
                 collectables.get(i).render(spriteBatch, delta);
-                if (isCollidingWithObject(collectables.get(i)) && !collectables.get(i).isCollected())
+                if (isCollidingWithObject(collectables.get(i)) && !collectables.get(i).isCollected() && collectables.get(i).allowedToBeCollected)
                 {
                     collectables.get(i).setCollected(true);
                     player.itemCollected(collectables.get(i));
@@ -847,6 +857,14 @@ public class World {
                 // Catch item null errors
             }
         }
+
+        checkCollisions(delta, roulette);
+        applyGravity(delta, roulette);
+        roulette.updateCamera(camera);
+        roulette.render(spriteBatch, delta);
+        isCollidingWithObject(roulette);
+        //roulette.interact(player);
+
 
         //Attack Check
         try {
@@ -887,7 +905,7 @@ public class World {
             debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .65f);
             debugFont.draw(debugBatch, "Player Health: " + player.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .55f);
             debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
-            debugFont.draw(debugBatch, "Jump Time (Not Actually):" + player.jumpTime, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
+            //debugFont.draw(debugBatch, "Jump Time (Not Actually):" + player.jumpTime, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
         } catch (Exception e)
         {
             //

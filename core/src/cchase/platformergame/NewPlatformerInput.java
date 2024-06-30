@@ -61,6 +61,15 @@ public class NewPlatformerInput implements InputProcessor
             case Input.Keys.M:
                 p.setMenuPressed(true);
                 break;
+            case Input.Keys.V:
+                if (p.isDisplayMessage())
+                {
+                    p.setNextMessage(true);
+                } else
+                {
+                    p.setDisplayMessage(true);
+                }
+                break;
             case Input.Keys.UP:
                 System.out.println("Up");
                 p.setLookingUp(true);

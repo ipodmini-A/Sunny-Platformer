@@ -102,12 +102,6 @@ public class NonPlayableCharacter extends Player {
         }
     }
 
-
-    public void displayMessage(boolean active)
-    {
-
-    }
-
     public void disablePlayerInput()
     {
         player.setDisableControls(true);

@@ -1,11 +1,18 @@
 package cchase.platformergame;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+
+import java.awt.*;
+import java.util.LinkedList;
+import java.util.Random;
 
 /**
  * Item.java
@@ -15,24 +22,126 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class Item
 {
-    protected static final float HEIGHT = 30f;
-    protected static final float WIDTH = 30f;
-    SpriteBatch spriteBatch;
-    Texture texture;
-    Sprite sprite;
-    OrthographicCamera camera;
+    protected final float HEIGHT = 30f;
+    protected final float WIDTH = 30f;
+    protected SpriteBatch spriteBatch;
+    protected Texture texture;
+    protected Sprite sprite;
+    protected OrthographicCamera camera;
     protected Vector2 position;
-    private boolean touchingLeftWall;
-    private boolean touchingRightWall;
-    private boolean touchingWall;
-    private boolean touchingCeiling;
+    protected boolean touchingLeftWall;
+    protected boolean touchingRightWall;
+    protected boolean touchingWall;
+    protected boolean touchingCeiling;
     protected Rectangle bounds;
     protected boolean grounded;
+    protected boolean allowedToBeCollected;
+    protected boolean allowedToBeInteractedWith;
     protected boolean collected;
     protected Vector2 velocity;
+    protected ShapeRenderer shapeRenderer;
+    protected BitmapFont font;
+    protected LinkedList<String> messageList;
+    protected int messageIndex;
+    protected boolean displayMessage;
+    protected String message;
+
+    public static class Roulette extends Item
+    {
+        Random random;
+        public Roulette (float x, float y)
+        {
+            super(x,y,false);
+            position = new Vector2(x,y);
+            velocity = new Vector2();
+            grounded = true;
+            bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
+            bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
+            touchingCeiling = false;
+            touchingLeftWall = false;
+            touchingRightWall = false;
+            touchingWall = false;
+
+            allowedToBeCollected = false;
+            // "collected" not being here might cause issues
+            allowedToBeInteractedWith = true;
+
+            random = new Random();
+
+            position.x = x;
+            position.y = y;
+
+            font = new BitmapFont();
+            shapeRenderer = new ShapeRenderer();
+
+            messageList = new LinkedList<String>();
+            messageList.add("Your random number is: ");
+
+            spriteBatch = new SpriteBatch();
+            texture = new Texture("debugSquare.png");
+            sprite = new Sprite(texture);
+
+            camera = new OrthographicCamera();
+        }
+
+        /**
+         * Handles how Roulette interacts with the player. Currently this was ripped from NonPlayableCharacter.java and
+         * is currently broken
+         *
+         * TODO: Rework how the player interacts with both NPS and items.
+         * @param player
+         */
+        public void interact(Player player)
+        {
+
+            p = player;
+            messageList.add(String.valueOf(random.nextInt(10)));
+            if (touchingPlayer)
+            {
+                player.getVelocity().x = 0;
+                if (messageIndex >= messageList.size())
+                {
+                    // All messages have been displayed
+                    player.setDisableControls(false);
+                    resetDialogue();
+                } else
+                {
+                    disablePlayerInput();
+                    shapeRenderer.setAutoShapeType(true);
+                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                    shapeRenderer.setColor(255f / 255f, 165f / 255f, 0, 0.1f);
+                    shapeRenderer.rect(100, 100, Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 4f);
+                    shapeRenderer.end();
+
+                    spriteBatch.begin();
+                    font.draw(spriteBatch, messageList.get(messageIndex), 120, 160);
+                    spriteBatch.end();
+
+                    if (player.isNextMessage()) {
+                        player.setNextMessage(false);
+                        messageIndex++;
+
+                        if (messageIndex == messageList.size()) {
+                            // All messages have been displayed
+                            player.setDisableControls(false);
+                        }
+                    }
+                }
+            } else {
+                // Player is not touching the NPC
+                resetDialogue();
+                player.setDisableControls(false);
+            }
+            //messageList.remove(1);
 
 
-    public Item(float x, float y)
+        }
+
+
+    }
+
+
+    public Item(float x, float y, boolean allowedtoBeCollected)
     {
         position = new Vector2(x,y);
         velocity = new Vector2();
@@ -44,6 +153,7 @@ public class Item
         touchingRightWall = false;
         touchingWall = false;
 
+        this.allowedToBeCollected = allowedtoBeCollected;
         collected = false;
 
         position.x = x;
@@ -54,6 +164,31 @@ public class Item
         sprite = new Sprite(texture);
 
         camera = new OrthographicCamera();
+    }
+
+    private static Player p;
+    private static boolean touchingPlayer = false;
+    public void interact(Player player)
+    {
+        p = player;
+        //player.getVelocity().x = 0;
+        if (touchingPlayer && p.lookingDown)
+        {
+            System.out.println("Working lol");
+            p.lookingDown = false;
+        }
+    }
+
+    protected void resetDialogue() {
+        messageIndex = 0;
+        p.setNextMessage(false);
+        p.setDisplayMessage(false);
+        displayMessage = false;
+    }
+
+    public void disablePlayerInput()
+    {
+        p.setDisableControls(true);
     }
 
     /**
@@ -179,6 +314,22 @@ public class Item
 
     public void setCollected(boolean collected) {
         this.collected = collected;
+    }
+
+    public boolean isAllowedToBeCollected() {
+        return allowedToBeCollected;
+    }
+
+    public void setAllowedToBeCollected(boolean allowedToBeCollected) {
+        this.allowedToBeCollected = allowedToBeCollected;
+    }
+
+    public boolean isTouchingPlayer() {
+        return touchingPlayer;
+    }
+
+    public void setTouchingPlayer(boolean touchingPlayer) {
+        this.touchingPlayer = touchingPlayer;
     }
 
     public void dispose()
