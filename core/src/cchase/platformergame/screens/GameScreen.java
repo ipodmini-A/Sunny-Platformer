@@ -124,7 +124,7 @@ public class GameScreen extends ScreenAdapter
             GameState.lastRecordedPlayerY = player.getPosition().y;
             System.out.println(GameState.lastRecordedPlayerY);
             world.music.pause();
-            game.setScreen(new BattleScreen(game,player,world.enemy));
+            //game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 
         if (player.getHealth() <= 0)

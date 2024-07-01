@@ -40,6 +40,7 @@ public class Player
     protected float magic;
     protected float wisdom;
     protected float speed;
+    protected int money;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
 
     protected Texture texture;
@@ -71,6 +72,7 @@ public class Player
     private boolean displayMessage;
     private boolean nextMessage;
     private boolean npcInteraction;
+    private boolean itemInteraction;
 
     enum State
     {
@@ -137,6 +139,7 @@ public class Player
         invincible = false;
         allowedToDash = true;
         npcInteraction = false;
+        itemInteraction = false;
         displayMessage = false;
         nextMessage = false;
         disableControls = false;
@@ -202,6 +205,7 @@ public class Player
         invincible = false;
         allowedToDash = true;
         npcInteraction = false;
+        itemInteraction = false;
         displayMessage = false;
         nextMessage = false;
         disableControls = false;
@@ -742,7 +746,6 @@ public class Player
      */
     public void attackRender()
     {
-
         try {
             if (attack) {
                 attackLogic();
@@ -1193,6 +1196,15 @@ public class Player
 
     public void setNpcInteraction(boolean npcInteraction) {
         this.npcInteraction = npcInteraction;
+    }
+
+    public boolean isItemInteraction () {
+        return itemInteraction;
+    }
+
+    public void setItemInteraction (boolean itemInteraction)
+    {
+        this.itemInteraction = itemInteraction;
     }
 
     public boolean isDownMove()

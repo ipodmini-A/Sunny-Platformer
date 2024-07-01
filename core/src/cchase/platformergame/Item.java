@@ -74,16 +74,18 @@ public class Item
             font = new BitmapFont();
             shapeRenderer = new ShapeRenderer();
 
+            messageIndex = 0;
             messageList = new LinkedList<String>();
-            messageList.add("Your random number is: ");
+            messageList.add("Your random number is ");
+            messageList.add("Uhhhh ");
 
-            spriteBatch = new SpriteBatch();
-            texture = new Texture("debugSquare.png");
+            texture = new Texture("slot-machine.png");
             sprite = new Sprite(texture);
 
             camera = new OrthographicCamera();
         }
 
+        boolean generatedNumber = false;
         /**
          * Handles how Roulette interacts with the player. Currently this was ripped from NonPlayableCharacter.java and
          * is currently broken
@@ -93,29 +95,39 @@ public class Item
          */
         public void interact(Player player)
         {
-
             p = player;
-            messageList.add(String.valueOf(random.nextInt(10)));
+            if(!generatedNumber) {
+                messageList.add(String.valueOf(random.nextInt(10)));
+                generatedNumber = true;
+            }
             if (touchingPlayer)
             {
                 player.getVelocity().x = 0;
+                //This plays after the message list is over
                 if (messageIndex >= messageList.size())
                 {
                     // All messages have been displayed
-                    player.setDisableControls(false);
                     resetDialogue();
+                    player.setDisableControls(false);
+                    messageList.removeLast();
+                    generatedNumber = false;
                 } else
                 {
                     disablePlayerInput();
+
                     shapeRenderer.setAutoShapeType(true);
                     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                     shapeRenderer.setColor(255f / 255f, 165f / 255f, 0, 0.1f);
                     shapeRenderer.rect(100, 100, Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 4f);
                     shapeRenderer.end();
 
+                    // Creating a new SpriteBatch to get the font to display is not efficient.
+                    // TODO: Fix this spritebatch issue
+                    spriteBatch = new SpriteBatch();
                     spriteBatch.begin();
                     font.draw(spriteBatch, messageList.get(messageIndex), 120, 160);
                     spriteBatch.end();
+                    spriteBatch.dispose();
 
                     if (player.isNextMessage()) {
                         player.setNextMessage(false);
@@ -131,9 +143,9 @@ public class Item
                 // Player is not touching the NPC
                 resetDialogue();
                 player.setDisableControls(false);
+                messageList.removeLast();
+                generatedNumber = false;
             }
-            //messageList.remove(1);
-
 
         }
 
@@ -330,6 +342,14 @@ public class Item
 
     public void setTouchingPlayer(boolean touchingPlayer) {
         this.touchingPlayer = touchingPlayer;
+    }
+
+    public boolean isDisplayMessage() {
+        return displayMessage;
+    }
+
+    public void setDisplayMessage(boolean displayMessage) {
+        this.displayMessage = displayMessage;
     }
 
     public void dispose()

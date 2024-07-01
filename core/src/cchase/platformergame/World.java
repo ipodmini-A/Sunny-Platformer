@@ -41,12 +41,14 @@ public class World {
     private static final float FRICTION = 5f;
     private final OrthographicCamera camera;
     protected Player player;
-    public Enemy enemy;
+    //public Enemy enemy;
     public NonPlayableCharacter nonPlayableCharacter;
     // I'm not sure if having "Collectables" be a linked list is a good idea.
     // For now, it works. When creating a new level, each collectable will be added to this linked list.
     // Each item in the linked list has its coordinates
     protected LinkedList<Item> collectables;
+    protected LinkedList<Enemy> enemies;
+    protected LinkedList<NonPlayableCharacter> nonPlayableCharacters;
     protected Item.Roulette roulette;
     private final TiledMap map;
     private TmxMapLoader loader;
@@ -109,8 +111,13 @@ public class World {
         player.setSCALE(SCALE);
 
         // Enemy creation
-        enemy = new Enemy(player.getPosition().x + 300, player.getPosition().y);
-        enemy.setSCALE(SCALE);
+        enemies = new LinkedList<>();
+        enemies.add(new Enemy(player.getPosition().x + 300, player.getPosition().y));
+        enemies.add(new Enemy(player.getPosition().x + 400, player.getPosition().y));
+        for (int i = 0; i < enemies.size(); i++)
+        {
+            enemies.get(i).setSCALE(SCALE);
+        }
 
         //NPC creation
         nonPlayableCharacter = new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y);
@@ -121,7 +128,7 @@ public class World {
         collectables.add(new Item(150, 400, false));
 
         //Roulette Creation (Test)
-        roulette = new Item.Roulette(200, 400);
+        roulette = new Item.Roulette(player.getPosition().x + 100, player.getPosition().y);
 
         // Debug
         debugRenderer = new ShapeRenderer();
@@ -732,8 +739,11 @@ public class World {
      */
     public boolean isCollidingWithEnemy() {
         try {
-            if (player.getBounds().overlaps(enemy.getBounds())) {
-                return true;
+            for (int i = 0; i < enemies.size(); i++ )
+            {
+                if (player.getBounds().overlaps(enemies.get(i).getBounds())) {
+                    return true;
+                }
             }
             return false;
         } catch (Exception e) {
@@ -761,25 +771,63 @@ public class World {
         if (player.getBounds().overlaps(item.getBounds()))
         {
             item.setTouchingPlayer(true);
+            player.setItemInteraction(true);
             return true;
         }
         item.setTouchingPlayer(false);
+        player.setItemInteraction(false);
         return false;
         //item.setCollected(false);
-        //player.setiteminteraction(false)
     }
 
     public boolean isAttackingEnemy() {
-        return player.attackHitbox.overlaps(enemy.getBounds());
+        for (int i = 0; i < enemies.size(); i++) {
+            return player.attackHitbox.overlaps(enemies.get(i).getBounds());
+        }
+        return false;
     }
 
     public boolean isAttackingPlayer()
     {
-        return player.bounds.overlaps(enemy.getBounds());
+        for (int i = 0; i < enemies.size(); i++)
+        {
+            return player.bounds.overlaps(enemies.get(i).getBounds());
+        }
+        return false;
     }
+
+    private void messageRenderNPC(NonPlayableCharacter p)
+    {
+        if (isCollidingWithNPC() && player.isDisplayMessage())
+        {
+            //System.out.println("NPC interaction");
+            p.setDisplayMessage(true);
+        }
+        if (p.isDisplayMessage())
+        {
+            p.Message(player);
+        }
+    }
+
+    private void messageRenderItem(Item i)
+    {
+        if (i.isTouchingPlayer() && player.isDisplayMessage())
+        {
+            //System.out.println("NPC interaction");
+            i.setDisplayMessage(true);
+        }
+        if (i.isDisplayMessage())
+        {
+            i.interact(player);
+        }
+    }
+
 
     /**
      * Map renderer
+     * Important to note that where the item is located depeneds on what is in the front of the map and what is in the
+     * back
+     * For example:
      * @param delta
      */
     public void render(float delta)
@@ -806,37 +854,24 @@ public class World {
         nonPlayableCharacter.render(spriteBatch,delta);
         //System.out.println(player.nextMessage);
         //System.out.println(isCollidingWithNPC());
-        if (isCollidingWithNPC() && player.isDisplayMessage())
-        {
-            //System.out.println("NPC interaction");
-            nonPlayableCharacter.setDisplayMessage(true);
-        }
-        if (nonPlayableCharacter.isDisplayMessage())
-        {
-            nonPlayableCharacter.Message(player);
-        }
+        messageRenderNPC(nonPlayableCharacter);
 
 
         // Enemy render
-        if (enemy != null) {
-            if (enemy.getHealth() > 0) {
-                checkCollisions(delta, enemy);
-                applyGravity(delta, enemy);
-                applyFriction(delta, enemy);
-                enemy.updateCamera(camera);
-                enemy.render(spriteBatch, delta);
-            } else {
-                // Enemy is removed from the world.
-                enemy = null;
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies.get(i) != null) {
+                if (enemies.get(i).getHealth() > 0) {
+                    checkCollisions(delta, enemies.get(i));
+                    applyGravity(delta, enemies.get(i));
+                    applyFriction(delta, enemies.get(i));
+                    enemies.get(i).updateCamera(camera);
+                    enemies.get(i).render(spriteBatch, delta);
+                } else {
+                    // Enemy is removed from the world.
+                    enemies.remove(i);
+                }
             }
         }
-
-        // Player render
-        checkCollisions(delta, player);
-        applyGravity(delta, player);
-        applyFriction(delta, player);
-        player.updateCamera(camera);
-        player.render(spriteBatch,delta);
 
         // Item render
         for (int i = 0; i < collectables.size(); i++)
@@ -865,11 +900,23 @@ public class World {
         isCollidingWithObject(roulette);
         //roulette.interact(player);
 
+        //THIS SYSTEM SUCKS AAAAAAA
+        messageRenderItem(roulette);
+
+        // Player render
+        checkCollisions(delta, player);
+        applyGravity(delta, player);
+        applyFriction(delta, player);
+        player.updateCamera(camera);
+        player.render(spriteBatch,delta);
+
 
         //Attack Check
         try {
+            for (int i = 0; i < enemies.size(); i++) {
             if (isAttackingEnemy()) {
-                player.deployAttack(enemy);
+                    player.deployAttack(enemies.get(i));
+                }
             }
         } catch (Exception e)
         {
@@ -879,8 +926,10 @@ public class World {
         //Hurt Check
         try
         {
-            if (isAttackingPlayer()) {
-                player.hurt(enemy);
+            for (int i = 0; i < enemies.size(); i++) {
+                if (isAttackingPlayer()) {
+                    player.hurt(enemies.get(i));
+                }
             }
         } catch (Exception e)
         {
@@ -904,7 +953,7 @@ public class World {
             debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .75f);
             debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .65f);
             debugFont.draw(debugBatch, "Player Health: " + player.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .55f);
-            debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
+            //debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
             //debugFont.draw(debugBatch, "Jump Time (Not Actually):" + player.jumpTime, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
         } catch (Exception e)
         {
@@ -932,7 +981,9 @@ public class World {
         try
         {
             debugRenderer.setColor(Color.CYAN);
-            debugRenderer.rect(enemy.getPosition().x, enemy.getPosition().y, enemy.getWidth(), enemy.getHeight());
+            for (int i = 0; i < enemies.size(); i++) {
+                debugRenderer.rect(enemies.get(i).getPosition().x, enemies.get(i).getPosition().y, enemies.get(i).getWidth(), enemies.get(i).getHeight());
+            }
         } catch (Exception e)
         {
             // Handle enemy removal
@@ -954,6 +1005,10 @@ public class World {
             }
         }
 
+        //Render Debug
+        debugRenderer.setColor(Color.GREEN);
+        debugRenderer.rect(roulette.getPosition().x, roulette.getPosition().y, roulette.getWidth(), roulette.getHeight());
+
         debugRenderer.setColor(Color.YELLOW);
         for (MapObject object : objects)
         {
@@ -973,7 +1028,9 @@ public class World {
         mapRenderer.dispose();
         map.dispose();
         player.dispose();
-        enemy.dispose();
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).dispose();
+        }
         for (Item collectable : collectables) {
             collectable.dispose();
         }

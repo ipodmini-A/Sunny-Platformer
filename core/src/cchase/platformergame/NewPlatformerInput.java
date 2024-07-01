@@ -56,7 +56,21 @@ public class NewPlatformerInput implements InputProcessor
                 }
                 break;
             case Input.Keys.C:
-                p.attack();
+                if (p.isNpcInteraction() || p.isItemInteraction())
+                {
+                    if (p.isDisplayMessage())
+                    {
+                        p.setNextMessage(true);
+                    } else
+                    {
+                        p.setDisplayMessage(true);
+                    }
+                    //p.setNextMessage(true);
+                    //p.setNextMessage(false);
+                }else
+                {
+                    p.attack();
+                }
                 break;
             case Input.Keys.M:
                 p.setMenuPressed(true);
@@ -92,7 +106,7 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(true);
-                if (p.isNpcInteraction())
+                if (p.isNpcInteraction() || p.isItemInteraction())
                 {
                     if (p.isDisplayMessage())
                     {

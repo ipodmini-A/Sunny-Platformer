@@ -56,6 +56,7 @@ public class NonPlayableCharacter extends Player {
                 resetDialogue();
             } else
             {
+
                 disablePlayerInput();
                 shapeRenderer.setAutoShapeType(true);
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
