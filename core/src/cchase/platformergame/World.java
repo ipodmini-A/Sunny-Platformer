@@ -59,7 +59,7 @@ public class World {
     private MapObjects objects;
     private MapObjects endGameObject;
     private MapObjects playerSpawnPointObject;
-    private boolean debug = true;
+    private boolean debug = false;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -113,7 +113,7 @@ public class World {
         // Enemy creation
         enemies = new LinkedList<>();
         enemies.add(new Enemy(player.getPosition().x + 300, player.getPosition().y));
-        enemies.add(new Enemy(player.getPosition().x + 400, player.getPosition().y));
+        //enemies.add(new Enemy(player.getPosition().x + 400, player.getPosition().y));
         for (int i = 0; i < enemies.size(); i++)
         {
             enemies.get(i).setSCALE(SCALE);

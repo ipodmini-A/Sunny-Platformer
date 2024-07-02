@@ -28,7 +28,7 @@ public class MainMenuScreen implements Screen {
         mainMenuTable = new Table();
         mainMenuTable.setFillParent(true);
         stage.addActor(mainMenuTable);
-        stage.setDebugAll(true);
+        stage.setDebugAll(false);
 
         Label titleLabel = new Label("Main Menu", skin, "title");
         mainMenuTable.add(titleLabel).padBottom(50f).row();
