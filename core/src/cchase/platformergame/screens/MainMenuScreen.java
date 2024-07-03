@@ -1,16 +1,18 @@
 package cchase.platformergame.screens;
 
+import cchase.platformergame.GameState;
 import cchase.platformergame.PlatformerGame;
-import com.badlogic.gdx.Game;
+import cchase.platformergame.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
-public class MainMenuScreen implements Screen {
+public class MainMenuScreen extends ScreenAdapter {
     private Stage stage;
     private Skin skin;
     private PlatformerGame game;
@@ -28,7 +30,7 @@ public class MainMenuScreen implements Screen {
         mainMenuTable = new Table();
         mainMenuTable.setFillParent(true);
         stage.addActor(mainMenuTable);
-        stage.setDebugAll(false);
+        stage.setDebugAll(true);
 
         Label titleLabel = new Label("Main Menu", skin, "title");
         mainMenuTable.add(titleLabel).padBottom(50f).row();
@@ -51,6 +53,15 @@ public class MainMenuScreen implements Screen {
             }
         });
         mainMenuTable.add(optionsButton).padBottom(20f).row();
+
+        TextButton rouletteButton = new TextButton("Slots", skin);
+        rouletteButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new SlotsScreen(game, new Player()));
+            }
+        });
+        mainMenuTable.add(rouletteButton).padBottom(20f).row();
 
         TextButton exitButton = new TextButton("Exit", skin);
         exitButton.addListener(new ChangeListener() {
@@ -138,6 +149,7 @@ public class MainMenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        super.show();
     }
 
     @Override
@@ -166,7 +178,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void hide() {
-
+        GameState.mainMenuScreen = game.getScreen();
     }
 
     @Override

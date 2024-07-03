@@ -1,5 +1,6 @@
 package cchase.platformergame;
 
+import cchase.platformergame.screens.SlotsScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -87,71 +88,22 @@ public class Item
 
         boolean generatedNumber = false;
         /**
-         * Handles how Roulette interacts with the player. Currently this was ripped from NonPlayableCharacter.java and
-         * is currently broken
+         * Takes the player to the slot screen to play slots
          *
          * TODO: Rework how the player interacts with both NPS and items.
-         * @param player
+         * @param game
+         * @param p
          */
-        public void interact(Player player)
+        public void interact(PlatformerGame game, Player p)
         {
-            p = player;
-            if(!generatedNumber) {
-                messageList.add(String.valueOf(random.nextInt(10)));
-                generatedNumber = true;
-            }
-            if (touchingPlayer)
-            {
-                player.getVelocity().x = 0;
-                //This plays after the message list is over
-                if (messageIndex >= messageList.size())
-                {
-                    // All messages have been displayed
-                    resetDialogue();
-                    player.setDisableControls(false);
-                    messageList.removeLast();
-                    generatedNumber = false;
-                } else
-                {
-                    disablePlayerInput();
-
-                    shapeRenderer.setAutoShapeType(true);
-                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                    shapeRenderer.setColor(255f / 255f, 165f / 255f, 0, 0.1f);
-                    shapeRenderer.rect(100, 100, Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 4f);
-                    shapeRenderer.end();
-
-                    // Creating a new SpriteBatch to get the font to display is not efficient.
-                    // TODO: Fix this spritebatch issue
-                    spriteBatch = new SpriteBatch();
-                    spriteBatch.begin();
-                    font.draw(spriteBatch, messageList.get(messageIndex), 120, 160);
-                    spriteBatch.end();
-                    spriteBatch.dispose();
-
-                    if (player.isNextMessage()) {
-                        player.setNextMessage(false);
-                        messageIndex++;
-
-                        if (messageIndex == messageList.size()) {
-                            // All messages have been displayed
-                            player.setDisableControls(false);
-                        }
-                    }
-                }
-            } else {
-                // Player is not touching the NPC
-                resetDialogue();
-                player.setDisableControls(false);
-                messageList.removeLast();
-                generatedNumber = false;
-            }
-
+            game.setScreen(new SlotsScreen(game, p));
         }
-
-
     }
 
+    public void interact(PlatformerGame game, Player p)
+    {
+        game.setScreen(new SlotsScreen(game, p));
+    }
 
     public Item(float x, float y, boolean allowedtoBeCollected)
     {
@@ -180,15 +132,58 @@ public class Item
 
     private static Player p;
     private static boolean touchingPlayer = false;
+
+    /**
+     * interact serves as a default way for items to interact with the player. This was ripped from NonPlayableCharacter.
+     * @param player
+     */
     public void interact(Player player)
     {
         p = player;
-        //player.getVelocity().x = 0;
-        if (touchingPlayer && p.lookingDown)
+        if (touchingPlayer)
         {
-            System.out.println("Working lol");
-            p.lookingDown = false;
+            player.getVelocity().x = 0;
+            //This plays after the message list is over
+            if (messageIndex >= messageList.size())
+            {
+                // All messages have been displayed
+                resetDialogue();
+                player.setDisableControls(false);
+            } else
+            {
+                disablePlayerInput();
+
+                shapeRenderer.setAutoShapeType(true);
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(255f / 255f, 165f / 255f, 0, 0.1f);
+                shapeRenderer.rect(100, 100, Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 4f);
+                shapeRenderer.end();
+
+                // Creating a new SpriteBatch to get the font to display is not efficient.
+                // TODO: Fix this spritebatch issue
+                spriteBatch = new SpriteBatch();
+                spriteBatch.begin();
+                font.draw(spriteBatch, messageList.get(messageIndex), 120, 160);
+                spriteBatch.end();
+                spriteBatch.dispose();
+
+                if (player.isNextMessage()) {
+                    player.setNextMessage(false);
+                    messageIndex++;
+
+                    if (messageIndex == messageList.size()) {
+                        // All messages have been displayed
+                        player.setDisableControls(false);
+                    }
+                }
+            }
+        } else {
+            // Player is not touching the NPC
+            resetDialogue();
+            player.setDisableControls(false);
+            messageList.removeLast();
         }
+
     }
 
     protected void resetDialogue() {

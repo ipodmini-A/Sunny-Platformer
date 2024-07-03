@@ -1,5 +1,6 @@
 package cchase.platformergame;
 
+import cchase.platformergame.screens.SlotsScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -41,6 +42,7 @@ public class World {
     private static final float FRICTION = 5f;
     private final OrthographicCamera camera;
     protected Player player;
+    protected PlatformerGame game;
     //public Enemy enemy;
     public NonPlayableCharacter nonPlayableCharacter;
     // I'm not sure if having "Collectables" be a linked list is a good idea.
@@ -59,7 +61,7 @@ public class World {
     private MapObjects objects;
     private MapObjects endGameObject;
     private MapObjects playerSpawnPointObject;
-    private boolean debug = false;
+    private boolean debug = true;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -67,11 +69,14 @@ public class World {
     public Music music;
     // TODO: Implement a proper debug tool.
 
-    public World(Player player) {
+    public World(Player player, PlatformerGame game) {
         // Sound creation
         music = Gdx.audio.newMusic(Gdx.files.internal("sound/Tiny_Sheriff.mp3"));
         music.play();
         music.setVolume(0.0f);
+
+        // PlatformerGame context
+        this.game = game;
 
         // Map creation
         loader = new TmxMapLoader();
@@ -125,7 +130,7 @@ public class World {
         //Item creation
         collectables = new LinkedList<>();
         collectables.add(new Item(100, 400, true));
-        collectables.add(new Item(150, 400, false));
+        collectables.add(new Item(150, 400, true));
 
         //Roulette Creation (Test)
         roulette = new Item.Roulette(player.getPosition().x + 100, player.getPosition().y);
@@ -818,7 +823,10 @@ public class World {
         }
         if (i.isDisplayMessage())
         {
-            i.interact(player);
+            player.setDisplayMessage(false);
+            i.setDisplayMessage(false);
+            roulette.interact(game, player);
+            //i.interact(player);
         }
     }
 

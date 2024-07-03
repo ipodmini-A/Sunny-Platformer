@@ -37,7 +37,7 @@ public class GameScreen extends ScreenAdapter
         batch = new SpriteBatch();
         player = new Player();
         //Gdx.input.setInputProcessor(inputProcessor);
-        world = new World(player);
+        world = new World(player,game);
     }
 
     @Override
@@ -71,6 +71,10 @@ public class GameScreen extends ScreenAdapter
     public void hide()
     {
         GameState.gameScreen = game.getScreen();
+        GameState.lastRecordedPlayerX = player.getPosition().x;
+        System.out.println(GameState.lastRecordedPlayerX);
+        GameState.lastRecordedPlayerY = player.getPosition().y;
+        System.out.println(GameState.lastRecordedPlayerY);
         System.out.println("Hidden");
     }
 

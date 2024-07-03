@@ -124,6 +124,7 @@ public class Player
         health = 100f;
         attackPoints = 10f;
         defensePoints = 10f;
+        money = 100;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
@@ -190,6 +191,7 @@ public class Player
         health = 100f;
         attackPoints = 10f;
         defensePoints = 10f;
+        money = 100;
         touchingCeiling = false;
         touchingLeftWall = false;
         touchingRightWall = false;
@@ -1094,6 +1096,14 @@ public class Player
     public void setHealth(float health)
     {
         this.health = health;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
     }
 
     public boolean isDisableControls()

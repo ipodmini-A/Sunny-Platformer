@@ -12,6 +12,7 @@ public class GameState
 {
 
     public static Screen gameScreen;
+    public static Screen mainMenuScreen;
     public static float lastRecordedPlayerX;
     public static float lastRecordedPlayerY;
 
