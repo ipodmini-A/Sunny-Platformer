@@ -36,10 +36,12 @@ public class SlotsGame {
     protected Stage stage;
     protected Skin skin;
     protected Table gameTable;
-    TextButton cashInjection;
-    PlatformerGame game;
-    Screen saveScreen;
-    Player player;
+    protected TextButton cashInjection;
+    protected TextButton spinButton;
+    protected PlatformerGame game;
+    protected Screen saveScreen;
+    protected Player player;
+
     public SlotsGame(final PlatformerGame game, Player p)
     {
         spriteBatch = new SpriteBatch();
@@ -67,16 +69,31 @@ public class SlotsGame {
         Label titleLabel = new Label("Slots (currently in development)", skin, "title");
         gameTable.add(titleLabel).pad(10f).row();
 
-        TextButton playButton = new TextButton("Spin", skin);
-        playButton.addListener(new ChangeListener() {
+        /*
+        TextButton stopButton = new TextButton("Stop", skin);
+        stopButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Put logic here
+
+            }
+        });
+
+        gameTable.add(stopButton);
+
+         */
+
+        spinButton = new TextButton("Spin", skin);
+        spinButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Put logic here
                 spin();
+                firstRun = false;
             }
         });
-        playButton.setSize(300f, 100f);
-        gameTable.add(playButton).pad(10f).row();
+        spinButton.setSize(300f, 100f);
+        gameTable.add(spinButton).pad(10f).row();
 
         TextButton back = new TextButton("Quit", skin);
         //back.setPosition(100,100);
@@ -105,23 +122,33 @@ public class SlotsGame {
         //gameTable.add(back).padRight(Gdx.graphics.getWidth()/2f);
     }
 
-    private int jackpotMultiplier = 10;
+    private int jackpotMultiplier = 100;
     private String number0 = "Number 1";
     private String number1 = "Number 2";
     private String number2 = "Number 3";
-    int intNumber0;
-    int intNumber1;
-    int intNumber2;
+    private int intNumber0;
+    private int intNumber1;
+    private int intNumber2;
+    private int currentSpin = 0;
+    boolean firstRun = true;
     public void spin()
     {
+        System.out.println(currentSpin);
         if (player.getMoney() > 0) {
-            player.setMoney(player.getMoney() - 10);
-            intNumber0 = random.nextInt(9) + 1;
-            intNumber1 = random.nextInt(9) + 1;
-            intNumber2 = random.nextInt(9) + 1;
+            if (currentSpin == 0 && firstRun)
+            {
+                player.setMoney(player.getMoney() - 10);
+                firstRun = false;
+            }
+            if (currentSpin == 3) {
+                player.setMoney(player.getMoney() - 10);
+            }
+            shuffle();
             number0 = String.valueOf(intNumber0);
             number1 = String.valueOf(intNumber1);
             number2 = String.valueOf(intNumber2);
+            if ( currentSpin >= 4)
+            {
             if ((intNumber0 == intNumber1) && (intNumber1 == intNumber2)) {
                 spriteBatch.begin();
                 bitmapFont.draw(spriteBatch,"JACKPOT",Gdx.graphics.getWidth()*(3/4f), Gdx.graphics.getHeight()/3f);
@@ -131,7 +158,38 @@ public class SlotsGame {
             {
                 player.setMoney(player.getMoney() + 20);
             }
+            }
+            currentSpin++;
+            if (currentSpin >= 4)
+            {
+                currentSpin = 0;
+            }
         }
+    }
+
+    private int randomCap = 3;
+    public void shuffle()
+    {
+        switch (currentSpin)
+        {
+            case 0:
+                intNumber0 = random.nextInt(randomCap) + 1;
+                break;
+            case 1:
+                intNumber1 = random.nextInt(randomCap) + 1;
+                break;
+            case 2:
+                intNumber2 = random.nextInt(randomCap) + 1;
+                break;
+            default:
+                //lol
+                break;
+        }
+    }
+
+    public int fakeShuffle()
+    {
+            return random.nextInt(9) + 1;
     }
 
     /**
@@ -223,18 +281,52 @@ public class SlotsGame {
 
     public void displaySlotNumbers(SpriteBatch spriteBatch)
     {
-        //bitmapFont.draw(spriteBatch,number0,Gdx.graphics.getWidth()*(1/4f),Gdx.graphics.getHeight()/2f);
-        //bitmapFont.draw(spriteBatch,number1,Gdx.graphics.getWidth()*(1/2f), Gdx.graphics.getHeight()/2f);
-        //bitmapFont.draw(spriteBatch,number2,Gdx.graphics.getWidth()*(3/4f), Gdx.graphics.getHeight()/2f);
-
-        drawNumbers(intNumber0,spriteBatch, Gdx.graphics.getWidth()*(1/4f),Gdx.graphics.getHeight()/2f, 200, 200);
-        drawNumbers(intNumber1,spriteBatch, Gdx.graphics.getWidth()*(1/2f),Gdx.graphics.getHeight()/2f, 200, 200);
-        drawNumbers(intNumber2,spriteBatch, Gdx.graphics.getWidth()*(3/4f),Gdx.graphics.getHeight()/2f, 200, 200);
+        if (firstRun)
+        {
+            drawNumbers(fakeShuffle(),spriteBatch, Gdx.graphics.getWidth()*(1/4f),Gdx.graphics.getHeight()/2f, 200, 200);
+            drawNumbers(0,spriteBatch, Gdx.graphics.getWidth()*(1/2f),Gdx.graphics.getHeight()/2f, 200, 200);
+            drawNumbers(0,spriteBatch, Gdx.graphics.getWidth()*(3/4f),Gdx.graphics.getHeight()/2f, 200, 200);
+        } else {
+            switch (currentSpin) {
+                case 0:
+                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (1 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (1 / 2f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (3 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    break;
+                case 1:
+                    drawNumbers(intNumber0, spriteBatch, Gdx.graphics.getWidth() * (1 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (1 / 2f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (3 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    break;
+                case 2:
+                    drawNumbers(intNumber0, spriteBatch, Gdx.graphics.getWidth() * (1 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    drawNumbers(intNumber1, spriteBatch, Gdx.graphics.getWidth() * (1 / 2f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (3 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    break;
+                case 3:
+                    drawNumbers(intNumber0, spriteBatch, Gdx.graphics.getWidth() * (1 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    drawNumbers(intNumber1, spriteBatch, Gdx.graphics.getWidth() * (1 / 2f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    drawNumbers(intNumber2, spriteBatch, Gdx.graphics.getWidth() * (3 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
+                    break;
+                default:
+                    //lol
+                    break;
+            }
+        }
     }
 
     public void update(float delta)
     {
-
+        if (currentSpin == 0)
+        {
+            spinButton.setText("Spin");
+        } else if (currentSpin == 3)
+        {
+            spinButton.setText("Go Again?");
+        } else
+        {
+            spinButton.setText("Stop");
+        }
         sprite.setBounds(
                 Gdx.graphics.getWidth()/2f,
                 Gdx.graphics.getHeight()/2f,
@@ -243,7 +335,7 @@ public class SlotsGame {
         spriteBatch.begin();
         bitmapFont.draw(spriteBatch,String.valueOf(player.getMoney()),Gdx.graphics.getWidth() - 50f,Gdx.graphics.getHeight() - 50f);
         displaySlotNumbers(spriteBatch);
-        if ((intNumber0 == intNumber1) && (intNumber1 == intNumber2) && intNumber0 != 0) {
+        if ((intNumber0 == intNumber1) && (intNumber0 == intNumber2) && (intNumber0 != 0) && currentSpin == 3) {
             bitmapFont.draw(spriteBatch, "JACKPOT", Gdx.graphics.getWidth() * (1 / 2f) - 25f, Gdx.graphics.getHeight() / 3f);
         }
         //sprite.draw(spriteBatch);
