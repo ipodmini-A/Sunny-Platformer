@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.Random;
 
@@ -68,6 +69,7 @@ public class SlotsGame {
                 spin();
             }
         });
+        playButton.setSize(300f, 100f);
         gameTable.add(playButton).pad(10f).row();
 
         TextButton back = new TextButton("Quit", skin);
@@ -79,6 +81,7 @@ public class SlotsGame {
                 game.setScreen(saveScreen);
             }
         });
+        back.setSize(100,50);
         stage.addActor(back);
 
         cashInjection = new TextButton("Cash Injection", skin);
@@ -102,8 +105,8 @@ public class SlotsGame {
     {
         if (player.getMoney() > 0) {
             player.setMoney(player.getMoney() - 10);
-            int intNumber0 = random.nextInt(10);
-            int intNumber1 = random.nextInt(10);
+            int intNumber0 = random.nextInt(7);
+            int intNumber1 = random.nextInt(7);
             int intNumber2 = random.nextInt(10);
             number0 = String.valueOf(intNumber0);
             number1 = String.valueOf(intNumber1);
