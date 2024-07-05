@@ -9,7 +9,6 @@ buildscript {
         google()
     }
     dependencies {
-        
 
     }
 }
@@ -26,6 +25,7 @@ allprojects {
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.2.1'
+        typingLabelVersion = '1.4.0'
     }
 
     repositories {
@@ -49,7 +49,8 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-
+        api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
+        implementation "com.strongjoshua:libgdx-inGameConsole:1.0.0"
     }
 }
 
@@ -62,6 +63,7 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
-
+        api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
+        implementation "com.strongjoshua:libgdx-inGameConsole:1.0.0"
     }
 }

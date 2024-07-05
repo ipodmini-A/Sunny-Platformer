@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -55,10 +56,14 @@ public class SlotsGame {
 
         player = p;
 
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+
         stage = new Stage();
         //Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        TypingLabel label = new TypingLabel("Hello World!", skin);
+        label.setPosition(100,100);
+        stage.addActor(label);
 
         gameTable = new Table();
         //gameTable.setFillParent(true);
@@ -334,6 +339,7 @@ public class SlotsGame {
                 100);
         spriteBatch.begin();
         bitmapFont.draw(spriteBatch,String.valueOf(player.getMoney()),Gdx.graphics.getWidth() - 50f,Gdx.graphics.getHeight() - 50f);
+        //textraLabel.draw(spriteBatch,1);
         displaySlotNumbers(spriteBatch);
         if ((intNumber0 == intNumber1) && (intNumber0 == intNumber2) && (intNumber0 != 0) && currentSpin == 3) {
             bitmapFont.draw(spriteBatch, "JACKPOT", Gdx.graphics.getWidth() * (1 / 2f) - 25f, Gdx.graphics.getHeight() / 3f);

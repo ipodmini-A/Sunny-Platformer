@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 
 /**
  * GameScreen is the main platformer screen of the game.
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class GameScreen extends ScreenAdapter
 {
     protected PlatformerGame game;
+    private Stage stage;
     private SpriteBatch batch;
     protected World world;
     protected Player player;
@@ -22,6 +24,8 @@ public class GameScreen extends ScreenAdapter
     float x = 400f;
     float y = 1300f;
     private boolean firstSpawnCheck = false;
+    public static InputMultiplexer multiplexer = new InputMultiplexer();
+
     public boolean playerWon = false;
 
 
@@ -34,9 +38,13 @@ public class GameScreen extends ScreenAdapter
     {
         System.out.println("GameScreen created");
         this.game = game;
+        stage = new Stage();
         batch = new SpriteBatch();
         player = new Player();
         //Gdx.input.setInputProcessor(inputProcessor);
+        multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(new NewPlatformerInput(player));
+        Gdx.input.setInputProcessor(multiplexer);
         world = new World(player,game);
     }
 
@@ -49,8 +57,6 @@ public class GameScreen extends ScreenAdapter
             player.setPositionX(GameState.lastRecordedPlayerX);
             player.setPositionY(GameState.lastRecordedPlayerY);
         }
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(new NewPlatformerInput(player));
         Gdx.input.setInputProcessor(multiplexer);
 
         // Resetting players movement

@@ -43,8 +43,7 @@ public class World {
     private final OrthographicCamera camera;
     protected Player player;
     protected PlatformerGame game;
-    //public Enemy enemy;
-    public NonPlayableCharacter nonPlayableCharacter;
+    //public NonPlayableCharacter nonPlayableCharacter;
     // I'm not sure if having "Collectables" be a linked list is a good idea.
     // For now, it works. When creating a new level, each collectable will be added to this linked list.
     // Each item in the linked list has its coordinates
@@ -118,14 +117,26 @@ public class World {
         // Enemy creation
         enemies = new LinkedList<>();
         enemies.add(new Enemy(player.getPosition().x + 300, player.getPosition().y));
-        //enemies.add(new Enemy(player.getPosition().x + 400, player.getPosition().y));
+        enemies.add(new Enemy(player.getPosition().x + 400, player.getPosition().y));
         for (int i = 0; i < enemies.size(); i++)
         {
             enemies.get(i).setSCALE(SCALE);
         }
 
         //NPC creation
-        nonPlayableCharacter = new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y);
+        //nonPlayableCharacter = new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y);
+        nonPlayableCharacters = new LinkedList<>();
+        nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y));
+
+        nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x + 50, player.getPosition().y));
+
+        nonPlayableCharacters.get(1).removeAllMessages();
+        nonPlayableCharacters.get(1).getMessageList().add("I'm the second NPC added");
+        nonPlayableCharacters.get(1).getMessageList().add("I'm just here to make sure that the linked list that was added is working properly");
+        nonPlayableCharacters.get(1).getMessageList().add("Lets be real, I might be broken");
+        nonPlayableCharacters.get(1).getMessageList().add("Cya!");
+
+
 
         //Item creation
         collectables = new LinkedList<>();
@@ -739,8 +750,6 @@ public class World {
      *
      * @return True if the player is colliding with an enemy, false if otherwise
      * <p>
-     * TODO: If there are multiple enemies within the level, it's most likely this method will have to iterate through
-     *       each enemy to test to see if collision has occurred. Is this idea optimal? No. Will I do it? Probably.
      */
     public boolean isCollidingWithEnemy() {
         try {
@@ -757,16 +766,18 @@ public class World {
         }
     }
 
-    public boolean isCollidingWithNPC() {
-        if (player.getBounds().overlaps(nonPlayableCharacter.getBounds())) {
-            //System.out.println("Colliding with NPC");
-            nonPlayableCharacter.setTouchingPlayer(true);
-            player.setNpcInteraction(true);
-            return true;
+    public boolean isCollidingWithNPC(NonPlayableCharacter n) {
+        for (int i = 0; i < nonPlayableCharacters.size(); i++) {
+            if (player.getBounds().overlaps(n.getBounds())) {
+                //System.out.println("Colliding with NPC");
+                n.setTouchingPlayer(true);
+                player.setNpcInteraction(true);
+                return true;
+            }
+            n.setTouchingPlayer(false);
+            player.setNpcInteraction(false);
+            return false;
         }
-        //System.out.println("Not colliding with NPC");
-        nonPlayableCharacter.setTouchingPlayer(false);
-        player.setNpcInteraction(false);
         return false;
     }
 
@@ -785,11 +796,14 @@ public class World {
         //item.setCollected(false);
     }
 
-    public boolean isAttackingEnemy() {
+    public int isAttackingEnemy() {
         for (int i = 0; i < enemies.size(); i++) {
-            return player.attackHitbox.overlaps(enemies.get(i).getBounds());
+            if (player.attackHitbox.overlaps(enemies.get(i).getBounds()))
+            {
+                return i;
+            }
         }
-        return false;
+        return -1;
     }
 
     public boolean isAttackingPlayer()
@@ -803,14 +817,14 @@ public class World {
 
     private void messageRenderNPC(NonPlayableCharacter p)
     {
-        if (isCollidingWithNPC() && player.isDisplayMessage())
-        {
-            //System.out.println("NPC interaction");
-            p.setDisplayMessage(true);
-        }
-        if (p.isDisplayMessage())
-        {
-            p.Message(player);
+        if (p.getBounds().overlaps(player.getBounds())) {
+            if (isCollidingWithNPC(p) && player.isDisplayMessage()) {
+                //System.out.println("NPC interaction");
+                p.setDisplayMessage(true);
+            }
+            if (p.isDisplayMessage()) {
+                p.Message(player);
+            }
         }
     }
 
@@ -855,14 +869,16 @@ public class World {
         mapRenderer.render();
 
         // NPC render
-        checkCollisions(delta,nonPlayableCharacter);
-        applyGravity(delta, nonPlayableCharacter);
-        applyFriction(delta, nonPlayableCharacter);
-        nonPlayableCharacter.updateCamera(camera);
-        nonPlayableCharacter.render(spriteBatch,delta);
-        //System.out.println(player.nextMessage);
-        //System.out.println(isCollidingWithNPC());
-        messageRenderNPC(nonPlayableCharacter);
+        for (int i = 0; i < nonPlayableCharacters.size(); i++) {
+            checkCollisions(delta, nonPlayableCharacters.get(i));
+            applyGravity(delta, nonPlayableCharacters.get(i));
+            applyFriction(delta, nonPlayableCharacters.get(i));
+            nonPlayableCharacters.get(i).updateCamera(camera);
+            nonPlayableCharacters.get(i).render(spriteBatch, delta);
+            //System.out.println(player.nextMessage);
+            //System.out.println(isCollidingWithNPC());
+            messageRenderNPC(nonPlayableCharacters.get(i));
+        }
 
 
         // Enemy render
@@ -922,8 +938,9 @@ public class World {
         //Attack Check
         try {
             for (int i = 0; i < enemies.size(); i++) {
-            if (isAttackingEnemy()) {
-                    player.deployAttack(enemies.get(i));
+                int chosenEnemy = isAttackingEnemy();
+                if (chosenEnemy >= 0) {
+                    player.deployAttack(enemies.get(chosenEnemy));
                 }
             }
         } catch (Exception e)
@@ -1000,7 +1017,9 @@ public class World {
 
         //NPC Debug
         debugRenderer.setColor(Color.PURPLE);
-        debugRenderer.rect(nonPlayableCharacter.getPosition().x, nonPlayableCharacter.getPosition().y, nonPlayableCharacter.getWidth(), nonPlayableCharacter.getHeight());
+        for (int i = 0; i < nonPlayableCharacters.size(); i++) {
+            debugRenderer.rect(nonPlayableCharacters.get(i).getPosition().x, nonPlayableCharacters.get(i).getPosition().y, nonPlayableCharacters.get(i).getWidth(), nonPlayableCharacters.get(i).getHeight());
+        }
 
         //Item Debug
         for (Item collectable : collectables) {

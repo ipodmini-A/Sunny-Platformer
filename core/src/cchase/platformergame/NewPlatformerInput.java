@@ -1,5 +1,7 @@
 package cchase.platformergame;
 
+import cchase.platformergame.console.ConsoleCommands;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 
@@ -13,6 +15,7 @@ import com.badlogic.gdx.InputProcessor;
 public class NewPlatformerInput implements InputProcessor
 {
     Player p;
+    private boolean debug = true;
 
     /**
      * Constructor. Sets the inputProcessor to the player
@@ -21,6 +24,11 @@ public class NewPlatformerInput implements InputProcessor
     public NewPlatformerInput(Player p)
     {
         this.p = p;
+    }
+
+    public NewPlatformerInput()
+    {
+        p = new Player();
     }
 
     /**
@@ -34,17 +42,25 @@ public class NewPlatformerInput implements InputProcessor
     {
         switch (keycode)
         {
+            case Input.Keys.SEMICOLON:
+                    ConsoleCommands.getConsole().setVisible(true);
+                    ConsoleCommands.getConsole().select();
+                    break;
             case Input.Keys.Z: // Up controls
                 if (!p.isGrounded() && p.isTouchingWall() && !p.wallRiding) // Wall Jump input
                 {
-                    System.out.println("Wall jump");
+                    if (debug) {
+                        System.out.println("Wall jump");
+                    }
                     p.wallJump();
                 } else if (!p.isGrounded() && !p.isTouchingWall()) // Double Jump input
                 {
                     p.doubleJump();
                 } else if (p.wallRiding)
                 {
-                    System.out.println("Jumping off wall from sliding");
+                    if (debug) {
+                        System.out.println("Jumping off wall from sliding");
+                    }
                     p.wallJump();
                     p.wallRiding = false;
                 }
@@ -85,11 +101,15 @@ public class NewPlatformerInput implements InputProcessor
                 }
                 break;
             case Input.Keys.UP:
-                System.out.println("Up");
+                if (debug) {
+                    System.out.println("Up");
+                }
                 p.setLookingUp(true);
                 break;
             case Input.Keys.LEFT:
-                System.out.println("Left");
+                if (debug) {
+                    System.out.println("Left");
+                }
                 p.setLeftMove(true);
                 if (!p.isGrounded())
                 {
@@ -97,7 +117,9 @@ public class NewPlatformerInput implements InputProcessor
                 }
                 break;
             case Input.Keys.RIGHT:
-                System.out.println("Right");
+                if (debug) {
+                    Gdx.app.debug("Input","Right");
+                }
                 p.setRightMove(true);
                 if (!p.isGrounded())
                 {

@@ -1,6 +1,3 @@
-package cchase.platformergame;
-
-import cchase.platformergame.screens.GameScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -41,7 +38,6 @@ public class NonPlayableCharacter extends Player {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         stage = new Stage();
-        //stage.setDebugAll(true);
         shapeRenderer = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
         messageIndex = 0;
@@ -50,36 +46,25 @@ public class NonPlayableCharacter extends Player {
         messageList.add("I'm a generic NPC!");
         messageList.add("I can't really move yet but hopefully in the future I gain that ability");
         messageList.add("Goodbye!");
-        GameScreen.multiplexer.addProcessor(stage);
-
-        facingRight = true;
 
         typingLabel = new TypingLabel("", skin);
 
         // Create and set up the dialogue box
         dialogueBox = new Window("", skin);
-        dialogueBox.setSize(500, 200);
+        dialogueBox.setSize(400, 200);
         dialogueBox.setPosition(Gdx.graphics.getWidth() / 2f - 200, 50);
         dialogueBox.add(typingLabel).width(380).pad(10).row();
-        typingLabel.setWrap(true);
 
         // Create the next button
         nextButton = new TextButton("Next", skin);
         nextButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
-                if (player.isDisplayMessage())
-                {
-                    player.setNextMessage(true);
-                }
-                /*
                 if (player != null && player.isNextMessage()) {
                     player.setNextMessage(false);
                     messageIndex++;
 
                     if (messageIndex < messageList.size()) {
-                        typingLabel.restart();
                         typingLabel.setText(messageList.get(messageIndex));
                     } else {
                         // All messages have been displayed
@@ -87,8 +72,6 @@ public class NonPlayableCharacter extends Player {
                         dialogueBox.setVisible(false);
                     }
                 }
-
-                 */
             }
         });
 
@@ -106,16 +89,6 @@ public class NonPlayableCharacter extends Player {
     public void Message(Player player) {
         this.player = player;
         player.getVelocity().x = 0;
-        if (!player.facingRight) {
-            facingRight = true;
-            //player.setPositionX(position.x - 28f);
-            player.setPositionX(position.x + getWidth() - 2f);
-            //player.facingRight = true;
-        } else
-        {
-            facingRight = false;
-            player.setPositionX(position.x - 28f);
-        }
 
         if (touchingPlayer) {
             if (messageIndex >= messageList.size()) {
@@ -127,7 +100,6 @@ public class NonPlayableCharacter extends Player {
 
                 if (!dialogueBox.isVisible()) {
                     dialogueBox.setVisible(true);
-                    typingLabel.restart();
                     typingLabel.setText(messageList.get(messageIndex));
                 }
 
@@ -139,7 +111,6 @@ public class NonPlayableCharacter extends Player {
                     messageIndex++;
 
                     if (messageIndex < messageList.size()) {
-                        typingLabel.restart();
                         typingLabel.setText(messageList.get(messageIndex));
                     } else {
                         // All messages have been displayed
@@ -174,25 +145,8 @@ public class NonPlayableCharacter extends Player {
         }
     }
 
-    public void removeAllMessages()
-    {
-        messageList = new LinkedList<String>();
-    }
-
     public void disablePlayerInput() {
         player.setDisableControls(true);
-    }
-    //                      //
-    // Setters and Getters  //
-    //                      //
-
-
-    public LinkedList<String> getMessageList() {
-        return messageList;
-    }
-
-    public void setMessageList(LinkedList<String> messageList) {
-        this.messageList = messageList;
     }
 
     public boolean isTouchingPlayer() {

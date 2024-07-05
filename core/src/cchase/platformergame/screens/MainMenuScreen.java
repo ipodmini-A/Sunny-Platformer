@@ -1,9 +1,12 @@
 package cchase.platformergame.screens;
 
 import cchase.platformergame.GameState;
+import cchase.platformergame.NewPlatformerInput;
 import cchase.platformergame.PlatformerGame;
 import cchase.platformergame.Player;
+import cchase.platformergame.console.ConsoleCommands;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -19,11 +22,19 @@ public class MainMenuScreen extends ScreenAdapter {
 
     private Table mainMenuTable;
     private Table optionsTable;
+    InputMultiplexer multiplexer = new InputMultiplexer();
 
     public MainMenuScreen(final PlatformerGame game) {
         this.game = game;
         stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
+
+        ConsoleCommands consoleCommands = new ConsoleCommands();
+
+        multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(ConsoleCommands.getConsole().getInputProcessor());
+        multiplexer.addProcessor(new NewPlatformerInput());
+        multiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(multiplexer);
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
@@ -148,7 +159,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(stage);
+        Gdx.input.setInputProcessor(multiplexer);
         super.show();
     }
 
@@ -156,6 +167,8 @@ public class MainMenuScreen extends ScreenAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        ConsoleCommands.draw();
 
         stage.act(delta);
         stage.draw();

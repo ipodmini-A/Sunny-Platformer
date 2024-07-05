@@ -24,7 +24,7 @@ public class SlotsScreen extends ScreenAdapter {
 
         slotsGame = new SlotsGame(game, p);
 
-        Gdx.input.setInputProcessor(slotsGame.getStage());
+
     }
 
     @Override
