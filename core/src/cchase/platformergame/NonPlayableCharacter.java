@@ -18,8 +18,10 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
+import javax.print.DocFlavor;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.StringTokenizer;
 
 public class NonPlayableCharacter extends Player {
     HashMap<String, Sprite> overworldSprites = new HashMap<String, Sprite>();
@@ -32,19 +34,56 @@ public class NonPlayableCharacter extends Player {
     protected Stage stage;
     private Player player;
     private Rectangle interactionBound;
-    private LinkedList<String> messageList;
-    private LinkedList<Emotion> emotionList;
+    private LinkedList<EmotionString> messageList;
     private TypingLabel typingLabel;
     private int messageIndex;
     private int emotionIndex;
     private boolean displayMessage;
     private Window dialogueBox;
     private TextButton nextButton;
-    private enum Emotion
+    enum Emotion
     {
         NEUTRAL, HAPPY
     }
     private Emotion emotion;
+
+    /**
+     * This class is dedicated to storing data for both Strings and Emotions. This is important for the portraits
+     * that are displayed in the overworld
+     * TODO: Figure out a way to make creating a new object not painful
+     */
+    public static class EmotionString
+    {
+        private String message;
+        private Emotion emotion;
+        public EmotionString(String s, Emotion e)
+        {
+            message = s;
+            emotion = e;
+        }
+
+        public EmotionString(String s)
+        {
+            message = s;
+            emotion = Emotion.NEUTRAL;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public Emotion getEmotion() {
+            return emotion;
+        }
+
+        public void setEmotion(Emotion emotion) {
+            this.emotion = emotion;
+        }
+    }
 
     public NonPlayableCharacter(float x, float y) {
         super(x, y); // NonPlayableCharacter inherits everything from Player.java at first. Things such as sprites.
@@ -64,16 +103,11 @@ public class NonPlayableCharacter extends Player {
         //TODO: Fuse emotion index and message index
         emotionIndex = 0;
         messageIndex = 0;
-        emotionList = new LinkedList<>();
         messageList = new LinkedList<>();
-        messageList.add("Hi!");
-        emotionList.add(Emotion.HAPPY);
-        messageList.add("I'm a generic NPC!");
-        emotionList.add(Emotion.NEUTRAL);
-        messageList.add("I can't really move yet but hopefully in the future I gain that ability");
-        emotionList.add(Emotion.NEUTRAL);
-        messageList.add("Goodbye!");
-        emotionList.add(Emotion.NEUTRAL);
+        messageList.add(new EmotionString("Hi", Emotion.HAPPY));
+        messageList.add(new EmotionString("I'm a generic NPC!", Emotion.NEUTRAL));
+        messageList.add(new EmotionString("I can't really move yet but hopefully in the future I gain that ability", Emotion.NEUTRAL));
+        messageList.add(new EmotionString("Goodbye!", Emotion.HAPPY));
         GameScreen.multiplexer.addProcessor(stage);
 
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
@@ -156,8 +190,8 @@ public class NonPlayableCharacter extends Player {
                 if (!dialogueBox.isVisible()) {
                     dialogueBox.setVisible(true);
                     typingLabel.restart();
-                    typingLabel.setText(messageList.get(messageIndex));
-                    emotion = emotionList.get(messageIndex);
+                    typingLabel.setText(messageList.get(messageIndex).getMessage());
+                    emotion = messageList.get(messageIndex).getEmotion();
                 }
 
                 stage.act(Gdx.graphics.getDeltaTime());
@@ -169,8 +203,8 @@ public class NonPlayableCharacter extends Player {
 
                     if (messageIndex < messageList.size()) {
                         typingLabel.restart();
-                        typingLabel.setText(messageList.get(messageIndex));
-                        emotion = emotionList.get(messageIndex);
+                        typingLabel.setText(messageList.get(messageIndex).getMessage());
+                        emotion = messageList.get(messageIndex).getEmotion();
                     } else {
                         // All messages have been displayed
                         player.setDisableControls(false);
@@ -341,7 +375,7 @@ public class NonPlayableCharacter extends Player {
 
     public void removeAllMessages()
     {
-        messageList = new LinkedList<String>();
+        messageList = new LinkedList<EmotionString>();
     }
 
     public void disablePlayerInput() {
@@ -352,11 +386,11 @@ public class NonPlayableCharacter extends Player {
     //                      //
 
 
-    public LinkedList<String> getMessageList() {
+    public LinkedList<EmotionString> getMessageList() {
         return messageList;
     }
 
-    public void setMessageList(LinkedList<String> messageList) {
+    public void setMessageList(LinkedList<EmotionString> messageList) {
         this.messageList = messageList;
     }
 

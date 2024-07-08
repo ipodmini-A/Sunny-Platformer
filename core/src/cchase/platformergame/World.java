@@ -131,22 +131,23 @@ public class World {
         nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x + 50, player.getPosition().y));
 
         nonPlayableCharacters.get(1).removeAllMessages();
-        nonPlayableCharacters.get(1).getMessageList().add("I'm the second NPC added");
-        nonPlayableCharacters.get(1).getMessageList().add("I'm just here to make sure that the linked list that was added is working properly");
-        nonPlayableCharacters.get(1).getMessageList().add("Lets be real, I might be broken");
-        nonPlayableCharacters.get(1).getMessageList().add("Cya!");
+        nonPlayableCharacters.get(1).getMessageList().add(new NonPlayableCharacter.EmotionString("I'm the second NPC added", NonPlayableCharacter.Emotion.HAPPY));
+        nonPlayableCharacters.get(1).getMessageList().add(new NonPlayableCharacter.EmotionString("I'm just here to make sure that the linked list that was added is working properly"));
+        nonPlayableCharacters.get(1).getMessageList().add(new NonPlayableCharacter.EmotionString("Lets be real, I might be broken"));
+        nonPlayableCharacters.get(1).getMessageList().add(new NonPlayableCharacter.EmotionString("Cya!", NonPlayableCharacter.Emotion.HAPPY));
 
         nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x - 200, player.getPosition().y));
 
         nonPlayableCharacters.get(2).removeAllMessages();
-        nonPlayableCharacters.get(2).getMessageList().add("I'm the third NPC added");
-        nonPlayableCharacters.get(2).getMessageList().add("Did you know that if you touch the slot machine and hit down, you'll play slots?");
-        nonPlayableCharacters.get(2).getMessageList().add("{WAVE}Crazy huh?");
-        nonPlayableCharacters.get(2).getMessageList().add("The game is far from complete and there is already {WAVE}{RAINBOW}gambling.{ENDRAINBOW}{ENDWAVE}");
-        nonPlayableCharacters.get(2).getMessageList().add("Guess it's kinda funny...");
-        nonPlayableCharacters.get(2).getMessageList().add("Personally I would've added blackjack.");
-        nonPlayableCharacters.get(2).getMessageList().add("Ah don't worry about it");
-        nonPlayableCharacters.get(2).getMessageList().add("Bye!");
+        nonPlayableCharacters.get(2).getMessageList().add(new NonPlayableCharacter.EmotionString("I'm the third NPC added"));
+        nonPlayableCharacters.get(2).getMessageList().add(new NonPlayableCharacter.EmotionString("Did you know that if you touch the slot machine and hit down, you'll play slots?"));
+        nonPlayableCharacters.get(2).getMessageList().add(new NonPlayableCharacter.EmotionString("{WAVE}Crazy huh?"));
+        nonPlayableCharacters.get(2).getMessageList().add(new NonPlayableCharacter.EmotionString("The game is far from complete and there is already {WAVE}{RAINBOW}gambling.{ENDRAINBOW}{ENDWAVE}"));
+        nonPlayableCharacters.get(2).getMessageList().add(new NonPlayableCharacter.EmotionString("Guess it's kinda funny..."));
+        nonPlayableCharacters.get(2).getMessageList().add(new NonPlayableCharacter.EmotionString("Personally I would've added blackjack."));
+        nonPlayableCharacters.get(2).getMessageList().add(new NonPlayableCharacter.EmotionString("Ah don't worry about it"));
+        nonPlayableCharacters.get(2).getMessageList().add(new NonPlayableCharacter.EmotionString("Bye!", NonPlayableCharacter.Emotion.HAPPY));
+
 
 
         //Item creation
