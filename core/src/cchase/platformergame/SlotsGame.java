@@ -20,6 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
 import java.util.HashMap;
@@ -34,6 +36,7 @@ public class SlotsGame {
     protected BitmapFont bitmapFont;
     Random random;
     protected OrthographicCamera camera;
+    protected Viewport viewport;
     protected Stage stage;
     protected Skin skin;
     protected Table gameTable;
@@ -59,17 +62,18 @@ public class SlotsGame {
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        stage = new Stage();
+        viewport = new FillViewport(1280,720);
+        stage = new Stage(viewport);
         //Gdx.input.setInputProcessor(stage);
 
         gameTable = new Table();
         //gameTable.setFillParent(true);
-        gameTable.setBounds(0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6f);
+        gameTable.setBounds(0,0,viewport.getWorldWidth(), viewport.getWorldHeight()/6f);
         stage.addActor(gameTable);
         stage.setDebugAll(false);
 
         jackpotLabel = new TypingLabel("", skin);
-        jackpotLabel.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 3f);
+        jackpotLabel.setPosition(viewport.getWorldWidth() / 2f, viewport.getWorldHeight() / 3f);
         stage.addActor(jackpotLabel);
 
         TypingLabel titleLabel = new TypingLabel("Slots (currently in development)", skin, "title");
@@ -123,6 +127,10 @@ public class SlotsGame {
     private int intNumber2;
     private int currentSpin = 0;
     boolean firstRun = true;
+
+    /**
+     * Logic for when the spin button is selected.
+     */
     public void spin()
     {
         System.out.println(currentSpin);
@@ -145,12 +153,12 @@ public class SlotsGame {
             if (currentSpin == 2)
             {
                 jackpotLabel.setAlignment(Align.center);
-                jackpotLabel.setFontScale(2f);
+                jackpotLabel.setFontScale(2f * (viewport.getScreenWidth() / viewport.getWorldWidth()));
                 jackpotLabel.setVisible(true);
                 if ((intNumber0 == intNumber1) && (intNumber1 == intNumber2)) {
                     jackpotLabel.setText("{JUMP}{RAINBOW}JACKPOT!!!{ENDRAINBOW}");
                     jackpotLabel.setAlignment(Align.center);
-                    jackpotLabel.setFontScale(5f);
+                    jackpotLabel.setFontScale(5f * (viewport.getScreenWidth() / viewport.getWorldWidth()));
                     jackpotLabel.restart();
                     player.setMoney(player.getMoney() * jackpotMultiplier);
                 } else if ((intNumber0 == intNumber1) || (intNumber1 == intNumber2)) {
@@ -174,7 +182,12 @@ public class SlotsGame {
         }
     }
 
-    public static int randomCap = 2;
+    public static int randomCap = 9;
+
+    /**
+     * Dedicated to choosing a number in the slot machine. randomCap is used to determine the highest number that can
+     * be randomly selected.
+     */
     public void shuffle()
     {
         switch (currentSpin)
@@ -194,6 +207,11 @@ public class SlotsGame {
         }
     }
 
+    /**
+     * A random number generator dedicated to showing a random effect within the slot machine. This doesn't determine
+     * what number is chosen.
+     * @return
+     */
     public int fakeShuffle()
     {
             return random.nextInt(9) + 1;
@@ -211,6 +229,9 @@ public class SlotsGame {
         }
     }
 
+    /**
+     * Adds sprites to a hashmap for use
+     */
     private void addSprites()
     {
         Array<TextureAtlas.AtlasRegion> regions = textureAtlas.getRegions();
@@ -222,11 +243,22 @@ public class SlotsGame {
         }
     }
 
+    /**
+     * Draws sprites on screen.
+     * @param name Name for retrieval from the hashmap
+     * @param x X coordinates
+     * @param y Y coordinates
+     * @param width Width of the sprite
+     * @param height Height of the sprite
+     */
     public void drawSprite(String name, float x, float y, float width, float height)
     {
         Sprite sprite = sprites.get(name);
 
-        sprite.setBounds(x - 100f,y - 100f,width,height);
+        sprite.setBounds(x - (100f * viewport.getScreenWidth() / viewport.getWorldWidth()),
+                y - (100f * viewport.getScreenHeight() / viewport.getWorldHeight()),
+                width * (viewport.getScreenWidth() / viewport.getWorldWidth()),
+                height * (viewport.getScreenHeight() / viewport.getWorldHeight()));
 
         sprite.draw(spriteBatch);
     }
@@ -249,6 +281,15 @@ public class SlotsGame {
         stage.draw();
     }
 
+    /**
+     * drawNumbers uses drawSprite, and uses a switch case to display specific numbers.
+     * @param number
+     * @param spriteBatch
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     */
     public void drawNumbers(int number, SpriteBatch spriteBatch, float x, float y, float width, float height)
     {
         switch (number)
@@ -286,39 +327,38 @@ public class SlotsGame {
         }
     }
 
+    float spriteWidthAndHeight = 200;
+
+    /**
+     * Method handles what the player sees on screen.
+     * @param spriteBatch
+     */
     public void displaySlotNumbers(SpriteBatch spriteBatch)
     {
-        if (firstRun)
-        {
-            drawNumbers(fakeShuffle(),spriteBatch, Gdx.graphics.getWidth()*(1/4f),Gdx.graphics.getHeight()/2f, 200, 200);
-            drawNumbers(0,spriteBatch, Gdx.graphics.getWidth()*(1/2f),Gdx.graphics.getHeight()/2f, 200, 200);
-            drawNumbers(0,spriteBatch, Gdx.graphics.getWidth()*(3/4f),Gdx.graphics.getHeight()/2f, 200, 200);
-        } else {
-            switch (currentSpin) {
-                case 0:
-                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (1 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (1 / 2f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (3 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    break;
-                case 1:
-                    drawNumbers(intNumber0, spriteBatch, Gdx.graphics.getWidth() * (1 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (1 / 2f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (3 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    break;
-                case 2:
-                    drawNumbers(intNumber0, spriteBatch, Gdx.graphics.getWidth() * (1 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    drawNumbers(intNumber1, spriteBatch, Gdx.graphics.getWidth() * (1 / 2f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    drawNumbers(fakeShuffle(), spriteBatch, Gdx.graphics.getWidth() * (3 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    break;
-                case 3:
-                    drawNumbers(intNumber0, spriteBatch, Gdx.graphics.getWidth() * (1 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    drawNumbers(intNumber1, spriteBatch, Gdx.graphics.getWidth() * (1 / 2f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    drawNumbers(intNumber2, spriteBatch, Gdx.graphics.getWidth() * (3 / 4f), Gdx.graphics.getHeight() / 2f, 200, 200);
-                    break;
-                default:
-                    //lol
-                    break;
-            }
+        switch (currentSpin) {
+            case 0:
+                drawNumbers(fakeShuffle(), spriteBatch, viewport.getScreenWidth() * (1 / 4f), viewport.getScreenHeight() / 2f, 200, 200);
+                drawNumbers(fakeShuffle(), spriteBatch, viewport.getScreenWidth() * (1 / 2f), viewport.getScreenHeight() / 2f, 200, 200);
+                drawNumbers(fakeShuffle(), spriteBatch, viewport.getScreenWidth() * (3 / 4f), viewport.getScreenHeight() / 2f, 200, 200);
+                break;
+            case 1:
+                drawNumbers(intNumber0, spriteBatch, viewport.getScreenWidth() * (1 / 4f), viewport.getScreenHeight() / 2f, 200, 200);
+                drawNumbers(fakeShuffle(), spriteBatch, viewport.getScreenWidth() * (1 / 2f), viewport.getScreenHeight() / 2f, 200, 200);
+                drawNumbers(fakeShuffle(), spriteBatch, viewport.getScreenWidth() * (3 / 4f), viewport.getScreenHeight() / 2f, 200, 200);
+                break;
+            case 2:
+                drawNumbers(intNumber0, spriteBatch, viewport.getScreenWidth() * (1 / 4f), viewport.getScreenHeight() / 2f, 200, 200);
+                drawNumbers(intNumber1, spriteBatch, viewport.getScreenWidth() * (1 / 2f), viewport.getScreenHeight() / 2f, 200, 200);
+                drawNumbers(fakeShuffle(), spriteBatch, viewport.getScreenWidth() * (3 / 4f), viewport.getScreenHeight() / 2f, 200, 200);
+                break;
+            case 3:
+                drawNumbers(intNumber0, spriteBatch, viewport.getScreenWidth() * (1 / 4f), viewport.getScreenHeight() / 2f, 200, 200);
+                drawNumbers(intNumber1, spriteBatch, viewport.getScreenWidth() * (1 / 2f), viewport.getScreenHeight() / 2f, 200, 200);
+                drawNumbers(intNumber2, spriteBatch, viewport.getScreenWidth() * (3 / 4f), viewport.getScreenHeight() / 2f, 200, 200);
+                break;
+            default:
+                //lol
+                break;
         }
     }
 

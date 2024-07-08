@@ -14,10 +14,16 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.sun.tools.javac.Main;
+
+import javax.swing.text.View;
 
 public class MainMenuScreen extends ScreenAdapter {
     private Stage stage;
     private Skin skin;
+    private Viewport viewport;
     private PlatformerGame game;
 
     private Table mainMenuTable;
@@ -25,11 +31,12 @@ public class MainMenuScreen extends ScreenAdapter {
     public static boolean debug = true;
     InputMultiplexer multiplexer = new InputMultiplexer();
 
-    public MainMenuScreen(final PlatformerGame game) {
+    public MainMenuScreen(PlatformerGame game) {
         this.game = game;
-        stage = new Stage();
+        viewport = new FillViewport(1280,720);
+        stage = new Stage(viewport);
 
-        ConsoleCommands consoleCommands = new ConsoleCommands();
+        ConsoleCommands consoleCommands = new ConsoleCommands(viewport);
 
         multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(ConsoleCommands.getConsole().getInputProcessor());
@@ -132,8 +139,10 @@ public class MainMenuScreen extends ScreenAdapter {
                 int scaledWidth = (int) (targetWidth * scale);
                 int scaledHeight = (int) (targetHeight * scale);
 
-                Gdx.graphics.setWindowedMode(scaledWidth, scaledHeight);
+                //Gdx.graphics.setWindowedMode(scaledWidth, scaledHeight);
                 stage.getViewport().update(scaledWidth, scaledHeight, true);
+                game.resize(scaledWidth,scaledHeight);
+                stage.draw();
 
                 Gdx.graphics.setForegroundFPS(FPSint);
             }

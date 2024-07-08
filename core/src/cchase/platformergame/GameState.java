@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.Timer;
  */
 public class GameState
 {
-
     public static Screen gameScreen;
     public static Screen mainMenuScreen;
     public static float lastRecordedPlayerX;
@@ -25,7 +24,4 @@ public class GameState
             }
         }, delaySeconds);
     }
-
-
-
 }

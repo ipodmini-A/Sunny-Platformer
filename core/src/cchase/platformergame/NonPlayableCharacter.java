@@ -2,6 +2,7 @@ package cchase.platformergame;
 
 import cchase.platformergame.screens.GameScreen;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -16,6 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
 import javax.print.DocFlavor;
@@ -32,6 +35,7 @@ public class NonPlayableCharacter extends Player {
     private BitmapFont font;
     private Skin skin;
     protected Stage stage;
+    protected Viewport viewport;
     private Player player;
     private Rectangle interactionBound;
     private LinkedList<EmotionString> messageList;
@@ -93,10 +97,14 @@ public class NonPlayableCharacter extends Player {
         font = new BitmapFont();
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
+        //this.camera = camera;
+
         emotion = Emotion.NEUTRAL;
 
-        stage = new Stage();
+        viewport = new FitViewport(1280, 720);
+        stage = new Stage(viewport);
         //stage.setDebugAll(true);
+
         shapeRenderer = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
 
@@ -119,8 +127,8 @@ public class NonPlayableCharacter extends Player {
 
         // Create and set up the dialogue box
         dialogueBox = new Window("", skin);
-        dialogueBox.setSize(500, 200);
-        dialogueBox.setPosition(Gdx.graphics.getWidth() / 2f - 200, 50);
+        dialogueBox.setSize(viewport.getWorldWidth() / 2f, 200);
+        dialogueBox.setPosition(0 + (viewport.getWorldWidth() / 4f), 50);
         dialogueBox.add(typingLabel).width(380).pad(10).row();
         typingLabel.setWrap(true);
 
@@ -217,15 +225,24 @@ public class NonPlayableCharacter extends Player {
                 {
                     case NEUTRAL:
                         npcSprite = new Sprite(overworldSprites.get("npcStanding"));
-                        npcSprite.setPosition(Gdx.graphics.getWidth() - 400, 0);
+                        //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f), 0);
+                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
+                                scaleUI(npcSprite.getWidth(),"WIDTH"),
+                                scaleUI(npcSprite.getHeight(), "HEIGHT"));
                         break;
                     case HAPPY:
                         npcSprite = new Sprite(overworldSprites.get("npcStandingSmiling"));
-                        npcSprite.setPosition(Gdx.graphics.getWidth() - 462, 0);
+                        //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f) - 62, 0);
+                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f) - (scaleUI(62,"WIDTH")), 0,
+                                scaleUI(npcSprite.getWidth(),"WIDTH"),
+                                scaleUI(npcSprite.getHeight(), "HEIGHT"));
                         break;
                     default:
                         npcSprite = new Sprite(overworldSprites.get("npcStanding"));
-                        npcSprite.setPosition(Gdx.graphics.getWidth() - 400, 0);
+                        //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f), 0);
+                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
+                                scaleUI(npcSprite.getWidth(),"WIDTH"),
+                                scaleUI(npcSprite.getHeight(), "HEIGHT"));
                         break;
 
                 }
@@ -239,6 +256,24 @@ public class NonPlayableCharacter extends Player {
             player.setNpcInteraction(false);
             player.setDisableControls(false);
         }
+    }
+
+    /**
+     * Scales a number according to the screen size. Not guaranteed to work
+     * @param numberToScale number that is to be scaled
+     * @param scale 'WIDTH' for width, 'HEIGHT' for height
+     * @return
+     */
+    public float scaleUI(float numberToScale, String scale)
+    {
+        if (scale.equals("WIDTH"))
+        {
+            return (numberToScale * (viewport.getScreenWidth() / viewport.getWorldWidth()));
+        } else if (scale.equals("HEIGHT"))
+        {
+            return (numberToScale * (viewport.getScreenHeight() / viewport.getWorldHeight()));
+        }
+        return -1;
     }
 
 

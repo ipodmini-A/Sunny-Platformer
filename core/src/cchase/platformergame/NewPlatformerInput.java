@@ -24,6 +24,7 @@ public class NewPlatformerInput implements InputProcessor
     public NewPlatformerInput(Player p)
     {
         this.p = p;
+
     }
 
     public NewPlatformerInput()

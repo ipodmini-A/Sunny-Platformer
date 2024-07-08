@@ -19,6 +19,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import java.util.LinkedList;
 
@@ -822,8 +824,9 @@ public class World {
     {
         for (int i = 0; i < enemies.size(); i++)
         {
-            if (enemies.get(i).bounds.overlaps(player.getBounds()))
-            return i;
+            if (enemies.get(i).bounds.overlaps(player.getBounds())) {
+                return i;
+            }
         }
         return -1;
     }
@@ -877,32 +880,6 @@ public class World {
         camera.position.y = player.getPosition().y + player.getHeight() / SCALE;
 
         mapRenderer.render();
-
-        boolean touchingNPC = false;
-        // NPC render
-        for (int i = 0; i < nonPlayableCharacters.size(); i++) {
-            checkCollisions(delta, nonPlayableCharacters.get(i));
-            applyGravity(delta, nonPlayableCharacters.get(i));
-            applyFriction(delta, nonPlayableCharacters.get(i));
-            nonPlayableCharacters.get(i).updateCamera(camera);
-            nonPlayableCharacters.get(i).render(spriteBatch, delta);
-            //System.out.println(player.nextMessage);
-            //System.out.println(isCollidingWithNPC());
-
-            //isCollidingWithNPC(nonPlayableCharacters.get(0)); // WHYYYYYYYY? WHEN I SET THIS TO 0 IT WORKS FINE BUT WHEN ITS IN THE LOOP IT BREAKS
-            if (isCollidingWithNPC(nonPlayableCharacters.get(i)))
-            {
-                touchingNPC = true;
-                messageRenderNPC(nonPlayableCharacters.get(i));
-            }
-        }
-        if (!touchingNPC)
-        {
-            player.setNpcInteraction(false);
-        }
-
-
-
 
         // Enemy render
         for (int i = 0; i < enemies.size(); i++) {
@@ -969,6 +946,31 @@ public class World {
 
         //THIS SYSTEM SUCKS AAAAAAA
         messageRenderItem(roulette);
+
+        // NPC render
+        // When the NPC displays their UI, I need it to be in front of things such as items. Fow now this is a easy implementation
+        boolean touchingNPC = false;
+        for (int i = 0; i < nonPlayableCharacters.size(); i++) {
+            nonPlayableCharacters.get(i).updateCamera(camera);
+            checkCollisions(delta, nonPlayableCharacters.get(i));
+            applyGravity(delta, nonPlayableCharacters.get(i));
+            applyFriction(delta, nonPlayableCharacters.get(i));
+            nonPlayableCharacters.get(i).updateCamera(camera);
+            nonPlayableCharacters.get(i).render(spriteBatch, delta);
+            //System.out.println(player.nextMessage);
+            //System.out.println(isCollidingWithNPC());
+
+            //isCollidingWithNPC(nonPlayableCharacters.get(0)); // WHYYYYYYYY? WHEN I SET THIS TO 0 IT WORKS FINE BUT WHEN ITS IN THE LOOP IT BREAKS
+            if (isCollidingWithNPC(nonPlayableCharacters.get(i)))
+            {
+                touchingNPC = true;
+                messageRenderNPC(nonPlayableCharacters.get(i));
+            }
+        }
+        if (!touchingNPC)
+        {
+            player.setNpcInteraction(false);
+        }
 
         // Player render
         checkCollisions(delta, player);
