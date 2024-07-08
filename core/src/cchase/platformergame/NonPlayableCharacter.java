@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.bullet.softbody.btSoftBody;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -17,9 +18,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 public class NonPlayableCharacter extends Player {
+    HashMap<String, Sprite> overworldSprites = new HashMap<String, Sprite>();
+    private TextureAtlas overworldTextureAtlas;
     private boolean touchingPlayer;
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
@@ -29,29 +33,47 @@ public class NonPlayableCharacter extends Player {
     private Player player;
     private Rectangle interactionBound;
     private LinkedList<String> messageList;
+    private LinkedList<Emotion> emotionList;
     private TypingLabel typingLabel;
     private int messageIndex;
+    private int emotionIndex;
     private boolean displayMessage;
     private Window dialogueBox;
     private TextButton nextButton;
+    private enum Emotion
+    {
+        NEUTRAL, HAPPY
+    }
+    private Emotion emotion;
 
     public NonPlayableCharacter(float x, float y) {
         super(x, y); // NonPlayableCharacter inherits everything from Player.java at first. Things such as sprites.
         textureAtlas = new TextureAtlas("npcsprites.txt");
+        overworldTextureAtlas = new TextureAtlas("standing/npcstanding.txt");
         addSprites();
         font = new BitmapFont();
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+
+        emotion = Emotion.NEUTRAL;
 
         stage = new Stage();
         //stage.setDebugAll(true);
         shapeRenderer = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
+
+        //TODO: Fuse emotion index and message index
+        emotionIndex = 0;
         messageIndex = 0;
+        emotionList = new LinkedList<>();
         messageList = new LinkedList<>();
         messageList.add("Hi!");
+        emotionList.add(Emotion.HAPPY);
         messageList.add("I'm a generic NPC!");
+        emotionList.add(Emotion.NEUTRAL);
         messageList.add("I can't really move yet but hopefully in the future I gain that ability");
+        emotionList.add(Emotion.NEUTRAL);
         messageList.add("Goodbye!");
+        emotionList.add(Emotion.NEUTRAL);
         GameScreen.multiplexer.addProcessor(stage);
 
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
@@ -135,6 +157,7 @@ public class NonPlayableCharacter extends Player {
                     dialogueBox.setVisible(true);
                     typingLabel.restart();
                     typingLabel.setText(messageList.get(messageIndex));
+                    emotion = emotionList.get(messageIndex);
                 }
 
                 stage.act(Gdx.graphics.getDeltaTime());
@@ -147,12 +170,34 @@ public class NonPlayableCharacter extends Player {
                     if (messageIndex < messageList.size()) {
                         typingLabel.restart();
                         typingLabel.setText(messageList.get(messageIndex));
+                        emotion = emotionList.get(messageIndex);
                     } else {
                         // All messages have been displayed
                         player.setDisableControls(false);
                         dialogueBox.setVisible(false);
                     }
                 }
+                Sprite npcSprite = new Sprite(overworldSprites.get("npcStanding"));
+                spriteBatch.begin();
+                switch (emotion)
+                {
+                    case NEUTRAL:
+                        npcSprite = new Sprite(overworldSprites.get("npcStanding"));
+                        npcSprite.setPosition(Gdx.graphics.getWidth() - 400, 0);
+                        break;
+                    case HAPPY:
+                        npcSprite = new Sprite(overworldSprites.get("npcStandingSmiling"));
+                        npcSprite.setPosition(Gdx.graphics.getWidth() - 462, 0);
+                        break;
+                    default:
+                        npcSprite = new Sprite(overworldSprites.get("npcStanding"));
+                        npcSprite.setPosition(Gdx.graphics.getWidth() - 400, 0);
+                        break;
+
+                }
+                //npcSprite.setPosition(Gdx.graphics.getWidth() - 400, 0);
+                npcSprite.draw(spriteBatch);
+                spriteBatch.end();
             }
         } else {
             // Player is not touching the NPC
@@ -161,6 +206,7 @@ public class NonPlayableCharacter extends Player {
             player.setDisableControls(false);
         }
     }
+
 
     /**
      * renderMovement() controls movement and will display the correct sprite depending on what action is being performed
@@ -281,10 +327,15 @@ public class NonPlayableCharacter extends Player {
 
     private void addSprites() {
         Array<TextureAtlas.AtlasRegion> regions = textureAtlas.getRegions();
+        Array<TextureAtlas.AtlasRegion> overworldRegions = overworldTextureAtlas.getRegions();
 
         for (TextureAtlas.AtlasRegion region : regions) {
             Sprite sprite = textureAtlas.createSprite(region.name);
             sprites.put(region.name, sprite);
+        }
+        for (TextureAtlas.AtlasRegion region : overworldRegions) {
+            Sprite overworldSprite = overworldTextureAtlas.createSprite(region.name);
+            overworldSprites.put(region.name, overworldSprite);
         }
     }
 
@@ -331,5 +382,13 @@ public class NonPlayableCharacter extends Player {
 
     public void setInteractionBound(Rectangle interactionBound) {
         this.interactionBound = interactionBound;
+    }
+
+    public Emotion getEmotion() {
+        return emotion;
+    }
+
+    public void setEmotion(Emotion emotion) {
+        this.emotion = emotion;
     }
 }

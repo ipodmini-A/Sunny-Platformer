@@ -1,0 +1,19 @@
+npcstanding.png
+size: 564, 508
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+npcStanding
+  rotate: false
+  xy: 314, 1
+  size: 249, 506
+  orig: 400, 600
+  offset: 74, 0
+  index: -1
+npcStandingSmiling
+  rotate: false
+  xy: 1, 1
+  size: 311, 506
+  orig: 400, 600
+  offset: 12, 0
+  index: -1
