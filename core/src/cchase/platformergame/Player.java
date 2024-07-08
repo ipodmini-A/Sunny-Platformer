@@ -53,7 +53,7 @@ public class Player
     protected Rectangle attackHitbox;
     protected boolean attackedAlready;
     private PlatformerInput platformerInput;
-    private boolean grounded;
+    protected boolean grounded;
     private boolean touchingLeftWall;
     private boolean touchingRightWall;
     private boolean touchingWall;
@@ -282,16 +282,15 @@ public class Player
                 }
             }
 
+            jump();
             if (jump)
             {
                 superJump();
-                //jump();
             }
 
-            if (lookingDown && grounded && velocity.x == 0)
-            {
-                superJumpCharge();
-            }
+            superJumpCharge();
+            jump();
+
             doubleJumpCheck();
             wallRideCheck();
         }
@@ -311,7 +310,6 @@ public class Player
         input();
         changeAnimationSpeed(delta);
         update(delta);
-        jump();
         renderMovement(spriteBatch);
         //drawSprite("standing", position.x, position.y);
         spriteBatch.end();
@@ -319,6 +317,8 @@ public class Player
         //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
     }
 
+    protected float xOffset = 5f;
+    protected float yOffset = 7f;
     /**
      * renderMovement() controls movement and will display the correct sprite depending on what action is being performed
      * The method uses drawSprite(), and changes by using the enum State.
@@ -368,13 +368,13 @@ public class Player
                     standingFlippedFrame.setRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
                     //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
                     standingFlippedFrame.flip(true, false);
-                    spriteBatch.draw(standingFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y - 7f, SPRITE_WIDTH, SPRITE_HEIGHT);
+                    spriteBatch.draw(standingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
                 } else
                 {
                     standingFlippedFrame.setRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
                     //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
                     standingFlippedFrame.flip(false, false);
-                    spriteBatch.draw(standingFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y - 7f, SPRITE_WIDTH, SPRITE_HEIGHT);
+                    spriteBatch.draw(standingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
                 }
                 break;
             case WALKING:
@@ -486,6 +486,7 @@ public class Player
     {
         if (jumpHeld)
         {
+            jump = true;
             if (grounded && !lookingDown) {
                 //position.y += 1;
                 if (jumpPerformed) {
@@ -503,6 +504,7 @@ public class Player
             }
             jumpTime = 0;
             jumpReleased = false;
+            jump = false;
         }
     }
 
@@ -529,16 +531,19 @@ public class Player
 
     public void superJumpCharge()
     {
-        if (lookingDown && !superJumpReady)
-        {
-            superJumpCharge += Gdx.graphics.getDeltaTime();
-            System.out.println(superJumpCharge);
-            if (superJumpCharge >= superJumpChargeTime)
-            {
-                System.out.println("Super jump ready");
-                superJumpCharge = 0;
-                superJumpReady = true;
+        if (lookingDown && grounded && velocity.x == 0) {
+            if (lookingDown && !superJumpReady) {
+                superJumpCharge += Gdx.graphics.getDeltaTime();
+                System.out.println(superJumpCharge);
+                if (superJumpCharge >= superJumpChargeTime) {
+                    System.out.println("Super jump ready");
+                    superJumpCharge = 0;
+                    superJumpReady = true;
+                }
             }
+        } else
+        {
+            superJumpCharge = 0;
         }
     }
 
@@ -699,6 +704,9 @@ public class Player
         }
     }
 
+    private float attackInterval = 0.2f;
+    boolean attackUp = false;
+    boolean attackDown = false;
     /**
      * Allows the player to attack. When the attack button is pressed, a box is placed in front of the player briefly.
      *
@@ -711,6 +719,13 @@ public class Player
         attack = true;
         spriteAttacking = true;
         //attack = false;
+        if (lookingUp)
+        {
+            attackUp = true;
+        } else if (lookingDown)
+        {
+            attackDown = true;
+        }
         attackLogic();
         // Jump to attackRender() //
         System.out.println("Hitbox present");
@@ -722,8 +737,10 @@ public class Player
                 spriteAttacking = false;
                 System.out.println("HitBox removed");
                 attack = false;
+                attackUp = false;
+                attackDown = false;
             }
-        }, 0.20f);
+        }, attackInterval);
     }
 
     /**
@@ -772,11 +789,14 @@ public class Player
      */
     public void attackLogic()
     {
-        if (lookingUp)
+        if (attackUp)
         {
-            attackHitbox = new Rectangle(position.x, position.y + 50f, 25f, 25f);
-            System.out.println("Hitting up");
-        } else {
+            attackHitbox = new Rectangle(position.x + (WIDTH / 5f), position.y + HEIGHT, 25f, 25f);
+        } else if (attackDown)
+        {
+            attackHitbox = new Rectangle(position.x + (WIDTH / 5f),position.y - 25f, 25f, 25f);
+        } else
+        {
             if (facingRight) {
                 attackHitbox = new Rectangle(position.x + WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
             } else {
@@ -928,7 +948,7 @@ public class Player
      * @param x X position of the sprite
      * @param y Y position of the sprite
      */
-    private void drawSprite(String name, float x, float y)
+    protected void drawSprite(String name, float x, float y)
     {
         Sprite sprite = sprites.get(name);
 

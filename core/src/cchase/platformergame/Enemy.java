@@ -136,22 +136,6 @@ public class Enemy extends Player
         }
     }
 
-    private void drawSprite(String name, float x, float y)
-    {
-        Sprite sprite = sprites.get(name);
-
-        sprite.setBounds(x - (WIDTH / 2f) - 5f,y,SPRITE_WIDTH,SPRITE_HEIGHT);
-
-        if (facingRight && !sprite.isFlipX())
-        {
-            sprite.flip(true,false);
-        } else if (!facingRight && sprite.isFlipX())
-        {
-            sprite.flip(true, false);
-        }
-        sprite.draw(spriteBatch);
-    }
-
     private void addSprites()
     {
         Array<TextureAtlas.AtlasRegion> regions = textureAtlas.getRegions();

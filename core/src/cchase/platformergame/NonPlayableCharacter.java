@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -19,13 +20,14 @@ import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import java.util.LinkedList;
 
 public class NonPlayableCharacter extends Player {
-    private boolean touchingPlayer = false;
+    private boolean touchingPlayer;
     private ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
     private BitmapFont font;
     private Skin skin;
     protected Stage stage;
     private Player player;
+    private Rectangle interactionBound;
     private LinkedList<String> messageList;
     private TypingLabel typingLabel;
     private int messageIndex;
@@ -51,6 +53,9 @@ public class NonPlayableCharacter extends Player {
         messageList.add("I can't really move yet but hopefully in the future I gain that ability");
         messageList.add("Goodbye!");
         GameScreen.multiplexer.addProcessor(stage);
+
+        bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
+        interactionBound = new Rectangle(position.x - (WIDTH / 2f), position.y,WIDTH * 2f, HEIGHT);
 
         facingRight = true;
 
@@ -109,18 +114,19 @@ public class NonPlayableCharacter extends Player {
         if (!player.facingRight) {
             facingRight = true;
             //player.setPositionX(position.x - 28f);
-            player.setPositionX(position.x + getWidth() - 2f);
+            //player.setPositionX(position.x + getWidth() - 2f);
             //player.facingRight = true;
         } else
         {
             facingRight = false;
-            player.setPositionX(position.x - 28f);
+            //player.setPositionX(position.x - 28f);
         }
 
         if (touchingPlayer) {
             if (messageIndex >= messageList.size()) {
                 // All messages have been displayed
                 player.setDisableControls(false);
+                setNpcInteraction(false);
                 resetDialogue();
             } else {
                 disablePlayerInput();
@@ -151,8 +157,116 @@ public class NonPlayableCharacter extends Player {
         } else {
             // Player is not touching the NPC
             resetDialogue();
+            player.setNpcInteraction(false);
             player.setDisableControls(false);
         }
+    }
+
+    /**
+     * renderMovement() controls movement and will display the correct sprite depending on what action is being performed
+     * The method uses drawSprite(), and changes by using the enum State.
+     *
+     * TODO: Implement a new variable to position.x and position.y. I'd like to offset the sprite if it is necessary
+     */
+    public void renderMovement(SpriteBatch spriteBatch)
+    {
+        runningElapsedTime += Gdx.graphics.getDeltaTime();
+        standingElapsedTime += Gdx.graphics.getDeltaTime();
+        // If elapsedTime is left uncapped, it causes the current implementation of animation to continuously go faster
+        // as long as the game is active. Until the animation implementation changes, the elapsed time is to remain capped.
+        // A cap of two to four seems to work fine.
+        // Update: There was a looping error, causing the animation to abruptly cut in the middle of it and reset.
+        // Setting the cap to be the frameDuration * the amount of frames (in this case, 4) seems to fix the looping error.
+        if (runningElapsedTime >= (runningFrameDuration * 4f))
+        {
+            runningElapsedTime = 0;
+        }
+        if (standingElapsedTime >= (standingFrameDuration * 6f))
+        {
+            standingElapsedTime = 0;
+        }
+        //System.out.println();
+        if (velocity.x < 0)
+        {
+            facingRight = false;
+        } else if (velocity.x > 0)
+        {
+            facingRight = true;
+        }
+
+        if (lookingDown && grounded)
+        {
+            HEIGHT = 30f;
+        } else
+        {
+            HEIGHT = 60f;
+        }
+
+        switch (state)
+        {
+            case STANDING:
+                drawSprite("standing", position.x - xOffset, position.y - yOffset);
+                break;
+            case WALKING:
+                // I don't know why this works but... for know it works fine.
+                // This is very flawed, as its using "sprite" even though this block of code doesn't rely on sprite at all.
+                // That being said, it's a great way to check the direction of the player.
+                if (facingRight && !sprite.isFlipX()) {
+                    // Flip the sprite horizontally
+                    runningFlippedFrame.setRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
+                    //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    runningFlippedFrame.flip(true, false);
+                    spriteBatch.draw(runningFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y - spriteYPosition, SPRITE_WIDTH, SPRITE_HEIGHT);
+                } else
+                {
+                    runningFlippedFrame.setRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
+                    //flippedFrame = new TextureRegion(animation.getKeyFrame(elapsedTime,true));
+                    runningFlippedFrame.flip(false, false);
+                    spriteBatch.draw(runningFlippedFrame, position.x - (WIDTH / 2f) - 5f, position.y - spriteYPosition, SPRITE_WIDTH, SPRITE_HEIGHT);
+                }
+                break;
+            case JUMPING:
+                drawSprite("jumping", position.x, position.y);
+                break;
+            case FALLING:
+                drawSprite("falling", position.x, position.y);
+                break;
+            case WALL_RIDING:
+                drawSprite("wallriding", position.x, position.y);
+                break;
+            case LOOKING_UP:
+                drawSprite("lookingUp", position.x, position.y - spriteYPosition);
+                break;
+            case LOOKING_DOWN:
+                drawSprite("lookingDown", position.x, position.y - spriteYPosition);
+                break;
+            case TOUCHING_WALL:
+                drawSprite("touchingWall", position.x, position.y);
+                break;
+            case ATTACKING:
+                drawSprite("attacking", position.x, position.y);
+                break;
+            case DEFENDING:
+                drawSprite("defending", position.x, position.y);
+                break;
+            case PUNCHING:
+                drawSprite("punching", position.x, position.y);
+                break;
+            case STANCE:
+                drawSprite("stance", position.x, position.y);
+                break;
+        }
+    }
+
+    public void update(float delta)
+    {
+        super.update(delta);
+        interactionBound.setPosition(position.x - (WIDTH / 2f),position.y);
+    }
+
+    public void render(SpriteBatch spriteBatch, float delta)
+    {
+        super.render(spriteBatch, delta);
     }
 
     private void resetDialogue() {
@@ -209,5 +323,13 @@ public class NonPlayableCharacter extends Player {
 
     public void setDisplayMessage(boolean displayMessage) {
         this.displayMessage = displayMessage;
+    }
+
+    public Rectangle getInteractionBound() {
+        return interactionBound;
+    }
+
+    public void setInteractionBound(Rectangle interactionBound) {
+        this.interactionBound = interactionBound;
     }
 }

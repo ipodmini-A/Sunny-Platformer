@@ -60,7 +60,7 @@ public class World {
     private MapObjects objects;
     private MapObjects endGameObject;
     private MapObjects playerSpawnPointObject;
-    private boolean debug = true;
+    public static boolean debug = true;
     private SpriteBatch spriteBatch;
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
@@ -136,6 +136,17 @@ public class World {
         nonPlayableCharacters.get(1).getMessageList().add("Lets be real, I might be broken");
         nonPlayableCharacters.get(1).getMessageList().add("Cya!");
 
+        nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x - 200, player.getPosition().y));
+
+        nonPlayableCharacters.get(2).removeAllMessages();
+        nonPlayableCharacters.get(2).getMessageList().add("I'm the third NPC added");
+        nonPlayableCharacters.get(2).getMessageList().add("Did you know that if you touch the slot machine and hit down, you'll play slots?");
+        nonPlayableCharacters.get(2).getMessageList().add("{WAVE}Crazy huh?");
+        nonPlayableCharacters.get(2).getMessageList().add("The game is far from complete and there is already {WAVE}{RAINBOW}gambling.{ENDRAINBOW}{ENDWAVE}");
+        nonPlayableCharacters.get(2).getMessageList().add("Guess it's kinda funny...");
+        nonPlayableCharacters.get(2).getMessageList().add("Personally I would've added blackjack.");
+        nonPlayableCharacters.get(2).getMessageList().add("Ah don't worry about it");
+        nonPlayableCharacters.get(2).getMessageList().add("Bye!");
 
 
         //Item creation
@@ -767,16 +778,16 @@ public class World {
     }
 
     public boolean isCollidingWithNPC(NonPlayableCharacter n) {
-        for (int i = 0; i < nonPlayableCharacters.size(); i++) {
-            if (player.getBounds().overlaps(n.getBounds())) {
-                //System.out.println("Colliding with NPC");
-                n.setTouchingPlayer(true);
-                player.setNpcInteraction(true);
-                return true;
-            }
+        //npcLocation.set(npcLocation.x - 10f, npcLocation.y, npcLocation.getWidth() + 10f, npcLocation.getHeight());
+        if (player.getBounds().overlaps(n.getInteractionBound())) {
+            n.setTouchingPlayer(true);
+            player.setNpcInteraction(true);
+           //System.out.println(player.isNpcInteraction());
+            return true;
+        } else
+        {
             n.setTouchingPlayer(false);
-            player.setNpcInteraction(false);
-            return false;
+            //player.setNpcInteraction(false);
         }
         return false;
     }
@@ -806,33 +817,31 @@ public class World {
         return -1;
     }
 
-    public boolean isAttackingPlayer()
+    public int isAttackingPlayer(Enemy e)
     {
         for (int i = 0; i < enemies.size(); i++)
         {
-            return player.bounds.overlaps(enemies.get(i).getBounds());
+            if (enemies.get(i).bounds.overlaps(player.getBounds()))
+            return i;
         }
-        return false;
+        return -1;
     }
 
     private void messageRenderNPC(NonPlayableCharacter p)
     {
-        if (p.getBounds().overlaps(player.getBounds())) {
-            if (isCollidingWithNPC(p) && player.isDisplayMessage()) {
-                //System.out.println("NPC interaction");
-                p.setDisplayMessage(true);
-            }
-            if (p.isDisplayMessage()) {
-                p.Message(player);
-            }
+        if (player.isDisplayMessage()) {
+            p.setDisplayMessage(true);
+        }
+        if (p.isDisplayMessage()) {
+            p.Message(player);
+            p.setDisplayMessage(false);
         }
     }
 
     private void messageRenderItem(Item i)
     {
-        if (i.isTouchingPlayer() && player.isDisplayMessage())
+        if (i.getBounds().overlaps(player.getBounds()) && player.isDisplayMessage())
         {
-            //System.out.println("NPC interaction");
             i.setDisplayMessage(true);
         }
         if (i.isDisplayMessage())
@@ -868,6 +877,7 @@ public class World {
 
         mapRenderer.render();
 
+        boolean touchingNPC = false;
         // NPC render
         for (int i = 0; i < nonPlayableCharacters.size(); i++) {
             checkCollisions(delta, nonPlayableCharacters.get(i));
@@ -877,8 +887,20 @@ public class World {
             nonPlayableCharacters.get(i).render(spriteBatch, delta);
             //System.out.println(player.nextMessage);
             //System.out.println(isCollidingWithNPC());
-            messageRenderNPC(nonPlayableCharacters.get(i));
+
+            //isCollidingWithNPC(nonPlayableCharacters.get(0)); // WHYYYYYYYY? WHEN I SET THIS TO 0 IT WORKS FINE BUT WHEN ITS IN THE LOOP IT BREAKS
+            if (isCollidingWithNPC(nonPlayableCharacters.get(i)))
+            {
+                touchingNPC = true;
+                messageRenderNPC(nonPlayableCharacters.get(i));
+            }
         }
+        if (!touchingNPC)
+        {
+            player.setNpcInteraction(false);
+        }
+
+
 
 
         // Enemy render
@@ -890,6 +912,26 @@ public class World {
                     applyFriction(delta, enemies.get(i));
                     enemies.get(i).updateCamera(camera);
                     enemies.get(i).render(spriteBatch, delta);
+
+                    try {
+                        //Attack Check
+                        int chosenEnemyAttack = isAttackingEnemy();
+                        if (chosenEnemyAttack >= 0 && chosenEnemyAttack == i) {
+                            player.deployAttack(enemies.get(chosenEnemyAttack));
+                            System.out.println("Attacking " + i);
+                        }
+
+                        //Hurt Check
+                        int chosenEnemyHurt = isAttackingPlayer(enemies.get((i)));
+                        if (chosenEnemyHurt >= 0 && chosenEnemyHurt == i) {
+                            player.hurt(enemies.get(i));
+                            System.out.println("Enemy: " + i + " is hurting player");
+                        }
+                    } catch (Exception e)
+                    {
+                        //
+                    }
+
                 } else {
                     // Enemy is removed from the world.
                     enemies.remove(i);
@@ -934,33 +976,6 @@ public class World {
         player.updateCamera(camera);
         player.render(spriteBatch,delta);
 
-
-        //Attack Check
-        try {
-            for (int i = 0; i < enemies.size(); i++) {
-                int chosenEnemy = isAttackingEnemy();
-                if (chosenEnemy >= 0) {
-                    player.deployAttack(enemies.get(chosenEnemy));
-                }
-            }
-        } catch (Exception e)
-        {
-            //
-        }
-
-        //Hurt Check
-        try
-        {
-            for (int i = 0; i < enemies.size(); i++) {
-                if (isAttackingPlayer()) {
-                    player.hurt(enemies.get(i));
-                }
-            }
-        } catch (Exception e)
-        {
-            //
-        }
-
         // render debug rectangles
         if (debug) renderDebug();
     }
@@ -991,7 +1006,7 @@ public class World {
 
         //Player Debug
         debugRenderer.setColor(Color.RED);
-        debugRenderer.rect(player.getPosition().x, player.getPosition().y, player.getWidth(), player.getHeight());
+        debugRenderer.rect(player.getPosition().x, player.getPosition().y, player.getBounds().getWidth(), player.getBounds().getHeight());
 
         debugRenderer.setColor(Color.LIME);
         try {
@@ -1007,7 +1022,7 @@ public class World {
         {
             debugRenderer.setColor(Color.CYAN);
             for (int i = 0; i < enemies.size(); i++) {
-                debugRenderer.rect(enemies.get(i).getPosition().x, enemies.get(i).getPosition().y, enemies.get(i).getWidth(), enemies.get(i).getHeight());
+                debugRenderer.rect(enemies.get(i).getPosition().x, enemies.get(i).getPosition().y, enemies.get(i).getBounds().getWidth(), enemies.get(i).getBounds().getHeight());
             }
         } catch (Exception e)
         {
@@ -1016,9 +1031,11 @@ public class World {
         }
 
         //NPC Debug
-        debugRenderer.setColor(Color.PURPLE);
         for (int i = 0; i < nonPlayableCharacters.size(); i++) {
-            debugRenderer.rect(nonPlayableCharacters.get(i).getPosition().x, nonPlayableCharacters.get(i).getPosition().y, nonPlayableCharacters.get(i).getWidth(), nonPlayableCharacters.get(i).getHeight());
+            debugRenderer.setColor(Color.PURPLE);
+            debugRenderer.rect(nonPlayableCharacters.get(i).getPosition().x, nonPlayableCharacters.get(i).getPosition().y, nonPlayableCharacters.get(i).getBounds().getWidth(), nonPlayableCharacters.get(i).getBounds().getHeight());
+            debugRenderer.setColor(Color.CYAN);
+            debugRenderer.rect(nonPlayableCharacters.get(i).getInteractionBound().getX(), nonPlayableCharacters.get(i).getInteractionBound().getY(), nonPlayableCharacters.get(i).getInteractionBound().getWidth(), nonPlayableCharacters.get(i).getInteractionBound().getHeight());
         }
 
         //Item Debug
@@ -1064,4 +1081,9 @@ public class World {
         spriteBatch.dispose();
         music.dispose();
     }
+
+    //                      //
+    // Getters and Setters  //
+    //                      //
+
 }

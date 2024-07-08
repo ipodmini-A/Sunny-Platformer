@@ -1,6 +1,7 @@
 package cchase.platformergame.screens;
 
 import cchase.platformergame.*;
+import cchase.platformergame.console.ConsoleCommands;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -25,6 +26,7 @@ public class GameScreen extends ScreenAdapter
     float y = 1300f;
     private boolean firstSpawnCheck = false;
     public static InputMultiplexer multiplexer = new InputMultiplexer();
+    private final NewPlatformerInput newPlatformerInput;
 
     public boolean playerWon = false;
 
@@ -41,9 +43,14 @@ public class GameScreen extends ScreenAdapter
         stage = new Stage();
         batch = new SpriteBatch();
         player = new Player();
-        //Gdx.input.setInputProcessor(inputProcessor);
+
         multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(new NewPlatformerInput(player));
+        newPlatformerInput = new NewPlatformerInput(player);
+        // For some reason, when I add newPlatformerInput to the multiplexer before the console commands, it causes the
+        // console commands to break. Not sure why but if you want a functional console on a specific screen, add it
+        // to the multiplexer before everything else to ensure it doesn't get overridden.
+        multiplexer.addProcessor(ConsoleCommands.getConsole().getInputProcessor());
+        multiplexer.addProcessor(newPlatformerInput);
         Gdx.input.setInputProcessor(multiplexer);
         world = new World(player,game);
     }
@@ -51,13 +58,13 @@ public class GameScreen extends ScreenAdapter
     @Override
     public void show()
     {
+        Gdx.input.setInputProcessor(multiplexer);
         player.setDisableControls(false);
         if (firstSpawnCheck)
         {
             player.setPositionX(GameState.lastRecordedPlayerX);
             player.setPositionY(GameState.lastRecordedPlayerY);
         }
-        Gdx.input.setInputProcessor(multiplexer);
 
         // Resetting players movement
         player.setDownMove(false);
@@ -92,7 +99,6 @@ public class GameScreen extends ScreenAdapter
     @Override
     public void render(float delta)
     {
-
         world.WorldUpdate(player); // Removing this results in a null crash. idk
         world.render(delta);
         if (world.isTouchingEndGoal())
@@ -109,20 +115,6 @@ public class GameScreen extends ScreenAdapter
         /*
         Following code stores the state of the game screen and the player.
         TODO: Put into a method
-         */
-        // The code below is commented out for now. I am testing out normal platform attacks instead of RPG battle mechanics
-        /*
-        if (world.isCollidingWithEnemy())
-        {
-            GameState.gameScreen = game.getScreen();
-            player.setDisableControls(true);
-            GameState.lastRecordedPlayerX = player.getPosition().x;
-            System.out.println(GameState.lastRecordedPlayerX);
-            GameState.lastRecordedPlayerY = player.getPosition().y;
-            System.out.println(GameState.lastRecordedPlayerY);
-            world.music.pause();
-            game.setScreen(new BattleScreen(game,player,world.enemy));
-        }
          */
 
         if (Gdx.input.isKeyPressed(Input.Keys.I))
@@ -145,6 +137,8 @@ public class GameScreen extends ScreenAdapter
 
         //System.out.println(player.isTouchingWall());
         //System.out.println(player.isTouchingWall());
+
+        ConsoleCommands.draw(); // For some reason enter doesn't work.
     }
 
     @Override

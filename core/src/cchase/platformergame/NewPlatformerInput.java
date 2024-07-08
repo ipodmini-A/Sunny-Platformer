@@ -14,8 +14,8 @@ import com.badlogic.gdx.InputProcessor;
  */
 public class NewPlatformerInput implements InputProcessor
 {
-    Player p;
-    private boolean debug = true;
+    private Player p;
+    public static boolean debug = true;
 
     /**
      * Constructor. Sets the inputProcessor to the player
@@ -42,10 +42,6 @@ public class NewPlatformerInput implements InputProcessor
     {
         switch (keycode)
         {
-            case Input.Keys.SEMICOLON:
-                    ConsoleCommands.getConsole().setVisible(true);
-                    ConsoleCommands.getConsole().select();
-                    break;
             case Input.Keys.Z: // Up controls
                 if (!p.isGrounded() && p.isTouchingWall() && !p.wallRiding) // Wall Jump input
                 {
@@ -72,13 +68,16 @@ public class NewPlatformerInput implements InputProcessor
                 }
                 break;
             case Input.Keys.C:
+                System.out.println(p.isNpcInteraction());
                 if (p.isNpcInteraction() || p.isItemInteraction())
                 {
                     if (p.isDisplayMessage())
                     {
+                        System.out.println("Set Next Message");
                         p.setNextMessage(true);
                     } else
                     {
+                        System.out.println("Set Display Message");
                         p.setDisplayMessage(true);
                     }
                     //p.setNextMessage(true);
@@ -128,6 +127,7 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(true);
+                System.out.println(p.isNpcInteraction());
                 if (p.isNpcInteraction() || p.isItemInteraction())
                 {
                     if (p.isDisplayMessage())
@@ -180,13 +180,7 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(false);
-                if (p.isNpcInteraction())
-                {
-                    p.setNextMessage(false);
-                } else
-                {
-                    p.setLookingDown(false);
-                }
+                p.setLookingDown(false);
                 break;
         }
         return true;
@@ -226,5 +220,13 @@ public class NewPlatformerInput implements InputProcessor
     public boolean scrolled(float amountX, float amountY)
     {
         return false;
+    }
+
+    public Player getP() {
+        return p;
+    }
+
+    public void setP(Player p) {
+        this.p = p;
     }
 }

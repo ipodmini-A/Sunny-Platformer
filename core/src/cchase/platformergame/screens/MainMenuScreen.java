@@ -22,6 +22,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
     private Table mainMenuTable;
     private Table optionsTable;
+    public static boolean debug = true;
     InputMultiplexer multiplexer = new InputMultiplexer();
 
     public MainMenuScreen(final PlatformerGame game) {
@@ -41,7 +42,7 @@ public class MainMenuScreen extends ScreenAdapter {
         mainMenuTable = new Table();
         mainMenuTable.setFillParent(true);
         stage.addActor(mainMenuTable);
-        stage.setDebugAll(true);
+        stage.setDebugAll(debug);
 
         Label titleLabel = new Label("Main Menu", skin, "title");
         mainMenuTable.add(titleLabel).padBottom(50f).row();

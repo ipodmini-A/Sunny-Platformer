@@ -39,6 +39,7 @@ public class SlotsGame {
     protected Table gameTable;
     protected TextButton cashInjection;
     protected TextButton spinButton;
+    protected TypingLabel jackpotLabel;
     protected PlatformerGame game;
     protected Screen saveScreen;
     protected Player player;
@@ -61,32 +62,18 @@ public class SlotsGame {
         stage = new Stage();
         //Gdx.input.setInputProcessor(stage);
 
-        TypingLabel label = new TypingLabel("Hello World!", skin);
-        label.setPosition(100,100);
-        stage.addActor(label);
-
         gameTable = new Table();
         //gameTable.setFillParent(true);
         gameTable.setBounds(0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6f);
         stage.addActor(gameTable);
-        stage.setDebugAll(true);
+        stage.setDebugAll(false);
 
-        Label titleLabel = new Label("Slots (currently in development)", skin, "title");
+        jackpotLabel = new TypingLabel("", skin);
+        jackpotLabel.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 3f);
+        stage.addActor(jackpotLabel);
+
+        TypingLabel titleLabel = new TypingLabel("Slots (currently in development)", skin, "title");
         gameTable.add(titleLabel).pad(10f).row();
-
-        /*
-        TextButton stopButton = new TextButton("Stop", skin);
-        stopButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                // Put logic here
-
-            }
-        });
-
-        gameTable.add(stopButton);
-
-         */
 
         spinButton = new TextButton("Spin", skin);
         spinButton.addListener(new ChangeListener() {
@@ -139,31 +126,46 @@ public class SlotsGame {
     public void spin()
     {
         System.out.println(currentSpin);
-        if (player.getMoney() > 0) {
+        if (player.getMoney() > 0 || currentSpin <= 2) {
             if (currentSpin == 0 && firstRun)
             {
                 player.setMoney(player.getMoney() - 10);
                 firstRun = false;
             }
             if (currentSpin == 3) {
-                player.setMoney(player.getMoney() - 10);
+                if (player.getMoney() > 0) {
+                    player.setMoney(player.getMoney() - 10);
+                }
             }
             shuffle();
             number0 = String.valueOf(intNumber0);
             number1 = String.valueOf(intNumber1);
             number2 = String.valueOf(intNumber2);
-            if ( currentSpin >= 4)
+
+            if (currentSpin == 2)
             {
-            if ((intNumber0 == intNumber1) && (intNumber1 == intNumber2)) {
-                spriteBatch.begin();
-                bitmapFont.draw(spriteBatch,"JACKPOT",Gdx.graphics.getWidth()*(3/4f), Gdx.graphics.getHeight()/3f);
-                spriteBatch.end();
-                player.setMoney(player.getMoney() * jackpotMultiplier);
-            } else if ((intNumber0 == intNumber1) || (intNumber1 == intNumber2))
+                jackpotLabel.setAlignment(Align.center);
+                jackpotLabel.setFontScale(2f);
+                jackpotLabel.setVisible(true);
+                if ((intNumber0 == intNumber1) && (intNumber1 == intNumber2)) {
+                    jackpotLabel.setText("{JUMP}{RAINBOW}JACKPOT!!!{ENDRAINBOW}");
+                    jackpotLabel.setAlignment(Align.center);
+                    jackpotLabel.setFontScale(5f);
+                    jackpotLabel.restart();
+                    player.setMoney(player.getMoney() * jackpotMultiplier);
+                } else if ((intNumber0 == intNumber1) || (intNumber1 == intNumber2)) {
+                    jackpotLabel.setText("{WAVE}{GRADIENT=RED;BLUE;}Small Win!");
+                    jackpotLabel.restart();
+                    player.setMoney(player.getMoney() + 20);
+                } else {
+                    jackpotLabel.setText("{SICK}Awww... Try again?{ENDSICK}");
+                    jackpotLabel.restart();
+                }
+            } else
             {
-                player.setMoney(player.getMoney() + 20);
+                jackpotLabel.setVisible(false);
             }
-            }
+
             currentSpin++;
             if (currentSpin >= 4)
             {
@@ -172,7 +174,7 @@ public class SlotsGame {
         }
     }
 
-    private int randomCap = 3;
+    public static int randomCap = 2;
     public void shuffle()
     {
         switch (currentSpin)
@@ -234,7 +236,7 @@ public class SlotsGame {
         Gdx.gl.glClearColor(54/255f, 89/255f, 74/255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (player.getMoney() <= 0)
+        if (player.getMoney() <= 0 && currentSpin >= 3)
         {
             cashInjection.setVisible(true);
         }else
@@ -342,8 +344,9 @@ public class SlotsGame {
         //textraLabel.draw(spriteBatch,1);
         displaySlotNumbers(spriteBatch);
         if ((intNumber0 == intNumber1) && (intNumber0 == intNumber2) && (intNumber0 != 0) && currentSpin == 3) {
-            bitmapFont.draw(spriteBatch, "JACKPOT", Gdx.graphics.getWidth() * (1 / 2f) - 25f, Gdx.graphics.getHeight() / 3f);
+            //bitmapFont.draw(spriteBatch, "JACKPOT", Gdx.graphics.getWidth() * (1 / 2f) - 25f, Gdx.graphics.getHeight() / 3f);
         }
+
         //sprite.draw(spriteBatch);
         //drawSprite("number1",100,100);
         spriteBatch.end();
