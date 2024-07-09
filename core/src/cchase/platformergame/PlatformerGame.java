@@ -13,6 +13,10 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
+import java.util.List;
+
+import static cchase.platformergame.Dialogue.loadDialogue;
+
 
 public class PlatformerGame extends Game {
 	public SpriteBatch batch;
@@ -20,8 +24,7 @@ public class PlatformerGame extends Game {
 	public BitmapFont font;
 	public OrthographicCamera camera;
 	protected ScalingViewport viewport;
-
-
+	static List<DialogueLine> dialogueLines;
 
 	@Override
 	public void create() {
@@ -45,6 +48,13 @@ public class PlatformerGame extends Game {
 
 		// Set the initial screen to the TitleScreen.
 		setScreen(new TitleScreen(this));
+
+		String filePath = "dialogue/dialogue.csv";
+		dialogueLines = loadDialogue(filePath);
+
+		for (DialogueLine line : dialogueLines) {
+			System.out.println(line);
+		}
 	}
 
 	@Override

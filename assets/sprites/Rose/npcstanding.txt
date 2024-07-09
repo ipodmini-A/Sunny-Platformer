@@ -1,0 +1,26 @@
+npcstanding.png
+size: 400, 1800
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+roseHappy
+  rotate: false
+  xy: 0, 0
+  size: 400, 600
+  orig: 400, 600
+  offset: 0, 0
+  index: -1
+roseNervous
+  rotate: false
+  xy: 0, 600
+  size: 400, 600
+  orig: 400, 600
+  offset: 0, 0
+  index: -1
+roseNeutral
+  rotate: false
+  xy: 0, 1200
+  size: 400, 600
+  orig: 400, 600
+  offset: 0, 0
+  index: -1

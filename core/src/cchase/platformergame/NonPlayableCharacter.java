@@ -2,14 +2,12 @@ package cchase.platformergame;
 
 import cchase.platformergame.screens.GameScreen;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.physics.bullet.softbody.btSoftBody;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -21,10 +19,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
-import javax.print.DocFlavor;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.StringTokenizer;
 
 public class NonPlayableCharacter extends Player {
     HashMap<String, Sprite> overworldSprites = new HashMap<String, Sprite>();
@@ -38,61 +34,18 @@ public class NonPlayableCharacter extends Player {
     protected Viewport viewport;
     private Player player;
     private Rectangle interactionBound;
-    private LinkedList<EmotionString> messageList;
+    private LinkedList<Dialogue.dialogueString> messageList;
     private TypingLabel typingLabel;
     private int messageIndex;
-    private int emotionIndex;
     private boolean displayMessage;
     private Window dialogueBox;
     private TextButton nextButton;
-    enum Emotion
-    {
-        NEUTRAL, HAPPY
-    }
     private Emotion emotion;
-
-    /**
-     * This class is dedicated to storing data for both Strings and Emotions. This is important for the portraits
-     * that are displayed in the overworld
-     * TODO: Figure out a way to make creating a new object not painful
-     */
-    public static class EmotionString
-    {
-        private String message;
-        private Emotion emotion;
-        public EmotionString(String s, Emotion e)
-        {
-            message = s;
-            emotion = e;
-        }
-
-        public EmotionString(String s)
-        {
-            message = s;
-            emotion = Emotion.NEUTRAL;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public Emotion getEmotion() {
-            return emotion;
-        }
-
-        public void setEmotion(Emotion emotion) {
-            this.emotion = emotion;
-        }
-    }
 
     public NonPlayableCharacter(float x, float y) {
         super(x, y); // NonPlayableCharacter inherits everything from Player.java at first. Things such as sprites.
         textureAtlas = new TextureAtlas("npcsprites.txt");
-        overworldTextureAtlas = new TextureAtlas("standing/npcstanding.txt");
+        overworldTextureAtlas = new TextureAtlas("sprites/Rose/roseUI.txt");
         addSprites();
         font = new BitmapFont();
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -109,13 +62,8 @@ public class NonPlayableCharacter extends Player {
         spriteBatch = new SpriteBatch();
 
         //TODO: Fuse emotion index and message index
-        emotionIndex = 0;
         messageIndex = 0;
-        messageList = new LinkedList<>();
-        messageList.add(new EmotionString("Hi", Emotion.HAPPY));
-        messageList.add(new EmotionString("I'm a generic NPC!", Emotion.NEUTRAL));
-        messageList.add(new EmotionString("I can't really move yet but hopefully in the future I gain that ability", Emotion.NEUTRAL));
-        messageList.add(new EmotionString("Goodbye!", Emotion.HAPPY));
+        messageList = Dialogue.getMessageGroup(0);
         GameScreen.multiplexer.addProcessor(stage);
 
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
@@ -137,27 +85,10 @@ public class NonPlayableCharacter extends Player {
         nextButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
                 if (player.isDisplayMessage())
                 {
                     player.setNextMessage(true);
                 }
-                /*
-                if (player != null && player.isNextMessage()) {
-                    player.setNextMessage(false);
-                    messageIndex++;
-
-                    if (messageIndex < messageList.size()) {
-                        typingLabel.restart();
-                        typingLabel.setText(messageList.get(messageIndex));
-                    } else {
-                        // All messages have been displayed
-                        player.setDisableControls(false);
-                        dialogueBox.setVisible(false);
-                    }
-                }
-
-                 */
             }
         });
 
@@ -219,26 +150,33 @@ public class NonPlayableCharacter extends Player {
                         dialogueBox.setVisible(false);
                     }
                 }
-                Sprite npcSprite = new Sprite(overworldSprites.get("npcStanding"));
+                Sprite npcSprite = new Sprite(overworldSprites.get("roseNeutral"));
                 spriteBatch.begin();
                 switch (emotion)
                 {
                     case NEUTRAL:
-                        npcSprite = new Sprite(overworldSprites.get("npcStanding"));
+                        npcSprite = new Sprite(overworldSprites.get("roseNeutral"));
                         //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f), 0);
                         npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
                                 scaleUI(npcSprite.getWidth(),"WIDTH"),
                                 scaleUI(npcSprite.getHeight(), "HEIGHT"));
                         break;
                     case HAPPY:
-                        npcSprite = new Sprite(overworldSprites.get("npcStandingSmiling"));
+                        npcSprite = new Sprite(overworldSprites.get("roseHappy"));
                         //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f) - 62, 0);
-                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f) - (scaleUI(62,"WIDTH")), 0,
+                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
+                                scaleUI(npcSprite.getWidth(),"WIDTH"),
+                                scaleUI(npcSprite.getHeight(), "HEIGHT"));
+                        break;
+                    case NERVOUS:
+                        npcSprite = new Sprite(overworldSprites.get("roseNervous"));
+                        //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f) - 62, 0);
+                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
                                 scaleUI(npcSprite.getWidth(),"WIDTH"),
                                 scaleUI(npcSprite.getHeight(), "HEIGHT"));
                         break;
                     default:
-                        npcSprite = new Sprite(overworldSprites.get("npcStanding"));
+                        npcSprite = new Sprite(overworldSprites.get("roseNeutral"));
                         //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f), 0);
                         npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
                                 scaleUI(npcSprite.getWidth(),"WIDTH"),
@@ -410,7 +348,7 @@ public class NonPlayableCharacter extends Player {
 
     public void removeAllMessages()
     {
-        messageList = new LinkedList<EmotionString>();
+        messageList = new LinkedList<Dialogue.dialogueString>();
     }
 
     public void disablePlayerInput() {
@@ -421,11 +359,12 @@ public class NonPlayableCharacter extends Player {
     //                      //
 
 
-    public LinkedList<EmotionString> getMessageList() {
+    public LinkedList<Dialogue.dialogueString> getMessageList() {
         return messageList;
     }
 
-    public void setMessageList(LinkedList<EmotionString> messageList) {
+    public void setMessageList(LinkedList<Dialogue.dialogueString> messageList) {
+        resetDialogue();
         this.messageList = messageList;
     }
 
