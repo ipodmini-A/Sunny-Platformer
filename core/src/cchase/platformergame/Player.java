@@ -534,7 +534,6 @@ public class Player
         if (lookingDown && grounded && velocity.x == 0) {
             if (lookingDown && !superJumpReady) {
                 superJumpCharge += Gdx.graphics.getDeltaTime();
-                System.out.println(superJumpCharge);
                 if (superJumpCharge >= superJumpChargeTime) {
                     System.out.println("Super jump ready");
                     superJumpCharge = 0;

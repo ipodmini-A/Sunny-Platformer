@@ -11,8 +11,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -42,6 +44,8 @@ public class NonPlayableCharacter extends Player {
     private boolean displayMessage;
     private Window dialogueBox;
     private TextButton nextButton;
+    private TextButton choice1;
+    private TextButton choice2;
     private Emotion emotion;
 
     public NonPlayableCharacter(float x, float y) {
@@ -78,8 +82,8 @@ public class NonPlayableCharacter extends Player {
         // Create and set up the dialogue box
         dialogueBox = new Window(name, skin);
         dialogueBox.setSize(UICamera.viewportWidth / 2f, 200);
-        dialogueBox.setPosition(0 + (UICamera.viewportWidth / 4f), 50);
-        dialogueBox.add(typingLabel).width(380).pad(10).row();
+        dialogueBox.setPosition((UICamera.viewportWidth / 4f), 50);
+        dialogueBox.add(typingLabel).width(UICamera.viewportWidth / 3f).pad(10).row();
         typingLabel.setWrap(true);
 
         // Create the next button
@@ -94,8 +98,43 @@ public class NonPlayableCharacter extends Player {
             }
         });
 
-        dialogueBox.add(nextButton).pad(10);
+        choice1 = new TextButton("Choice1", skin);
+        choice1.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (player.isDisplayMessage())
+                {
+                    player.setNextMessage(true);
+                    // add (Specific ID)
+                }
+            }
+        });
+
+        choice2 = new TextButton("Choice2", skin);
+        choice2.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (player.isDisplayMessage())
+                {
+                    player.setNextMessage(true);
+                    // add (Specific ID)
+                }
+            }
+        });
+
+        Table buttonTable = new Table();
+        buttonTable.add(choice1).pad(10).left();
+        buttonTable.add(nextButton).pad(10).center().width(100f);
+        buttonTable.add(choice2).pad(10).right();
+        dialogueBox.add(buttonTable).center().row();
+        choice1.setVisible(false);
+        choice2.setVisible(false);
+
+        //dialogueBox.add(nextButton).pad(10);
+        //dialogueBox.removeActor(nextButton);
+        nextButton.setVisible(true);
         stage.addActor(dialogueBox);
+        //stage.setDebugAll(true);
         dialogueBox.setVisible(false); // Initially hidden
         viewport.apply();
     }
@@ -131,6 +170,7 @@ public class NonPlayableCharacter extends Player {
             } else {
                 disablePlayerInput();
 
+                //Allows the first message to be displayed
                 if (!dialogueBox.isVisible()) {
                     dialogueBox.setVisible(true);
                     typingLabel.restart();
@@ -141,14 +181,30 @@ public class NonPlayableCharacter extends Player {
                 stage.act(Gdx.graphics.getDeltaTime());
                 stage.draw();
 
+                // Allows the rest of the messages to be displayed
+                // Going to be honest, this looks horrible. This whole thing has to be re worked... But it works though!
                 if (player.isNextMessage()) {
                     player.setNextMessage(false);
                     messageIndex++;
 
                     if (messageIndex < messageList.size()) {
-                        typingLabel.restart();
-                        typingLabel.setText(messageList.get(messageIndex).getMessage());
-                        emotion = messageList.get(messageIndex).getEmotion();
+                        if (messageList.get(messageIndex).getOptions() != null)
+                        {
+                            typingLabel.restart();
+                            typingLabel.setText(messageList.get(messageIndex).getMessage());
+                            nextButton.setVisible(false);
+                            choice1.setText(messageList.get(messageIndex).getOptions().get(0).getText());
+                            choice1.setVisible(true);
+                            choice2.setText(messageList.get(messageIndex).getOptions().get(1).getText());
+                            choice2.setVisible(true);
+                        } else {
+                            choice1.setVisible(false);
+                            choice2.setVisible(false);
+                            nextButton.setVisible(true);
+                            typingLabel.restart();
+                            typingLabel.setText(messageList.get(messageIndex).getMessage());
+                            emotion = messageList.get(messageIndex).getEmotion();
+                        }
                     } else {
                         // All messages have been displayed
                         player.setDisableControls(false);

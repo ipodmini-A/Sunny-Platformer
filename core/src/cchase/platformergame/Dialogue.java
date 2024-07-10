@@ -11,6 +11,7 @@ class DialogueLine {
     public int id;
     private String message;
     private Emotion emotion;
+    private LinkedList<DialogueOption> options; // New field for options
     //private String speaker; Don't know if I should enable this
     public DialogueLine(int id, String m, Emotion e)
     {
@@ -35,11 +36,47 @@ class DialogueLine {
         this.emotion = emotion;
     }
 
+    public LinkedList<DialogueOption> getOptions() {
+        return options;
+    }
+
+    public void setOptions(LinkedList<DialogueOption> options) {
+        this.options = options;
+    }
+
     @Override
     public String toString() {
         return ("ID: " + id + " Message: " + message + " Emotion: " + emotion);
     }
 }
+class DialogueOption {
+    private String text;
+    private int nextDialogueId;
+
+    public DialogueOption(String text, int nextDialogueId) {
+        this.text = text;
+        this.nextDialogueId = nextDialogueId;
+    }
+
+    // Getters and setters
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public int getNextDialogueId() {
+        return nextDialogueId;
+    }
+
+    public void setNextDialogueId(int nextDialogueId) {
+        this.nextDialogueId = nextDialogueId;
+    }
+}
+
 
 public class Dialogue {
     public static List<DialogueLine> loadDialogue(String filePath) {
@@ -48,7 +85,7 @@ public class Dialogue {
         try (
                 FileReader reader = new FileReader(filePath);
                 CSVParser csvParser = CSVFormat.Builder.create()
-                        .setHeader("id", "message", "emotion")
+                        .setHeader("id", "message", "emotion","options")
                         .setSkipHeaderRecord(true)
                         .build()
                         .parse(reader)
@@ -63,7 +100,22 @@ public class Dialogue {
                 {
                     emotion = Emotion.NEUTRAL;
                 }
-                dialogueLines.add(new DialogueLine(id, message, emotion));
+                DialogueLine dialogueLine = new DialogueLine(id, message, emotion);
+
+                // Parse options if they exist
+                String optionsStr = csvRecord.get("options");
+                if (optionsStr != null && !optionsStr.isEmpty()) {
+                    LinkedList<DialogueOption> options = new LinkedList<>();
+                    String[] optionsArray = optionsStr.split(";");
+                    for (String optionStr : optionsArray) {
+                        String[] parts = optionStr.split(":");
+                        String optionText = parts[0].trim();
+                        int nextDialogueId = Integer.parseInt(parts[1].trim());
+                        options.add(new DialogueOption(optionText,nextDialogueId));
+                        dialogueLine.setOptions(options);
+                    }
+                }
+                dialogueLines.add(dialogueLine);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,7 +130,12 @@ public class Dialogue {
         {
             if (PlatformerGame.dialogueLines.get(j).id == i)
             {
-                list.add(new dialogueString(PlatformerGame.dialogueLines.get(j).getMessage(), PlatformerGame.dialogueLines.get(j).getEmotion()));
+                if (PlatformerGame.dialogueLines.get(j).getOptions() == null) {
+                    list.add(new dialogueString(PlatformerGame.dialogueLines.get(j).getMessage(), PlatformerGame.dialogueLines.get(j).getEmotion()));
+                } else
+                {
+                    list.add(new dialogueString(PlatformerGame.dialogueLines.get(j).getMessage(), PlatformerGame.dialogueLines.get(j).getEmotion(), PlatformerGame.dialogueLines.get(j).getOptions()));
+                }
             }
         }
         return list;
@@ -93,10 +150,18 @@ public class Dialogue {
     {
         private String message;
         private Emotion emotion;
+        private LinkedList<DialogueOption> options; // New field for options
         public dialogueString(String s, Emotion e)
         {
             message = s;
             emotion = e;
+        }
+
+        public dialogueString(String s, Emotion e, LinkedList<DialogueOption> o)
+        {
+            message = s;
+            emotion = e;
+            this.options = o;
         }
 
         public dialogueString(String s)
@@ -119,6 +184,14 @@ public class Dialogue {
 
         public void setEmotion(Emotion emotion) {
             this.emotion = emotion;
+        }
+
+        public LinkedList<DialogueOption> getOptions() {
+            return options;
+        }
+
+        public void setOptions(LinkedList<DialogueOption> options) {
+            this.options = options;
         }
     }
 }

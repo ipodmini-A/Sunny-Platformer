@@ -1,16 +1,16 @@
-id,message,emotion
-0,"Hello!",HAPPY
-0,"This is a test",NEUTRAL
-0,"CSV Files are annoying, aren't they?",NERVOUS
-0,"Personally, I would use a JSON file...",NEUTRAL
-1,"I'm the second NPC added",HAPPY
-1,"I'm just here to make sure that the linked list that was added is working properly", NEUTRAL
-1,"Lets be real, I might be broken",NERVOUS
-1,"Cya!",HAPPY
-2,"I'm the third NPC added",NEUTRAL
-2,"Did you know that if you touch the slot machine and hit down, you'll play slots?",NEUTRAL
-2,"{WAVE}Crazy huh?",NERVOUS
-2,"The game is far from complete and there is already {WAVE}{RAINBOW}gambling.{ENDRAINBOW}{ENDWAVE}",NEUTRAL
-2,"Guess it's kinda funny...",NERVOUS
-2,"Personally I would've added blackjack.",NEUTRAL
-2,"Ah don't worry about it",NERVOUS
+id,message,emotion,options
+0,"Hello!",HAPPY,
+0,"This is a test",NEUTRAL,
+0,"CSV Files are annoying, aren't they?",NERVOUS,
+0,"Personally, I would use a JSON file...",NEUTRAL,
+1,"I'm the second NPC added",HAPPY,
+1,"I'm just here to make sure that the linked list that was added is working properly", NEUTRAL,"Seriously?:1;...:2"
+1,"Lets be real, I might be broken",NERVOUS,
+1,"Cya!",HAPPY,
+2,"I'm the third NPC added",NEUTRAL,
+2,"Did you know that if you touch the slot machine and hit down, you'll play slots?",NEUTRAL,
+2,"{WAVE}Crazy huh?",NERVOUS,
+2,"The game is far from complete and there is already {WAVE}{RAINBOW}gambling.{ENDRAINBOW}{ENDWAVE}",NEUTRAL,
+2,"Guess it's kinda funny...",NERVOUS,
+2,"Personally I would've added blackjack.",NEUTRAL,
+2,"Ah don't worry about it",NERVOUS,
