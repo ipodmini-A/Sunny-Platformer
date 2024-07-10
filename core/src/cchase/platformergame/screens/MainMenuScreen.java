@@ -178,15 +178,16 @@ public class MainMenuScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        ConsoleCommands.draw();
-
         stage.act(delta);
         stage.draw();
+        ConsoleCommands.draw();
     }
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
+        ConsoleCommands.resize(width, height);
+        //stage.getViewport().update(width, height, true);
+        viewport.apply();
     }
 
     @Override

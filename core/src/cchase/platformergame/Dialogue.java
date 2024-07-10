@@ -34,6 +34,11 @@ class DialogueLine {
     public void setEmotion(Emotion emotion) {
         this.emotion = emotion;
     }
+
+    @Override
+    public String toString() {
+        return ("ID: " + id + " Message: " + message + " Emotion: " + emotion);
+    }
 }
 
 public class Dialogue {
@@ -58,7 +63,6 @@ public class Dialogue {
                 {
                     emotion = Emotion.NEUTRAL;
                 }
-                System.out.println(emotion);
                 dialogueLines.add(new DialogueLine(id, message, emotion));
             }
         } catch (IOException e) {

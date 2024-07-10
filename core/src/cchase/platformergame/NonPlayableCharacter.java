@@ -2,6 +2,7 @@ package cchase.platformergame;
 
 import cchase.platformergame.screens.GameScreen;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -24,6 +25,7 @@ import java.util.LinkedList;
 
 public class NonPlayableCharacter extends Player {
     HashMap<String, Sprite> overworldSprites = new HashMap<String, Sprite>();
+    private OrthographicCamera UICamera;
     private TextureAtlas overworldTextureAtlas;
     private boolean touchingPlayer;
     private ShapeRenderer shapeRenderer;
@@ -44,17 +46,17 @@ public class NonPlayableCharacter extends Player {
 
     public NonPlayableCharacter(float x, float y) {
         super(x, y); // NonPlayableCharacter inherits everything from Player.java at first. Things such as sprites.
+        name = "Rose";
         textureAtlas = new TextureAtlas("npcsprites.txt");
         overworldTextureAtlas = new TextureAtlas("sprites/Rose/roseUI.txt");
         addSprites();
         font = new BitmapFont();
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        //this.camera = camera;
-
         emotion = Emotion.NEUTRAL;
 
-        viewport = new FitViewport(1280, 720);
+        UICamera = new OrthographicCamera();
+        viewport = new FitViewport(1280, 720, UICamera);
         stage = new Stage(viewport);
         //stage.setDebugAll(true);
 
@@ -74,9 +76,9 @@ public class NonPlayableCharacter extends Player {
         typingLabel = new TypingLabel("", skin);
 
         // Create and set up the dialogue box
-        dialogueBox = new Window("", skin);
-        dialogueBox.setSize(viewport.getWorldWidth() / 2f, 200);
-        dialogueBox.setPosition(0 + (viewport.getWorldWidth() / 4f), 50);
+        dialogueBox = new Window(name, skin);
+        dialogueBox.setSize(UICamera.viewportWidth / 2f, 200);
+        dialogueBox.setPosition(0 + (UICamera.viewportWidth / 4f), 50);
         dialogueBox.add(typingLabel).width(380).pad(10).row();
         typingLabel.setWrap(true);
 
@@ -95,6 +97,7 @@ public class NonPlayableCharacter extends Player {
         dialogueBox.add(nextButton).pad(10);
         stage.addActor(dialogueBox);
         dialogueBox.setVisible(false); // Initially hidden
+        viewport.apply();
     }
 
     @Override
@@ -106,13 +109,15 @@ public class NonPlayableCharacter extends Player {
     public void Message(Player player) {
         this.player = player;
         player.getVelocity().x = 0;
-        if (!player.facingRight) {
+        if (player.getPosition().x >= getPosition().x) {
+            player.facingRight = false;
             facingRight = true;
             //player.setPositionX(position.x - 28f);
             //player.setPositionX(position.x + getWidth() - 2f);
             //player.facingRight = true;
         } else
         {
+            player.facingRight = true;
             facingRight = false;
             //player.setPositionX(position.x - 28f);
         }
@@ -150,42 +155,25 @@ public class NonPlayableCharacter extends Player {
                         dialogueBox.setVisible(false);
                     }
                 }
-                Sprite npcSprite = new Sprite(overworldSprites.get("roseNeutral"));
+                UICamera.update();
+                spriteBatch.setProjectionMatrix(UICamera.combined);
                 spriteBatch.begin();
                 switch (emotion)
                 {
                     case NEUTRAL:
-                        npcSprite = new Sprite(overworldSprites.get("roseNeutral"));
-                        //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f), 0);
-                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
-                                scaleUI(npcSprite.getWidth(),"WIDTH"),
-                                scaleUI(npcSprite.getHeight(), "HEIGHT"));
+                        spriteBatch.draw(overworldSprites.get("roseNeutral"),UICamera.viewportWidth * (4/6f),0);
                         break;
                     case HAPPY:
-                        npcSprite = new Sprite(overworldSprites.get("roseHappy"));
-                        //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f) - 62, 0);
-                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
-                                scaleUI(npcSprite.getWidth(),"WIDTH"),
-                                scaleUI(npcSprite.getHeight(), "HEIGHT"));
+                        spriteBatch.draw(overworldSprites.get("roseHappy"),UICamera.viewportWidth * (4/6f),0);
                         break;
                     case NERVOUS:
-                        npcSprite = new Sprite(overworldSprites.get("roseNervous"));
-                        //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f) - 62, 0);
-                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
-                                scaleUI(npcSprite.getWidth(),"WIDTH"),
-                                scaleUI(npcSprite.getHeight(), "HEIGHT"));
+                        spriteBatch.draw(overworldSprites.get("roseNervous"),UICamera.viewportWidth * (4/6f),0);
                         break;
                     default:
-                        npcSprite = new Sprite(overworldSprites.get("roseNeutral"));
-                        //npcSprite.setPosition(viewport.getWorldWidth() * (3/4f), 0);
-                        npcSprite.setBounds(viewport.getScreenWidth() * (4/6f), 0,
-                                scaleUI(npcSprite.getWidth(),"WIDTH"),
-                                scaleUI(npcSprite.getHeight(), "HEIGHT"));
+                        spriteBatch.draw(overworldSprites.get("roseNeutral"),UICamera.viewportWidth * (4/6f),0);
                         break;
 
                 }
-                //npcSprite.setPosition(Gdx.graphics.getWidth() - 400, 0);
-                npcSprite.draw(spriteBatch);
                 spriteBatch.end();
             }
         } else {
@@ -195,25 +183,6 @@ public class NonPlayableCharacter extends Player {
             player.setDisableControls(false);
         }
     }
-
-    /**
-     * Scales a number according to the screen size. Not guaranteed to work
-     * @param numberToScale number that is to be scaled
-     * @param scale 'WIDTH' for width, 'HEIGHT' for height
-     * @return
-     */
-    public float scaleUI(float numberToScale, String scale)
-    {
-        if (scale.equals("WIDTH"))
-        {
-            return (numberToScale * (viewport.getScreenWidth() / viewport.getWorldWidth()));
-        } else if (scale.equals("HEIGHT"))
-        {
-            return (numberToScale * (viewport.getScreenHeight() / viewport.getWorldHeight()));
-        }
-        return -1;
-    }
-
 
     /**
      * renderMovement() controls movement and will display the correct sprite depending on what action is being performed

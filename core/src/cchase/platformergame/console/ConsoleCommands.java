@@ -42,6 +42,11 @@ public class ConsoleCommands extends CommandExecutor {
     public static Console getConsole(){
         return console;
     }
+    public static void resize(int x, int y)
+    {
+        console.setSize(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/2);
+        console.refresh(true);
+    }
 
     public static void draw(){
         if (console.isVisible()) {

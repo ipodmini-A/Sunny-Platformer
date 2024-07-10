@@ -16,6 +16,8 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.LinkedList;
 
@@ -38,6 +40,7 @@ public class World {
     private static final float SCALE = 2f;
     private static final float FRICTION = 5f;
     private final OrthographicCamera camera;
+    private Viewport viewport;
     protected Player player;
     protected PlatformerGame game;
     //public NonPlayableCharacter nonPlayableCharacter;
@@ -93,8 +96,10 @@ public class World {
         // Camera creation
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 480, 270);
+        viewport = new FitViewport(480,270,camera);
+        viewport.apply();
         camera.update();
-        //mapRenderer.setView(camera);
+        mapRenderer.setView(camera);
 
         //TODO: Move playerSpawn here.
         //I LOVE JAVA I LOVE OOP I LOVE 500 GETS
@@ -855,6 +860,7 @@ public class World {
         // Update the camera's view
         camera.update();
         mapRenderer.setView(camera);
+        spriteBatch.setProjectionMatrix(camera.combined);
 
         Gdx.gl.glClearColor(37f/255f, 79f/255f, 126f/255f, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -979,13 +985,16 @@ public class World {
     private void renderDebug ()
     {
 
+
+        debugRenderer.setProjectionMatrix(camera.combined);
+
         debugBatch.begin();
         try {
-            debugFont.draw(debugBatch, "Velocity: " + player.getVelocity(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .95f);
-            debugFont.draw(debugBatch, "Position: " + player.getPosition(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f);
-            debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .75f);
-            debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .65f);
-            debugFont.draw(debugBatch, "Player Health: " + player.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .55f);
+            debugFont.draw(debugBatch, "Velocity: " + player.getVelocity(), camera.viewportWidth * .05f, camera.viewportHeight * .95f);
+            debugFont.draw(debugBatch, "Position: " + player.getPosition(), camera.viewportWidth * .05f, camera.viewportHeight * .85f);
+            debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), camera.viewportWidth * .05f, camera.viewportHeight * .75f);
+            debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, camera.viewportWidth * .05f, camera.viewportHeight * .65f);
+            debugFont.draw(debugBatch, "Player Health: " + player.health, camera.viewportWidth * .05f, camera.viewportHeight * .55f);
             //debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
             //debugFont.draw(debugBatch, "Jump Time (Not Actually):" + player.jumpTime, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
         } catch (Exception e)
@@ -994,7 +1003,6 @@ public class World {
         }
         debugBatch.end();
 
-        debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
 
         //Player Debug
