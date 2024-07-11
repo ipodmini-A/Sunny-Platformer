@@ -5,7 +5,6 @@ id,message,emotion,options
 0,"Personally, I would use a JSON file...",NEUTRAL,
 1,"I'm the second NPC added",HAPPY,
 1,"I'm just here to make sure that the linked list that was added is working properly", NEUTRAL,"Seriously?:1;...:2"
-1,"Lets be real, I might be broken",NERVOUS,
 1,"Cya!",HAPPY,
 2,"I'm the third NPC added",NEUTRAL,
 2,"Did you know that if you touch the slot machine and hit down, you'll play slots?",NEUTRAL,
@@ -14,3 +13,14 @@ id,message,emotion,options
 2,"Guess it's kinda funny...",NERVOUS,
 2,"Personally I would've added blackjack.",NEUTRAL,
 2,"Ah don't worry about it",NERVOUS,
+3,"What a terrible thing...",NERVOUS,"What happened?:1; Uhh...:2"
+1001,"Yeah, Seriously!",NERVOUS,
+1001,"Game development can be a real mess sometimes",NERVOUS,
+1001,"You don't even wanna see how this simple message box was handled!",NEUTRAL,
+2001,"Lets be real, I might be broken",NERVOUS,
+2001,"Cya!",HAPPY,
+1003,"Who knew dialogue can be so irritating?", NEUTRAL,
+1003,"You think it would be something simple? Type in some words and then {RAINBOW}{JUMP}BAM!{ENDJUMP}{ENDRAINBOW}",NEUTRAL,
+1003,"Fancy words show up!",HAPPY
+2003,"You don't seem like you care...",NERVOUS
+2003,"Oh well...",

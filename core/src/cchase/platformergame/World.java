@@ -131,13 +131,14 @@ public class World {
         nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y));
 
         nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x + 50, player.getPosition().y));
-
-
-        nonPlayableCharacters.get(1).setMessageList(Dialogue.getMessageGroup(1));
+        nonPlayableCharacters.get(1).setMessageList(1);
 
         nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x - 200, player.getPosition().y));
+        nonPlayableCharacters.get(2).setMessageList(2);
 
-        nonPlayableCharacters.get(2).setMessageList(Dialogue.getMessageGroup(2));
+        nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x - 200, player.getPosition().y - 300));
+        nonPlayableCharacters.get(3).setMessageList(3);
+
 
 
 

@@ -20,6 +20,13 @@ class DialogueLine {
         emotion = e;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
     public String getMessage() {
         return message;
     }
@@ -103,17 +110,22 @@ public class Dialogue {
                 DialogueLine dialogueLine = new DialogueLine(id, message, emotion);
 
                 // Parse options if they exist
-                String optionsStr = csvRecord.get("options");
-                if (optionsStr != null && !optionsStr.isEmpty()) {
-                    LinkedList<DialogueOption> options = new LinkedList<>();
-                    String[] optionsArray = optionsStr.split(";");
-                    for (String optionStr : optionsArray) {
-                        String[] parts = optionStr.split(":");
-                        String optionText = parts[0].trim();
-                        int nextDialogueId = Integer.parseInt(parts[1].trim());
-                        options.add(new DialogueOption(optionText,nextDialogueId));
-                        dialogueLine.setOptions(options);
+                try {
+                    String optionsStr = csvRecord.get("options");
+                    if (optionsStr != null && !optionsStr.isEmpty()) {
+                        LinkedList<DialogueOption> options = new LinkedList<>();
+                        String[] optionsArray = optionsStr.split(";");
+                        for (String optionStr : optionsArray) {
+                            String[] parts = optionStr.split(":");
+                            String optionText = parts[0].trim();
+                            int nextDialogueId = Integer.parseInt(parts[1].trim());
+                            options.add(new DialogueOption(optionText, nextDialogueId));
+                            dialogueLine.setOptions(options);
+                        }
                     }
+                } catch (Exception e)
+                {
+                    emotion = Emotion.NEUTRAL;
                 }
                 dialogueLines.add(dialogueLine);
             }

@@ -47,6 +47,7 @@ public class NonPlayableCharacter extends Player {
     private TextButton choice1;
     private TextButton choice2;
     private Emotion emotion;
+    private int messageID;
 
     public NonPlayableCharacter(float x, float y) {
         super(x, y); // NonPlayableCharacter inherits everything from Player.java at first. Things such as sprites.
@@ -69,7 +70,8 @@ public class NonPlayableCharacter extends Player {
 
         //TODO: Fuse emotion index and message index
         messageIndex = 0;
-        messageList = Dialogue.getMessageGroup(0);
+        messageID = 0;
+        messageList = Dialogue.getMessageGroup(messageID);
         GameScreen.multiplexer.addProcessor(stage);
 
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
@@ -104,6 +106,8 @@ public class NonPlayableCharacter extends Player {
             public void clicked(InputEvent event, float x, float y) {
                 if (player.isDisplayMessage())
                 {
+                    messageList = new LinkedList<>(Dialogue.getMessageGroup(1000 + messageID));
+                    messageIndex = -1;
                     player.setNextMessage(true);
                     // add (Specific ID)
                 }
@@ -116,6 +120,8 @@ public class NonPlayableCharacter extends Player {
             public void clicked(InputEvent event, float x, float y) {
                 if (player.isDisplayMessage())
                 {
+                    messageList = new LinkedList<>(Dialogue.getMessageGroup(2000 + messageID));
+                    messageIndex = -1;
                     player.setNextMessage(true);
                     // add (Specific ID)
                 }
@@ -145,20 +151,20 @@ public class NonPlayableCharacter extends Player {
         position.add(velocity.x * dt, velocity.y * dt);
     }
 
+    /**
+     * Handles how messages are displayed to the player. This class is quite long. Requires a Player object to function
+     * @param player
+     */
     public void Message(Player player) {
         this.player = player;
         player.getVelocity().x = 0;
         if (player.getPosition().x >= getPosition().x) {
             player.facingRight = false;
             facingRight = true;
-            //player.setPositionX(position.x - 28f);
-            //player.setPositionX(position.x + getWidth() - 2f);
-            //player.facingRight = true;
         } else
         {
             player.facingRight = true;
             facingRight = false;
-            //player.setPositionX(position.x - 28f);
         }
 
         if (touchingPlayer) {
@@ -172,10 +178,24 @@ public class NonPlayableCharacter extends Player {
 
                 //Allows the first message to be displayed
                 if (!dialogueBox.isVisible()) {
-                    dialogueBox.setVisible(true);
-                    typingLabel.restart();
-                    typingLabel.setText(messageList.get(messageIndex).getMessage());
-                    emotion = messageList.get(messageIndex).getEmotion();
+                    if (messageList.get(messageIndex).getOptions() != null)
+                    {
+                        dialogueBox.setVisible(true);
+                        typingLabel.restart();
+                        typingLabel.setText(messageList.get(messageIndex).getMessage());
+                        nextButton.setVisible(false);
+                        choice1.setText(messageList.get(messageIndex).getOptions().get(0).getText());
+                        choice1.setVisible(true);
+                        choice2.setText(messageList.get(messageIndex).getOptions().get(1).getText());
+                        choice2.setVisible(true);
+                        setMessageList(2000 + messageID);
+                        messageIndex = -1;
+                    } else {
+                        dialogueBox.setVisible(true);
+                        typingLabel.restart();
+                        typingLabel.setText(messageList.get(messageIndex).getMessage());
+                        emotion = messageList.get(messageIndex).getEmotion();
+                    }
                 }
 
                 stage.act(Gdx.graphics.getDeltaTime());
@@ -197,6 +217,9 @@ public class NonPlayableCharacter extends Player {
                             choice1.setVisible(true);
                             choice2.setText(messageList.get(messageIndex).getOptions().get(1).getText());
                             choice2.setVisible(true);
+                            // The second option is the default option when hitting next on the keyboard
+                            setMessageList(2000 + messageID); // Dialogue.csv denotes 2000 as the second option.
+                            messageIndex = -1;
                         } else {
                             choice1.setVisible(false);
                             choice2.setVisible(false);
@@ -353,6 +376,7 @@ public class NonPlayableCharacter extends Player {
             player.setNextMessage(false);
             player.setDisplayMessage(false);
         }
+        setMessageList(messageID);
         displayMessage = false;
         dialogueBox.setVisible(false);
     }
@@ -388,9 +412,16 @@ public class NonPlayableCharacter extends Player {
         return messageList;
     }
 
-    public void setMessageList(LinkedList<Dialogue.dialogueString> messageList) {
-        resetDialogue();
-        this.messageList = messageList;
+    /**
+     * Sets the messages using an ID system. Look at dialogue.csv for which message list you want to be displayed.
+     * @param id
+     */
+    public void setMessageList(int id)
+    {
+        messageIndex = 0;
+        //resetDialogue();
+        messageID = id;
+        this.messageList = Dialogue.getMessageGroup(id);
     }
 
     public boolean isTouchingPlayer() {
