@@ -5,7 +5,6 @@ id,message,emotion,options
 0,"Personally, I would use a JSON file...",NEUTRAL,
 1,"I'm the second NPC added",HAPPY,
 1,"I'm just here to make sure that the linked list that was added is working properly", NEUTRAL,"Seriously?:1;...:2"
-1,"Cya!",HAPPY,
 2,"I'm the third NPC added",NEUTRAL,
 2,"Did you know that if you touch the slot machine and hit down, you'll play slots?",NEUTRAL,
 2,"{WAVE}Crazy huh?",NERVOUS,

@@ -65,10 +65,11 @@ public class World {
     private ShapeRenderer debugRenderer;
     private BitmapFont debugFont;
     private SpriteBatch debugBatch;
+    private boolean playerReachedEnd = false;
     public Music music;
     // TODO: Implement a proper debug tool.
 
-    public World(Player player, PlatformerGame game) {
+    public World(Player player, PlatformerGame game, String mapName) {
         // Sound creation
         music = Gdx.audio.newMusic(Gdx.files.internal("sound/Tiny_Sheriff.mp3"));
         music.play();
@@ -79,7 +80,7 @@ public class World {
 
         // Map creation
         loader = new TmxMapLoader();
-        map = loader.load("test1.tmx");
+        map = loader.load(mapName);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1);
 
         //sprite batch creation
@@ -118,8 +119,6 @@ public class World {
 
         // Enemy creation
         enemies = new LinkedList<>();
-        enemies.add(new Enemy(player.getPosition().x + 300, player.getPosition().y));
-        enemies.add(new Enemy(player.getPosition().x + 400, player.getPosition().y));
         for (int i = 0; i < enemies.size(); i++)
         {
             enemies.get(i).setSCALE(SCALE);
@@ -128,19 +127,6 @@ public class World {
         //NPC creation
         //nonPlayableCharacter = new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y);
         nonPlayableCharacters = new LinkedList<>();
-        nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y));
-
-        nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x + 50, player.getPosition().y));
-        nonPlayableCharacters.get(1).setMessageList(1);
-
-        nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x - 200, player.getPosition().y));
-        nonPlayableCharacters.get(2).setMessageList(2);
-
-        nonPlayableCharacters.add(new NonPlayableCharacter(player.getPosition().x - 200, player.getPosition().y - 300));
-        nonPlayableCharacters.get(3).setMessageList(3);
-
-
-
 
         //Item creation
         collectables = new LinkedList<>();
@@ -167,7 +153,7 @@ public class World {
      *
      * @param player
      */
-    public void WorldUpdate(Player player) {
+    public void worldUpdate(Player player) {
         this.player = player;
     }
 
@@ -728,7 +714,7 @@ public class World {
      *
      * @return True if player has collided with the end game object, false if otherwise
      */
-    public boolean isTouchingEndGoal() {
+    public void isTouchingEndGoal() {
         float tolerance = 1f;
         for (MapObject object : endGameObject) {
             if (object instanceof RectangleMapObject) {
@@ -742,11 +728,11 @@ public class World {
 
                 if (player.getPosition().x < right && player.getPosition().x + player.getWidth() > left &&
                         player.getPosition().y < top && player.getPosition().y + player.getHeight() > bottom) {
-                    return true; // Player is touching the end goal
+                    playerReachedEnd = true; // Player is touching the end goal
                 }
             }
         }
-        return false; // Player is not touching the end goal
+         // Player is not touching the end goal
     }
 
     /**
@@ -845,6 +831,26 @@ public class World {
             roulette.interact(game, player);
             //i.interact(player);
         }
+    }
+
+    public void loadEnemies(LinkedList<Enemy> e)
+    {
+        enemies = e;
+    }
+
+    public void loadEnemy(Enemy e)
+    {
+        enemies.add(e);
+    }
+
+    public void loadNPCs(LinkedList<NonPlayableCharacter> n)
+    {
+        nonPlayableCharacters = n;
+    }
+
+    public void loadNPC(NonPlayableCharacter n)
+    {
+        nonPlayableCharacters.add(n);
     }
 
 
@@ -976,6 +982,8 @@ public class World {
         player.updateCamera(camera);
         player.render(spriteBatch,delta);
 
+        isTouchingEndGoal();
+
         // render debug rectangles
         if (debug) renderDebug();
     }
@@ -1088,4 +1096,12 @@ public class World {
     // Getters and Setters  //
     //                      //
 
+
+    public boolean isPlayerReachedEnd() {
+        return playerReachedEnd;
+    }
+
+    public void setPlayerReachedEnd(boolean playerReachedEnd) {
+        this.playerReachedEnd = playerReachedEnd;
+    }
 }

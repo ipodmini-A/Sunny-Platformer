@@ -20,13 +20,14 @@ public class GameScreen extends ScreenAdapter
     private Stage stage;
     private SpriteBatch batch;
     protected World world;
+    protected LevelManager levelManager;
     protected Player player;
 
     float x = 400f;
     float y = 1300f;
     private boolean firstSpawnCheck = false;
     public static InputMultiplexer multiplexer = new InputMultiplexer();
-    private final NewPlatformerInput newPlatformerInput;
+    //private final NewPlatformerInput newPlatformerInput;
 
     public boolean playerWon = false;
 
@@ -44,21 +45,18 @@ public class GameScreen extends ScreenAdapter
         batch = new SpriteBatch();
         player = new Player();
 
-        multiplexer = new InputMultiplexer();
-        newPlatformerInput = new NewPlatformerInput(player);
         // For some reason, when I add newPlatformerInput to the multiplexer before the console commands, it causes the
         // console commands to break. Not sure why but if you want a functional console on a specific screen, add it
         // to the multiplexer before everything else to ensure it doesn't get overridden.
-        multiplexer.addProcessor(ConsoleCommands.getConsole().getInputProcessor());
-        multiplexer.addProcessor(newPlatformerInput);
-        Gdx.input.setInputProcessor(multiplexer);
-        world = new World(player,game);
+        levelManager = new LevelManager();
+        levelManager.loadLevel(player,game,"test1.tmx");
+        //world = new World(player,game,"test1.tmx");
     }
 
     @Override
     public void show()
     {
-        Gdx.input.setInputProcessor(multiplexer);
+        levelManager.show();
         player.setDisableControls(false);
         if (firstSpawnCheck)
         {
@@ -73,8 +71,6 @@ public class GameScreen extends ScreenAdapter
 
         // Resetting players velocity
         player.setVelocity(0,0);
-
-        world.music.play();
 
         firstSpawnCheck = true;
         super.show();
@@ -99,13 +95,7 @@ public class GameScreen extends ScreenAdapter
     @Override
     public void render(float delta)
     {
-        world.WorldUpdate(player); // Removing this results in a null crash. idk
-        world.render(delta);
-        if (world.isTouchingEndGoal())
-        {
-            playerWon = true;
-            game.setScreen(new EndScreen(game, playerWon));
-        }
+        levelManager.render(delta);
 
         if (player.menuPressed())
         {
@@ -125,7 +115,7 @@ public class GameScreen extends ScreenAdapter
             System.out.println(GameState.lastRecordedPlayerX);
             GameState.lastRecordedPlayerY = player.getPosition().y;
             System.out.println(GameState.lastRecordedPlayerY);
-            world.music.pause();
+            //world.music.pause();
             //game.setScreen(new BattleScreen(game,player,world.enemy));
         }
 
@@ -146,6 +136,6 @@ public class GameScreen extends ScreenAdapter
     {
         batch.dispose();
         player.dispose();
-        world.dispose();
+        //world.dispose();
     }
 }

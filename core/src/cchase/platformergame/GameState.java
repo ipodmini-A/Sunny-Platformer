@@ -14,14 +14,4 @@ public class GameState
     public static Screen mainMenuScreen;
     public static float lastRecordedPlayerX;
     public static float lastRecordedPlayerY;
-
-    public static void delayedAction(float delaySeconds) {
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                // Code to execute after the delay
-                Gdx.app.log("DelayedAction", "Delayed action executed");
-            }
-        }, delaySeconds);
-    }
 }

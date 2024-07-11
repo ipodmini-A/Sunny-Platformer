@@ -188,8 +188,8 @@ public class NonPlayableCharacter extends Player {
                         choice1.setVisible(true);
                         choice2.setText(messageList.get(messageIndex).getOptions().get(1).getText());
                         choice2.setVisible(true);
-                        setMessageList(2000 + messageID);
-                        messageIndex = -1;
+                        //setMessageList(2000 + messageID);
+                        //messageIndex = -1;
                     } else {
                         dialogueBox.setVisible(true);
                         typingLabel.restart();
@@ -217,9 +217,14 @@ public class NonPlayableCharacter extends Player {
                             choice1.setVisible(true);
                             choice2.setText(messageList.get(messageIndex).getOptions().get(1).getText());
                             choice2.setVisible(true);
-                            // The second option is the default option when hitting next on the keyboard
-                            setMessageList(2000 + messageID); // Dialogue.csv denotes 2000 as the second option.
-                            messageIndex = -1;
+                            // Update: The code below is commented out as its causing more issues than solving them.
+                            // What I would like is when the player presses next on the keyboard (i.e. down) it would
+                            // Select the second option automatically. Currently, its busted.
+                            // Honestly this might have to be reworked a little bit, as options cannot carry out events
+                            // Currently a solution isn't coming to mind "except for hard coding stuff of course
+
+                            //setMessageList(2000 + messageID); // Dialogue.csv denotes 2000 as the second option.
+                            //messageIndex = -1;
                         } else {
                             choice1.setVisible(false);
                             choice2.setVisible(false);
