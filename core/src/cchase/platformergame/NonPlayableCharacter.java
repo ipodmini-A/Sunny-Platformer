@@ -72,7 +72,7 @@ public class NonPlayableCharacter extends Player {
         messageIndex = 0;
         messageID = 0;
         messageList = Dialogue.getMessageGroup(messageID);
-        GameScreen.multiplexer.addProcessor(stage);
+        LevelManager.multiplexer.addProcessor(stage);
 
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         interactionBound = new Rectangle(position.x - (WIDTH / 2f), position.y,WIDTH * 2f, HEIGHT);
