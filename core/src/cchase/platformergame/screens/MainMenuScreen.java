@@ -64,7 +64,7 @@ public class MainMenuScreen extends ScreenAdapter {
         });
         mainMenuTable.add(playButton).padBottom(20f).row();
 
-        TextButton optionsButton = new TextButton("Options", skin);
+        TextButton optionsButton = new TextButton("Options (In Development)", skin);
         optionsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -73,14 +73,14 @@ public class MainMenuScreen extends ScreenAdapter {
         });
         mainMenuTable.add(optionsButton).padBottom(20f).row();
 
-        TextButton rouletteButton = new TextButton("Slots", skin);
-        rouletteButton.addListener(new ChangeListener() {
+        TextButton slots = new TextButton("Slots", skin);
+        slots.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new SlotsScreen(game, new Player()));
             }
         });
-        mainMenuTable.add(rouletteButton).padBottom(20f).row();
+        mainMenuTable.add(slots).padBottom(20f).row();
 
         TextButton exitButton = new TextButton("Exit", skin);
         exitButton.addListener(new ChangeListener() {
@@ -98,17 +98,17 @@ public class MainMenuScreen extends ScreenAdapter {
         stage.clear();
         stage.addActor(optionsTable);
 
-        Label titleLabel = new Label("Options", skin, "title");
+        Label titleLabel = new Label("Options (Currently in Development)", skin, "title");
         optionsTable.add(titleLabel).padBottom(50f).row();
 
-        Label resolutionLabel = new Label("Resolution:", skin);
+        Label resolutionLabel = new Label("Resolution (Can cause UI issues) :", skin);
         optionsTable.add(resolutionLabel).padBottom(20f).row();
 
         final SelectBox<String> resolutionSelectBox = new SelectBox<>(skin);
         resolutionSelectBox.setItems("720x480","1280x720", "1920x1080", "2560x1440");
         optionsTable.add(resolutionSelectBox).padBottom(20f).row();
 
-        Label FPSLabel = new Label("FPS:", skin);
+        Label FPSLabel = new Label("FPS (Can cause rendering issues) :", skin);
         optionsTable.add(FPSLabel).padBottom(20f).row();
 
         final SelectBox<String> FPSLabelBox = new SelectBox<>(skin);

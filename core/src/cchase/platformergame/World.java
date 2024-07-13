@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -52,6 +53,7 @@ public class World {
     protected LinkedList<NonPlayableCharacter> nonPlayableCharacters;
     protected Item.Roulette roulette;
     private final TiledMap map;
+    private MapProperties mapProperties;
     private TmxMapLoader loader;
     private OrthogonalTiledMapRenderer mapRenderer;
     private MapLayer collisionLayer;
@@ -82,6 +84,7 @@ public class World {
         loader = new TmxMapLoader();
         map = loader.load(mapName);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1);
+        mapProperties = map.getProperties();
 
         //sprite batch creation
         spriteBatch = new SpriteBatch();
@@ -130,11 +133,12 @@ public class World {
 
         //Item creation
         collectables = new LinkedList<>();
-        collectables.add(new Item(100, 400, true));
-        collectables.add(new Item(150, 400, true));
+        collectables.add(new Item(player.position.x + 100, player.position.y, true));
+        collectables.add(new Item(player.position.x + 200, player.position.y, true));
+        //collectables.add(new Item.Roulette(player.getPosition().x + 100, player.getPosition().y));
 
         //Roulette Creation (Test)
-        roulette = new Item.Roulette(player.getPosition().x + 100, player.getPosition().y);
+        //roulette = new Item.Roulette(player.getPosition().x + 100, player.getPosition().y);
 
         // Debug
         debugRenderer = new ShapeRenderer();
@@ -828,7 +832,7 @@ public class World {
         {
             player.setDisplayMessage(false);
             i.setDisplayMessage(false);
-            roulette.interact(game, player);
+            //roulette.interact(game, player);
             //i.interact(player);
         }
     }
@@ -863,7 +867,6 @@ public class World {
      */
     public void render(float delta)
     {
-
         // Update the camera's view
         camera.update();
         mapRenderer.setView(camera);
@@ -921,34 +924,37 @@ public class World {
         }
 
         // Item render
+
         for (int i = 0; i < collectables.size(); i++)
         {
-            try {
-                checkCollisions(delta, collectables.get(i));
-                applyGravity(delta, collectables.get(i));
-                collectables.get(i).updateCamera(camera);
-                collectables.get(i).render(spriteBatch, delta);
-                if (isCollidingWithObject(collectables.get(i)) && !collectables.get(i).isCollected() && collectables.get(i).allowedToBeCollected)
-                {
-                    collectables.get(i).setCollected(true);
-                    player.itemCollected(collectables.get(i));
-                    collectables.remove(i);
-                }
-            } catch (Exception e)
+
+            checkCollisions(delta, collectables.get(i));
+            applyGravity(delta, collectables.get(i));
+            collectables.get(i).updateCamera(camera);
+            collectables.get(i).render(spriteBatch, delta);
+            //collectables.get(i).interact(player);
+            if (collectables.get(i).messageList != null) {
+                collectables.get(i).interact(player);
+                messageRenderItem(collectables.get(i));
+            }
+            if (isCollidingWithObject(collectables.get(i)) && !collectables.get(i).isCollected() && collectables.get(i).allowedToBeCollected)
             {
-                // Catch item null errors
+                collectables.get(i).setCollected(true);
+                player.itemCollected(collectables.get(i));
+                collectables.remove(i);
             }
         }
+        System.out.println(collectables.size());
 
-        checkCollisions(delta, roulette);
-        applyGravity(delta, roulette);
-        roulette.updateCamera(camera);
-        roulette.render(spriteBatch, delta);
-        isCollidingWithObject(roulette);
+        //checkCollisions(delta, roulette);
+        //applyGravity(delta, roulette);
+        //roulette.updateCamera(camera);
+        //roulette.render(spriteBatch, delta);
+        //isCollidingWithObject(roulette);
         //roulette.interact(player);
 
         //THIS SYSTEM SUCKS AAAAAAA
-        messageRenderItem(roulette);
+        //messageRenderItem(roulette);
 
         // NPC render
         // When the NPC displays their UI, I need it to be in front of things such as items. Fow now this is a easy implementation
@@ -1060,8 +1066,8 @@ public class World {
         }
 
         //Render Debug
-        debugRenderer.setColor(Color.GREEN);
-        debugRenderer.rect(roulette.getPosition().x, roulette.getPosition().y, roulette.getWidth(), roulette.getHeight());
+        //debugRenderer.setColor(Color.GREEN);
+        //debugRenderer.rect(roulette.getPosition().x, roulette.getPosition().y, roulette.getWidth(), roulette.getHeight());
 
         debugRenderer.setColor(Color.YELLOW);
         for (MapObject object : objects)
@@ -1103,5 +1109,13 @@ public class World {
 
     public void setPlayerReachedEnd(boolean playerReachedEnd) {
         this.playerReachedEnd = playerReachedEnd;
+    }
+
+    public MapProperties getMapProperties() {
+        return mapProperties;
+    }
+
+    public void setMapProperties(MapProperties mapProperties) {
+        this.mapProperties = mapProperties;
     }
 }

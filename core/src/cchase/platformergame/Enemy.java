@@ -32,7 +32,7 @@ public class Enemy extends Player
      * TODO: This method will serve as the movement for the enemy.
      */
     @Override
-    public void input()
+    public void input(float delta)
     {
         //Currently this is here to override input.
         position.add(velocity.x * dt, velocity.y * dt);
@@ -51,7 +51,7 @@ public class Enemy extends Player
         this.spriteBatch = spriteBatch;
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        input();
+        input(delta);
         //changeAnimationSpeed(delta);
         update(delta);
         renderMovement(spriteBatch);

@@ -241,6 +241,7 @@ public class Player
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
 
+    float dt = (1/60f);
     /**
      * Controls the basic movement of the player. The original input() has been taken over by this method.
      * How fast the player can move is controlled by MAX_VELOCITY
@@ -253,10 +254,9 @@ public class Player
      * For now I should just cap the FPS to 60. It runs great but for some reason, moving left and right with
      * how velocity is currently handled doesn't work.
      */
-    float dt = Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f);
-    public void input()
+    public void input(float delta)
     {
-        dt = Math.min(Gdx.graphics.getDeltaTime(), 1/ 60f);
+        dt = Math.min(delta, 1/ 60f);
         if (!rightMove && !leftMove &&
                 (velocity.x <= 5 && velocity.x > 0)) {
             velocity.x = 0;
@@ -296,6 +296,9 @@ public class Player
         }
     }
 
+
+    private static final float TIME_STEP = 1/60f;
+    private float accumulator = 0f;
     /**
      * render is called every frame. Render should be used while the player is in a level.
      *
@@ -307,8 +310,9 @@ public class Player
         this.spriteBatch = spriteBatch;
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
-        input();
+        input(delta);
         changeAnimationSpeed(delta);
+
         update(delta);
         renderMovement(spriteBatch);
         //drawSprite("standing", position.x, position.y);

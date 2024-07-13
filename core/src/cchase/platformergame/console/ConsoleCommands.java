@@ -1,5 +1,6 @@
 package cchase.platformergame.console;
 
+import cchase.platformergame.LevelManager;
 import cchase.platformergame.NewPlatformerInput;
 import cchase.platformergame.SlotsGame;
 import cchase.platformergame.World;

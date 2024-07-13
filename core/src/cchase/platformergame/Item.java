@@ -139,49 +139,47 @@ public class Item
      */
     public void interact(Player player)
     {
-        p = player;
-        if (touchingPlayer)
-        {
-            player.getVelocity().x = 0;
-            //This plays after the message list is over
-            if (messageIndex >= messageList.size())
-            {
-                // All messages have been displayed
-                resetDialogue();
-                player.setDisableControls(false);
-            } else
-            {
-                disablePlayerInput();
+        if (messageList != null) {
+            p = player;
+            if (touchingPlayer) {
+                player.getVelocity().x = 0;
+                //This plays after the message list is over
+                if (messageIndex >= messageList.size()) {
+                    // All messages have been displayed
+                    resetDialogue();
+                    player.setDisableControls(false);
+                } else {
+                    disablePlayerInput();
 
-                shapeRenderer.setAutoShapeType(true);
-                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                shapeRenderer.setColor(255f / 255f, 165f / 255f, 0, 0.1f);
-                shapeRenderer.rect(100, 100, Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 4f);
-                shapeRenderer.end();
+                    shapeRenderer.setAutoShapeType(true);
+                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                    shapeRenderer.setColor(255f / 255f, 165f / 255f, 0, 0.1f);
+                    shapeRenderer.rect(100, 100, Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 4f);
+                    shapeRenderer.end();
 
-                // Creating a new SpriteBatch to get the font to display is not efficient.
-                // TODO: Fix this spritebatch issue
-                spriteBatch = new SpriteBatch();
-                spriteBatch.begin();
-                font.draw(spriteBatch, messageList.get(messageIndex), 120, 160);
-                spriteBatch.end();
-                spriteBatch.dispose();
+                    // Creating a new SpriteBatch to get the font to display is not efficient.
+                    // TODO: Fix this spritebatch issue
+                    spriteBatch = new SpriteBatch();
+                    spriteBatch.begin();
+                    font.draw(spriteBatch, messageList.get(messageIndex), 120, 160);
+                    spriteBatch.end();
+                    spriteBatch.dispose();
 
-                if (player.isNextMessage()) {
-                    player.setNextMessage(false);
-                    messageIndex++;
+                    if (player.isNextMessage()) {
+                        player.setNextMessage(false);
+                        messageIndex++;
 
-                    if (messageIndex == messageList.size()) {
-                        // All messages have been displayed
-                        player.setDisableControls(false);
+                        if (messageIndex == messageList.size()) {
+                            // All messages have been displayed
+                            player.setDisableControls(false);
+                        }
                     }
                 }
+            } else {
+                // Player is not touching the NPC
+                resetDialogue();
+                player.setDisableControls(false);
             }
-        } else {
-            // Player is not touching the NPC
-            resetDialogue();
-            player.setDisableControls(false);
-            messageList.removeLast();
         }
 
     }

@@ -146,7 +146,7 @@ public class NonPlayableCharacter extends Player {
     }
 
     @Override
-    public void input() {
+    public void input(float delta) {
         // Currently this is here to override input.
         position.add(velocity.x * dt, velocity.y * dt);
     }

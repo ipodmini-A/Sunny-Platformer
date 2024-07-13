@@ -5,7 +5,12 @@ import cchase.platformergame.screens.EndScreen;
 import cchase.platformergame.screens.GameScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.LinkedList;
 
 public class LevelManager {
@@ -34,27 +39,99 @@ public class LevelManager {
 
         currentLevel = new World(this.player, this.game, mapPath);
         // Time for a CSV file... :(
-        LinkedList<Enemy> level1Enemies;
-        level1Enemies = new LinkedList<>();
-        level1Enemies.add(new Enemy(player.getPosition().x + 300, player.getPosition().y));
-        level1Enemies.add(new Enemy(player.getPosition().x + 400, player.getPosition().y));
+        LinkedList<Enemy> level1Enemies = loadEnemies("enemiesData/enemiesLevel1.csv");
         currentLevel.loadEnemies(level1Enemies);
 
-        LinkedList<NonPlayableCharacter> level1NPCs = new LinkedList<>();
-        level1NPCs.add(new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y));
-        level1NPCs.add(new NonPlayableCharacter(player.getPosition().x + 50, player.getPosition().y));
-        level1NPCs.get(1).setMessageList(1);
-        level1NPCs.add(new NonPlayableCharacter(player.getPosition().x - 200, player.getPosition().y));
-        level1NPCs.get(2).setMessageList(2);
-        level1NPCs.add(new NonPlayableCharacter(player.getPosition().x - 200, player.getPosition().y - 300));
-        level1NPCs.get(3).setMessageList(3);
+        LinkedList<NonPlayableCharacter> level1NPCs = loadNPCs("nonPlayableCharactersData/nonPlayableCharactersLevel1.csv");
         currentLevel.loadNPCs(level1NPCs);
     }
 
+    public LinkedList<Enemy> loadEnemies(String filePath)
+    {
+        LinkedList<Enemy> enemiesList = new LinkedList<>();
+        try (
+                FileReader reader = new FileReader(filePath);
+                CSVParser csvParser = CSVFormat.Builder.create()
+                        .setHeader("x", "y")
+                        .setSkipHeaderRecord(true)
+                        .build()
+                        .parse(reader)
+        ) {
+            for (CSVRecord csvRecord : csvParser) {
+                float xPosition = Integer.parseInt(csvRecord.get("x"));
+                float yPosition = Integer.parseInt(csvRecord.get("y"));
+
+                // Height yeilds the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
+                // tile is
+                int mapHeight = currentLevel.getMapProperties().get("height",Integer.class) * 32;
+                //System.out.println(mapHeight);
+
+                enemiesList.add(new Enemy(xPosition, (mapHeight - yPosition)));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return enemiesList;
+    }
+    public LinkedList<NonPlayableCharacter> loadNPCs(String filePath)
+    {
+        LinkedList<NonPlayableCharacter> NPCList = new LinkedList<>();
+        try (
+                FileReader reader = new FileReader(filePath);
+                CSVParser csvParser = CSVFormat.Builder.create()
+                        .setHeader("id","x", "y")
+                        .setSkipHeaderRecord(true)
+                        .build()
+                        .parse(reader)
+        ) {
+            for (CSVRecord csvRecord : csvParser) {
+                int id = Integer.parseInt(csvRecord.get("id"));
+                float xPosition = Integer.parseInt(csvRecord.get("x"));
+                float yPosition = Integer.parseInt(csvRecord.get("y"));
+
+                // Height yeilds the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
+                // tile is
+                int mapHeight = currentLevel.getMapProperties().get("height",Integer.class) * 32;
+                //System.out.println(mapHeight);
+
+                NonPlayableCharacter loadingNPC = new NonPlayableCharacter(xPosition, (mapHeight - yPosition));
+                loadingNPC.setMessageList(id);
+                NPCList.add(loadingNPC);
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return NPCList;
+    }
+
+    private static final float TIME_STEP = 1 / 60f;
+    private float accumulator = 0f;
+
+    /**
+     * Renders the level
+     * Currently is being slowly worked on. The idea is to have one consistant number accross the whole game,
+     * being the TIME_STEP (1/60f). The game works as intended around 60fps.
+     *
+     * Current bugs known: When setting the FPS to 120, it causes strange behavior. Changing 1/30f to something slightly
+     * higher resolves it, but it comes at the cost of less smooth animation
+     * @param delta
+     */
     public void render(float delta) {
         currentLevel.worldUpdate(player);// Attempts to remove worldUpdate causes issues. I'm not really sure why.
         if (currentLevel != null) {
-            currentLevel.render(delta);
+
+            float delta2 = Math.min(delta, 1/30f);
+            accumulator += delta2;
+
+            while (accumulator >= TIME_STEP) {
+                currentLevel.render(TIME_STEP);
+                accumulator -= TIME_STEP;
+            }
+
+            //currentLevel.render(delta);
             if (currentLevel.isPlayerReachedEnd())
             {
 
