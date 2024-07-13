@@ -1,5 +1,6 @@
 package cchase.platformergame;
 
+import cchase.platformergame.screens.GameScreen;
 import cchase.platformergame.screens.SlotsScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -91,18 +92,16 @@ public class Item
          * Takes the player to the slot screen to play slots
          *
          * TODO: Rework how the player interacts with both NPS and items.
-         * @param game
          * @param p
          */
-        public void interact(PlatformerGame game, Player p)
+        public void interact(Player p)
         {
-            game.setScreen(new SlotsScreen(game, p));
+            if (p.isItemInteraction()) {
+                p.setItemInteraction(false);
+                p.setDisplayMessage(false);
+                GameScreen.game.setScreen(new SlotsScreen(GameScreen.game, p));
+            }
         }
-    }
-
-    public void interact(PlatformerGame game, Player p)
-    {
-        game.setScreen(new SlotsScreen(game, p));
     }
 
     public Item(float x, float y, boolean allowedtoBeCollected)
@@ -139,7 +138,8 @@ public class Item
      */
     public void interact(Player player)
     {
-        if (messageList != null) {
+        if (messageList != null && player.isItemInteraction()) {
+            System.out.println("AA");
             p = player;
             if (touchingPlayer) {
                 player.getVelocity().x = 0;

@@ -128,7 +128,7 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(true);
-                System.out.println(p.isNpcInteraction());
+                System.out.println(p.isItemInteraction());
                 if (p.isNpcInteraction() || p.isItemInteraction())
                 {
                     if (p.isDisplayMessage())

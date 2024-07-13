@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
  */
 public class GameScreen extends ScreenAdapter
 {
-    protected PlatformerGame game;
+    public static PlatformerGame game;
     private Stage stage;
     private SpriteBatch batch;
     protected World world;
@@ -40,7 +40,7 @@ public class GameScreen extends ScreenAdapter
     public GameScreen(PlatformerGame game)
     {
         System.out.println("GameScreen created");
-        this.game = game;
+        GameScreen.game = game;
         stage = new Stage();
         batch = new SpriteBatch();
         player = new Player();

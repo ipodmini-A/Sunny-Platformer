@@ -48,7 +48,7 @@ public class World {
     // I'm not sure if having "Collectables" be a linked list is a good idea.
     // For now, it works. When creating a new level, each collectable will be added to this linked list.
     // Each item in the linked list has its coordinates
-    protected LinkedList<Item> collectables;
+    protected LinkedList<Item> items;
     protected LinkedList<Enemy> enemies;
     protected LinkedList<NonPlayableCharacter> nonPlayableCharacters;
     protected Item.Roulette roulette;
@@ -132,10 +132,10 @@ public class World {
         nonPlayableCharacters = new LinkedList<>();
 
         //Item creation
-        collectables = new LinkedList<>();
-        collectables.add(new Item(player.position.x + 100, player.position.y, true));
-        collectables.add(new Item(player.position.x + 200, player.position.y, true));
-        //collectables.add(new Item.Roulette(player.getPosition().x + 100, player.getPosition().y));
+        items = new LinkedList<>();
+        items.add(new Item(player.position.x + 100, player.position.y, true));
+        items.add(new Item(player.position.x + 200, player.position.y, true));
+        items.add(new Item.Roulette(player.getPosition().x + 100, player.getPosition().y));
 
         //Roulette Creation (Test)
         //roulette = new Item.Roulette(player.getPosition().x + 100, player.getPosition().y);
@@ -830,7 +830,7 @@ public class World {
         }
         if (i.isDisplayMessage())
         {
-            player.setDisplayMessage(false);
+            i.interact(player);
             i.setDisplayMessage(false);
             //roulette.interact(game, player);
             //i.interact(player);
@@ -924,27 +924,34 @@ public class World {
         }
 
         // Item render
+        boolean touchingItem = false;
+        try {
+            for (int i = 0; i < items.size(); i++) {
 
-        for (int i = 0; i < collectables.size(); i++)
+                checkCollisions(delta, items.get(i));
+                applyGravity(delta, items.get(i));
+                items.get(i).updateCamera(camera);
+                items.get(i).render(spriteBatch, delta);
+                //collectables.get(i).interact(player);
+                messageRenderItem(items.get(i));
+                if (isCollidingWithObject(items.get(i))) {
+                    if (!items.get(i).isCollected() && items.get(i).allowedToBeCollected) {
+                        items.get(i).setCollected(true);
+                        player.itemCollected(items.get(i));
+                        items.remove(i);
+                    }
+                    touchingItem = true;
+                    messageRenderItem(items.get(i));
+                }
+            }
+            if (!touchingItem) {
+                player.setItemInteraction(false);
+            }
+        } catch (Exception e)
         {
-
-            checkCollisions(delta, collectables.get(i));
-            applyGravity(delta, collectables.get(i));
-            collectables.get(i).updateCamera(camera);
-            collectables.get(i).render(spriteBatch, delta);
-            //collectables.get(i).interact(player);
-            if (collectables.get(i).messageList != null) {
-                collectables.get(i).interact(player);
-                messageRenderItem(collectables.get(i));
-            }
-            if (isCollidingWithObject(collectables.get(i)) && !collectables.get(i).isCollected() && collectables.get(i).allowedToBeCollected)
-            {
-                collectables.get(i).setCollected(true);
-                player.itemCollected(collectables.get(i));
-                collectables.remove(i);
-            }
+            System.out.println("Items not present");
         }
-        System.out.println(collectables.size());
+        //System.out.println(collectables.size());
 
         //checkCollisions(delta, roulette);
         //applyGravity(delta, roulette);
@@ -1055,7 +1062,7 @@ public class World {
         }
 
         //Item Debug
-        for (Item collectable : collectables) {
+        for (Item collectable : items) {
             try {
                 debugRenderer.setColor(Color.GREEN);
                 debugRenderer.rect(collectable.getPosition().x, collectable.getPosition().y,
@@ -1091,7 +1098,7 @@ public class World {
         for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).dispose();
         }
-        for (Item collectable : collectables) {
+        for (Item collectable : items) {
             collectable.dispose();
         }
         spriteBatch.dispose();
