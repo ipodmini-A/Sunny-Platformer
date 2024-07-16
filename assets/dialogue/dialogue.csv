@@ -22,8 +22,8 @@ id,message,emotion,options
 1001,"You don't even wanna see how this simple message box was handled!",NEUTRAL,
 2001,"Lets be real, I might be broken",NERVOUS,
 2001,"Cya!",HAPPY,
-1003,"Who knew dialogue can be so irritating?", NEUTRAL,
+1003,"Who knew dialogue can be so irritating?",ANGRY,
 1003,"You think it would be something simple? Type in some words and then {RAINBOW}{JUMP}BAM!{ENDJUMP}{ENDRAINBOW}",NEUTRAL,
 1003,"Fancy words show up!",HAPPY
-2003,"You don't seem like you care...",NERVOUS
-2003,"Oh well...",
+2003,"{SICK}You don't seem like you care...",TIRED
+2003,"{WAVE}Oh well...",

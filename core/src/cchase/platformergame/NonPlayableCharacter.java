@@ -180,6 +180,7 @@ public class NonPlayableCharacter extends Player {
                     if (messageList.get(messageIndex).getOptions() != null)
                     {
                         player.setMessageChoiceAvailable(true);
+                        dialogueBox.setVisible(true);
                         typingLabel.restart();
                         typingLabel.setText(messageList.get(messageIndex).getMessage());
                         nextButton.setVisible(false);
@@ -187,6 +188,7 @@ public class NonPlayableCharacter extends Player {
                         choice1.setVisible(true);
                         choice2.setText(messageList.get(messageIndex).getOptions().get(1).getText());
                         choice2.setVisible(true);
+                        System.out.println("AAA");
                         //setMessageList(2000 + messageID);
                         //messageIndex = -1;
                     } else {

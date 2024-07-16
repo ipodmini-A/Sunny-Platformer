@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Enemy extends Player
 {
+    public boolean attacked;
     public int id;
     public Enemy(float x, float y)
     {
@@ -47,34 +48,45 @@ public class Enemy extends Player
         //jump();
     }
 
-    float movement = 0;
+    private float hitStunDuration = 0;
+    private float hitStun = 0.6f;
+    private float movement = 0;
     public void AIMovement (float delta)
     {
         //AI? MORE LIKE 500 IF STATEMENTS LMAO
         movement += delta;
-        if (movement >= 4)
+        if (movement >= 42)
         {
             facingRight = !facingRight;
             movement = 0;
         }
-        if (isTouchingRightWall())
-        {
-            facingRight = !facingRight;
-            position.x += 3;
+
+        if (!attacked) {
+            if (isTouchingRightWall()) {
+                facingRight = !facingRight;
+                position.x += 3;
+            }
+            if (isTouchingLeftWall()) {
+                facingRight = !facingRight;
+                position.x -= 3;
+            }
+            if (facingRight && !isTouchingLeftWall()) {
+                velocity.x = 100f;
+                //position.x += 1f;
+            } else if (!facingRight && !isTouchingRightWall()) {
+                velocity.x = -100f;
+                //position.x -= 1f;
+            }
         }
-        if (isTouchingLeftWall())
+
+        if (attacked)
         {
-            facingRight = !facingRight;
-            position.x -= 3;
+            hitStunDuration += delta;
         }
-        if (facingRight && !isTouchingLeftWall())
+        if (hitStunDuration >= hitStun)
         {
-            velocity.x = 100f;
-            //position.x += 1f;
-        } else if (!facingRight && !isTouchingRightWall())
-        {
-            velocity.x = -100f;
-            //position.x -= 1f;
+            hitStunDuration = 0;
+            attacked = false;
         }
 
     }
@@ -223,7 +235,21 @@ public class Enemy extends Player
     //                      //
     // Setters and Getters  //
     //                      //
+    public boolean isAttacked() {
+        return attacked;
+    }
 
+    public void setAttacked(boolean attacked) {
+        this.attacked = attacked;
+    }
+
+    public float getHitStunDuration() {
+        return hitStunDuration;
+    }
+
+    public void setHitStunDuration(float hitStunDuration) {
+        this.hitStunDuration = hitStunDuration;
+    }
 
     public int getId() {
         return id;

@@ -903,6 +903,8 @@ public class World {
                         int chosenEnemyAttack = isAttackingEnemy();
                         if (chosenEnemyAttack >= 0 && chosenEnemyAttack == i) {
                             player.deployAttack(enemies.get(chosenEnemyAttack));
+                            enemies.get(chosenEnemyAttack).setAttacked(true);
+                            enemies.get(chosenEnemyAttack).setHitStunDuration(0);
                             System.out.println("Attacking " + i);
                         }
                     } catch (Exception e)
