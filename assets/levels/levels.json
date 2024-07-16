@@ -1,0 +1,20 @@
+{
+  "levels": [
+    {
+      "number": 1,
+      "mapPath": "levels/test1.tmx",
+      "enemyDataPath": "enemiesData/enemiesLevel1.csv",
+      "npcDataPath": "nonPlayableCharactersData/nonPlayableCharactersLevel1.csv",
+      "itemDataPath": "itemsData/itemsLevel1.csv",
+      "nextLevel": 2
+    },
+    {
+      "number": 2,
+      "mapPath": "levels/test2.tmx",
+      "enemyDataPath": "enemiesData/enemiesLevel2.csv",
+      "npcDataPath": "nonPlayableCharactersData/nonPlayableCharactersLevel2.csv",
+      "itemDataPath": "itemsData/itemsLevel2.csv",
+      "nextLevel": 3
+    }
+  ]
+}

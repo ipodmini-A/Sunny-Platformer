@@ -51,7 +51,7 @@ public class World {
     protected LinkedList<Item> items;
     protected LinkedList<Enemy> enemies;
     protected LinkedList<NonPlayableCharacter> nonPlayableCharacters;
-    protected Item.Roulette roulette;
+    protected Item.SlotMachine slotMachine;
     private final TiledMap map;
     private MapProperties mapProperties;
     private TmxMapLoader loader;
@@ -133,9 +133,6 @@ public class World {
 
         //Item creation
         items = new LinkedList<>();
-        items.add(new Item(player.position.x + 100, player.position.y, true));
-        items.add(new Item(player.position.x + 200, player.position.y, true));
-        items.add(new Item.Roulette(player.getPosition().x + 100, player.getPosition().y));
 
         //Roulette Creation (Test)
         //roulette = new Item.Roulette(player.getPosition().x + 100, player.getPosition().y);
@@ -857,6 +854,16 @@ public class World {
         nonPlayableCharacters.add(n);
     }
 
+    public void loadItems(LinkedList<Item> i)
+    {
+        items = i;
+    }
+
+    public void loadItem(Item i)
+    {
+        items.add(i);
+    }
+
 
     /**
      * Map renderer
@@ -890,7 +897,6 @@ public class World {
                     applyFriction(delta, enemies.get(i));
                     enemies.get(i).updateCamera(camera);
                     enemies.get(i).render(spriteBatch, delta);
-
 
                         //Attack Check
                     try {
@@ -1094,7 +1100,7 @@ public class World {
     {
         mapRenderer.dispose();
         map.dispose();
-        player.dispose();
+        //player.dispose();
         for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).dispose();
         }

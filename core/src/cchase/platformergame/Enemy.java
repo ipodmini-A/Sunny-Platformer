@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Enemy extends Player
 {
+    public int id;
     public Enemy(float x, float y)
     {
         super(x,y);
@@ -34,6 +35,7 @@ public class Enemy extends Player
     @Override
     public void input(float delta)
     {
+        AIMovement(delta);
         //Currently this is here to override input.
         position.add(velocity.x * dt, velocity.y * dt);
         /*
@@ -43,6 +45,38 @@ public class Enemy extends Player
         }
          */
         //jump();
+    }
+
+    float movement = 0;
+    public void AIMovement (float delta)
+    {
+        //AI? MORE LIKE 500 IF STATEMENTS LMAO
+        movement += delta;
+        if (movement >= 4)
+        {
+            facingRight = !facingRight;
+            movement = 0;
+        }
+        if (isTouchingRightWall())
+        {
+            facingRight = !facingRight;
+            position.x += 3;
+        }
+        if (isTouchingLeftWall())
+        {
+            facingRight = !facingRight;
+            position.x -= 3;
+        }
+        if (facingRight && !isTouchingLeftWall())
+        {
+            velocity.x = 100f;
+            //position.x += 1f;
+        } else if (!facingRight && !isTouchingRightWall())
+        {
+            velocity.x = -100f;
+            //position.x -= 1f;
+        }
+
     }
 
     @Override
@@ -184,5 +218,18 @@ public class Enemy extends Player
         spriteBatch.end();
         //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
         //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
+    }
+
+    //                      //
+    // Setters and Getters  //
+    //                      //
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

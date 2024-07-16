@@ -41,22 +41,21 @@ public class GameScreen extends ScreenAdapter
     {
         System.out.println("GameScreen created");
         GameScreen.game = game;
-        stage = new Stage();
         batch = new SpriteBatch();
-        player = new Player();
 
         // For some reason, when I add newPlatformerInput to the multiplexer before the console commands, it causes the
         // console commands to break. Not sure why but if you want a functional console on a specific screen, add it
         // to the multiplexer before everything else to ensure it doesn't get overridden.
         levelManager = new LevelManager();
-        levelManager.loadLevel(player,game,"test1.tmx");
+        player = new Player(); // Initialize your player
+        levelManager.loadLevel(player, game, 1); // Load the initial level
         //world = new World(player,game,"test1.tmx");
     }
 
     @Override
     public void show()
     {
-        levelManager.show();
+        //levelManager.show();
         player.setDisableControls(false);
         if (firstSpawnCheck)
         {

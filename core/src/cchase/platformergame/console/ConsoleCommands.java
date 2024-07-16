@@ -14,6 +14,8 @@ import com.strongjoshua.console.CommandExecutor;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
 
+import java.io.IOException;
+
 public class ConsoleCommands extends CommandExecutor {
 
     private static GUIConsole console;
@@ -99,6 +101,12 @@ public class ConsoleCommands extends CommandExecutor {
             Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             console.log("Fullscreen disabled");
         }
+    }
+
+    public void loadLevel(int l)
+    {
+        LevelManager.loadLevel(l);
+        console.log("Level changed to level " + l); //Warning, selecting a non-existent level causes a Fatal Java Runtime crash
     }
 
     public void hide(){

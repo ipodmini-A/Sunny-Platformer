@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-import java.awt.*;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -47,13 +46,15 @@ public class Item
     protected int messageIndex;
     protected boolean displayMessage;
     protected String message;
+    protected int id;
 
-    public static class Roulette extends Item
+    public static class SlotMachine extends Item
     {
         Random random;
-        public Roulette (float x, float y)
+        public SlotMachine(float x, float y, int id)
         {
             super(x,y,false);
+            this.id = id;
             position = new Vector2(x,y);
             velocity = new Vector2();
             grounded = true;
@@ -129,6 +130,56 @@ public class Item
         camera = new OrthographicCamera();
     }
 
+    public Item(float x, float y)
+    {
+        position = new Vector2(x,y);
+        velocity = new Vector2();
+        grounded = true;
+        bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
+        bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
+        touchingCeiling = false;
+        touchingLeftWall = false;
+        touchingRightWall = false;
+        touchingWall = false;
+
+        allowedToBeCollected = true;
+        collected = false;
+
+        position.x = x;
+        position.y = y;
+
+        spriteBatch = new SpriteBatch();
+        texture = new Texture("debugSquare.png");
+        sprite = new Sprite(texture);
+
+        camera = new OrthographicCamera();
+    }
+    public Item(float x, float y, int id)
+    {
+        this.id = id;
+        position = new Vector2(x,y);
+        velocity = new Vector2();
+        grounded = true;
+        bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
+        bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
+        touchingCeiling = false;
+        touchingLeftWall = false;
+        touchingRightWall = false;
+        touchingWall = false;
+
+        allowedToBeCollected = true;
+        collected = false;
+
+        position.x = x;
+        position.y = y;
+
+        spriteBatch = new SpriteBatch();
+        texture = new Texture("debugSquare.png");
+        sprite = new Sprite(texture);
+
+        camera = new OrthographicCamera();
+    }
+
     private static Player p;
     private static boolean touchingPlayer = false;
 
@@ -181,7 +232,21 @@ public class Item
                 player.setDisableControls(false);
             }
         }
+    }
 
+    public static Item itemSelector(int id, float x, float y)
+    {
+        switch (id) {
+            case 0:
+                Item genericItem = new Item(x, y, id);
+                return genericItem;
+            case 1:
+                Item slotMachine = new SlotMachine(x,y,id);
+                return slotMachine;
+            default:
+                Item defaultItem = new Item(x, y, id);
+                return defaultItem;
+        }
     }
 
     protected void resetDialogue() {
@@ -343,6 +408,14 @@ public class Item
 
     public void setDisplayMessage(boolean displayMessage) {
         this.displayMessage = displayMessage;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void dispose()

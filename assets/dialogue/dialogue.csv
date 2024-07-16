@@ -13,6 +13,10 @@ id,message,emotion,options
 2,"Personally I would've added blackjack.",NEUTRAL,
 2,"Ah don't worry about it",NERVOUS,
 3,"What a terrible thing...",NERVOUS,"What happened?:1; Uhh...:2"
+4,"{SICK}Uhgggg.... I am so tired.",TIRED,
+4,"It's okay though. A little coffee is all I need",HAPPY,
+4,"{WAVE}...",NEUTRAL,
+4,"{SICK}Coffee isn't in this game...",TIRED,
 1001,"Yeah, Seriously!",NERVOUS,
 1001,"Game development can be a real mess sometimes",NERVOUS,
 1001,"You don't even wanna see how this simple message box was handled!",NEUTRAL,

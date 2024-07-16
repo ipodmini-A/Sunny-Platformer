@@ -1,6 +1,6 @@
 package cchase.platformergame;
 
-import cchase.platformergame.screens.GameScreen;
+import cchase.platformergame.enums.Emotion;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -14,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -180,7 +179,7 @@ public class NonPlayableCharacter extends Player {
                 if (!dialogueBox.isVisible()) {
                     if (messageList.get(messageIndex).getOptions() != null)
                     {
-                        dialogueBox.setVisible(true);
+                        player.setMessageChoiceAvailable(true);
                         typingLabel.restart();
                         typingLabel.setText(messageList.get(messageIndex).getMessage());
                         nextButton.setVisible(false);
@@ -191,6 +190,7 @@ public class NonPlayableCharacter extends Player {
                         //setMessageList(2000 + messageID);
                         //messageIndex = -1;
                     } else {
+                        player.setMessageChoiceAvailable(false);
                         dialogueBox.setVisible(true);
                         typingLabel.restart();
                         typingLabel.setText(messageList.get(messageIndex).getMessage());
@@ -210,6 +210,7 @@ public class NonPlayableCharacter extends Player {
                     if (messageIndex < messageList.size()) {
                         if (messageList.get(messageIndex).getOptions() != null)
                         {
+                            player.setMessageChoiceAvailable(true);
                             typingLabel.restart();
                             typingLabel.setText(messageList.get(messageIndex).getMessage());
                             nextButton.setVisible(false);
@@ -226,6 +227,7 @@ public class NonPlayableCharacter extends Player {
                             //setMessageList(2000 + messageID); // Dialogue.csv denotes 2000 as the second option.
                             //messageIndex = -1;
                         } else {
+                            player.setMessageChoiceAvailable(false);
                             choice1.setVisible(false);
                             choice2.setVisible(false);
                             nextButton.setVisible(true);
@@ -252,6 +254,12 @@ public class NonPlayableCharacter extends Player {
                         break;
                     case NERVOUS:
                         spriteBatch.draw(overworldSprites.get("roseNervous"),UICamera.viewportWidth * (4/6f),0);
+                        break;
+                    case ANGRY:
+                        spriteBatch.draw(overworldSprites.get("roseAngry"),UICamera.viewportWidth * (4/6f),0);
+                        break;
+                    case TIRED:
+                        spriteBatch.draw(overworldSprites.get("roseTired"),UICamera.viewportWidth * (4/6f),0);
                         break;
                     default:
                         spriteBatch.draw(overworldSprites.get("roseNeutral"),UICamera.viewportWidth * (4/6f),0);

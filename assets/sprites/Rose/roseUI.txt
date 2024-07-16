@@ -1,25 +1,39 @@
 roseUI.png
-size: 400, 1800
+size: 2000, 600
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-roseHappy
+roseAngry
   rotate: false
   xy: 0, 0
   size: 400, 600
   orig: 400, 600
   offset: 0, 0
   index: -1
+roseHappy
+  rotate: false
+  xy: 400, 0
+  size: 400, 600
+  orig: 400, 600
+  offset: 0, 0
+  index: -1
 roseNervous
   rotate: false
-  xy: 0, 600
+  xy: 800, 0
   size: 400, 600
   orig: 400, 600
   offset: 0, 0
   index: -1
 roseNeutral
   rotate: false
-  xy: 0, 1200
+  xy: 1200, 0
+  size: 400, 600
+  orig: 400, 600
+  offset: 0, 0
+  index: -1
+roseTired
+  rotate: false
+  xy: 1600, 0
   size: 400, 600
   orig: 400, 600
   offset: 0, 0

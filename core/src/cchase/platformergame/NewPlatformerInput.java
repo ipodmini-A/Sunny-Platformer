@@ -131,12 +131,12 @@ public class NewPlatformerInput implements InputProcessor
                 System.out.println(p.isItemInteraction());
                 if (p.isNpcInteraction() || p.isItemInteraction())
                 {
-                    if (p.isDisplayMessage())
-                    {
-                        p.setNextMessage(true);
-                    } else
-                    {
-                        p.setDisplayMessage(true);
+                    if (!p.isMessageChoiceAvailable()) {
+                        if (p.isDisplayMessage()) {
+                            p.setNextMessage(true);
+                        } else {
+                            p.setDisplayMessage(true);
+                        }
                     }
                     //p.setNextMessage(true);
                     //p.setNextMessage(false);

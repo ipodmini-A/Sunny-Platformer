@@ -73,6 +73,7 @@ public class Player
     private boolean nextMessage;
     private boolean npcInteraction;
     private boolean itemInteraction;
+    private boolean messageChoiceAvailable = false;
 
     enum State
     {
@@ -1372,6 +1373,14 @@ public class Player
 
     public void setMenuPressed(boolean menuPressed) {
         this.menuPressed = menuPressed;
+    }
+
+    public boolean isMessageChoiceAvailable() {
+        return messageChoiceAvailable;
+    }
+
+    public void setMessageChoiceAvailable(boolean messageChoiceAvailable) {
+        this.messageChoiceAvailable = messageChoiceAvailable;
     }
 
     public void dispose()

@@ -173,9 +173,11 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">roseAngry.png</key>
             <key type="filename">roseHappy.png</key>
             <key type="filename">roseNervous.png</key>
             <key type="filename">roseNeutral.png</key>
+            <key type="filename">roseTired.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -200,6 +202,8 @@
                     <filename>roseHappy.png</filename>
                     <filename>roseNervous.png</filename>
                     <filename>roseNeutral.png</filename>
+                    <filename>roseAngry.png</filename>
+                    <filename>roseTired.png</filename>
                 </array>
             </struct>
         </map>
