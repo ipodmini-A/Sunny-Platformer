@@ -1,11 +1,16 @@
 package cchase.platformergame.screens;
 
+import cchase.platformergame.GameState;
+import cchase.platformergame.LevelManager;
 import cchase.platformergame.PlatformerGame;
+import cchase.platformergame.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+
+import java.util.logging.Level;
 
 public class EndScreen extends ScreenAdapter
 {
@@ -28,9 +33,10 @@ public class EndScreen extends ScreenAdapter
 
                 if (keyCode == Input.Keys.ENTER)
                 {
+                    // TODO: Figure out spawning after losing.
+                    //LevelManager.player.setPosition(LevelManager.currentLevel.);
                     game.setScreen(new TitleScreen(game));
                 }
-
                 return true;
             }
         });

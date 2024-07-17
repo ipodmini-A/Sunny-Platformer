@@ -245,6 +245,15 @@ public class LevelManager {
                 transitionToNextLevel();
             }
         }
+        gameOverCheck();
+    }
+
+    public void gameOverCheck()
+    {
+        if (player.getHealth() <= 0 || player.getPosition().y <= -500f)
+        {
+            game.setScreen(new EndScreen(game, false));
+        }
     }
 
     public static void show()
