@@ -23,6 +23,7 @@ public class LevelManager {
     private static NewPlatformerInput newPlatformerInput;
     private static PlatformerGame game;
     private static int currentLevelNumber;
+    public int amountOfLevels;
     private static HashMap<Integer, LevelData> levelDataMap;
 
     private static class LevelDataList {
@@ -45,6 +46,7 @@ public class LevelManager {
     private void loadLevelData() {
         Json json = new Json();
         LevelDataList levelDataList = json.fromJson(LevelDataList.class, Gdx.files.internal("levels/levels.json"));
+        amountOfLevels = levelDataList.levels.size;
         levelDataMap = new HashMap<>();
         for (LevelData levelData : levelDataList.levels) {
             levelDataMap.put(levelData.number, levelData);
@@ -56,9 +58,9 @@ public class LevelManager {
             currentLevel.dispose();
         }
 
-        this.game = game;
-        this.player = player;
-        this.currentLevelNumber = levelNumber;
+        LevelManager.game = game;
+        LevelManager.player = player;
+        currentLevelNumber = levelNumber;
 
         LevelData levelData = levelDataMap.get(levelNumber);
         if (levelData != null) {
@@ -210,7 +212,7 @@ public class LevelManager {
 
     private void transitionToNextLevel() {
         LevelData currentLevelData = levelDataMap.get(currentLevelNumber);
-        if (currentLevelData != null && currentLevelData.nextLevel != -1) {
+        if (currentLevelData != null && currentLevelData.nextLevel != -1 && (currentLevelNumber <= amountOfLevels)) {
             loadLevel(player, game, currentLevelData.nextLevel);
         } else {
             // Handle end of game or loop back to the first level
