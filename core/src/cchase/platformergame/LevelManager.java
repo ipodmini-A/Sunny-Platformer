@@ -2,7 +2,6 @@ package cchase.platformergame;
 
 import cchase.platformergame.console.ConsoleCommands;
 import cchase.platformergame.screens.EndScreen;
-import cchase.platformergame.screens.GameScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.utils.Array;
@@ -56,14 +55,14 @@ public class LevelManager {
             currentLevel.dispose();
         }
 
-        this.game = game;
-        this.player = player;
-        this.currentLevelNumber = levelNumber;
+        LevelManager.game = game;
+        LevelManager.player = player;
+        currentLevelNumber = levelNumber;
 
         LevelData levelData = levelDataMap.get(levelNumber);
         if (levelData != null) {
             multiplexer = new InputMultiplexer();
-            newPlatformerInput = new NewPlatformerInput(this.player);
+            newPlatformerInput = new NewPlatformerInput(LevelManager.player);
             // For some reason, when I add newPlatformerInput to the multiplexer before the console commands, it causes the
             // console commands to break. Not sure why but if you want a functional console on a specific screen, add it
             // to the multiplexer before everything else to ensure it doesn't get overridden.
@@ -72,8 +71,9 @@ public class LevelManager {
             Gdx.input.setInputProcessor(multiplexer);
             System.out.println("New input created");
 
-            currentLevel = new World(this.player, this.game, levelData.mapPath);
+            currentLevel = new World(LevelManager.player, LevelManager.game, levelData.mapPath);
             currentLevel.loadEnemies(loadEnemies(levelData.enemyDataPath));
+            //currentLevel.loadEnemy(new Enemy(player.position.x + 100, player.position.y));
             currentLevel.loadNPCs(loadNPCs(levelData.npcDataPath));
             currentLevel.loadItems(loadItems(levelData.itemDataPath));
             show();
@@ -127,7 +127,7 @@ public class LevelManager {
                 float xPosition = Integer.parseInt(csvRecord.get("x"));
                 float yPosition = Integer.parseInt(csvRecord.get("y"));
 
-                // Height yeilds the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
+                // Height yields the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
                 // tile is
                 int mapHeight = currentLevel.getMapProperties().get("height",Integer.class) * 32;
                 //System.out.println(mapHeight);
@@ -159,7 +159,7 @@ public class LevelManager {
                 float xPosition = Integer.parseInt(csvRecord.get("x"));
                 float yPosition = Integer.parseInt(csvRecord.get("y"));
 
-                // Height yeilds the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
+                // Height yields the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
                 // tile is
                 int mapHeight = currentLevel.getMapProperties().get("height",Integer.class) * 32;
                 //System.out.println(mapHeight);
@@ -192,7 +192,7 @@ public class LevelManager {
                 float xPosition = Integer.parseInt(csvRecord.get("x"));
                 float yPosition = Integer.parseInt(csvRecord.get("y"));
 
-                // Height yeilds the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
+                // Height yields the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
                 // tile is
                 int mapHeight = currentLevel.getMapProperties().get("height",Integer.class) * 32;
                 //System.out.println(mapHeight);
@@ -209,6 +209,7 @@ public class LevelManager {
     }
 
     private void transitionToNextLevel() {
+
         LevelData currentLevelData = levelDataMap.get(currentLevelNumber);
         if (currentLevelData != null && currentLevelData.nextLevel != -1) {
             loadLevel(player, game, currentLevelData.nextLevel);
@@ -223,12 +224,11 @@ public class LevelManager {
 
     /**
      * Renders the level
-     * Currently is being slowly worked on. The idea is to have one consistant number accross the whole game,
+     * Currently is being slowly worked on. The idea is to have one consistent number across the whole game,
      * being the TIME_STEP (1/60f). The game works as intended around 60fps.
-     *
      * Current bugs known: When setting the FPS to 120, it causes strange behavior. Changing 1/30f to something slightly
      * higher resolves it, but it comes at the cost of less smooth animation
-     * @param delta
+     * @param delta Gdx delta time
      */
     public void render(float delta) {
         currentLevel.worldUpdate(player);// Attempts to remove worldUpdate causes issues. I'm not really sure why.
@@ -258,8 +258,7 @@ public class LevelManager {
 
     public static void show()
     {
-        Gdx.input.setInputProcessor(multiplexer); // Dont do this... Currently this is just here because there is no (show)
-
+        Gdx.input.setInputProcessor(multiplexer); // Don't do this... Currently, this is just here because there is no (show)
     }
 
     public World getCurrentLevel() {

@@ -1,8 +1,6 @@
 package cchase.platformergame;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.utils.Timer;
 
 /**
  * GameState serves the purpose of saving screens.

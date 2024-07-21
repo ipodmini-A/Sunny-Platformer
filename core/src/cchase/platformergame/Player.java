@@ -24,7 +24,6 @@ import java.util.Random;
  */
 public class Player
 {
-    private static final float GRAVITY = -1000f; // Adjust the gravity value as needed -1000f
     private static final float JUMP_VELOCITY = 450f; // Adjust the jump velocity as needed
     protected float HEIGHT = 60f;
     protected static final float WIDTH = 30f;
@@ -41,7 +40,7 @@ public class Player
     protected float wisdom;
     protected float speed;
     protected int money;
-    final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
+    final HashMap<String, Sprite> sprites = new HashMap<>();
 
     protected Texture texture;
     protected Sprite sprite;
@@ -96,7 +95,6 @@ public class Player
     protected boolean allowedToDash;
     protected boolean dashing;
     protected LinkedList<Item> collectedItems;
-    SpriteBatch batch;
     protected Animation<TextureRegion> runningAnimation;
     protected Animation<TextureRegion> standingAnimation;
     protected float runningElapsedTime;
@@ -149,7 +147,7 @@ public class Player
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
 
-        collectedItems = new LinkedList<Item>();
+        collectedItems = new LinkedList<>();
 
         textureAtlas = new TextureAtlas("sprites.txt");
         spriteBatch = new SpriteBatch();
@@ -159,11 +157,11 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
-        runningAnimation = new Animation<TextureRegion>(runningFrameDuration, textureAtlas.findRegions("running")); // 4 frames per second
+        runningAnimation = new Animation<>(runningFrameDuration, textureAtlas.findRegions("running")); // 4 frames per second
         runningElapsedTime = 0f;
         runningFlippedFrame = new TextureRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
 
-        standingAnimation = new Animation<TextureRegion>(1/6f, textureAtlas.findRegions("standing"));
+        standingAnimation = new Animation<>(1 / 6f, textureAtlas.findRegions("standing"));
         standingElapsedTime = 0f;
         standingFlippedFrame = new TextureRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
 
@@ -216,7 +214,7 @@ public class Player
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
 
-        collectedItems = new LinkedList<Item>();
+        collectedItems = new LinkedList<>();
 
         textureAtlas = new TextureAtlas("sprites.txt");
         spriteBatch = new SpriteBatch();
@@ -226,11 +224,11 @@ public class Player
         addSprites();
         sprite.setSize(WIDTH,HEIGHT);
 
-        runningAnimation = new Animation<TextureRegion>(runningFrameDuration, textureAtlas.findRegions("running")); // 4 frames per second
+        runningAnimation = new Animation<>(runningFrameDuration, textureAtlas.findRegions("running")); // 4 frames per second
         runningElapsedTime = 0f;
         runningFlippedFrame = new TextureRegion(runningAnimation.getKeyFrame(runningElapsedTime,true));
 
-        standingAnimation = new Animation<TextureRegion>(1/6f, textureAtlas.findRegions("standing"));
+        standingAnimation = new Animation<>(1 / 6f, textureAtlas.findRegions("standing"));
         standingElapsedTime = 0f;
         standingFlippedFrame = new TextureRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
 
@@ -246,9 +244,7 @@ public class Player
     /**
      * Controls the basic movement of the player. The original input() has been taken over by this method.
      * How fast the player can move is controlled by MAX_VELOCITY
-     *
      * Currently messing around with the method.
-     *
      * Update 6/25/2024:
      * Moved some of the logic from World.java to Player.java. More specifically, the way the players position is handled.
      * Update 6/26/2024:
@@ -297,14 +293,11 @@ public class Player
         }
     }
 
-
-    private static final float TIME_STEP = 1/60f;
-    private float accumulator = 0f;
     /**
      * render is called every frame. Render should be used while the player is in a level.
      *
      * @param spriteBatch
-     * @param delta
+     * @param delta Gdx delta
      */
     public void render(SpriteBatch spriteBatch,float delta)
     {
@@ -312,7 +305,7 @@ public class Player
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         input(delta);
-        changeAnimationSpeed(delta);
+        changeAnimationSpeed();
 
         update(delta);
         renderMovement(spriteBatch);
@@ -433,7 +426,7 @@ public class Player
         }
     }
 
-    public void changeAnimationSpeed(float delta)
+    public void changeAnimationSpeed()
     {
         runningFrameDuration = baseFrameDuration / (1 + velocitySensitivity * Math.abs(velocity.x));
         //System.out.println(frameDuration);
@@ -557,7 +550,6 @@ public class Player
      * - When the player attempts to wall jump, It seems to only work when the velocity is going down, or when the player
      * is holding jump and running at a wall.
      * - The player can scale the wall
-     *
      * TODO: Bug fix
      */
     public void wallJump()
@@ -622,7 +614,6 @@ public class Player
     /**
      * dash allows the player to dash forward.
      * dash works together with dashing() to handle timing.
-     *
      * TODO: Possibly fuse the two methods to make it less messy
      *
      */
@@ -643,7 +634,6 @@ public class Player
 
     /**
      * dashing is intended to work together with dash(). Dashing handles the timer based actions.
-     *
      * The method marks the player that they have dashed, and doesn't allow them to do the action again for a specified
      * amount of time that can be found under "dashTimer"
      */
@@ -673,19 +663,17 @@ public class Player
 
     /**
      * Allows the player to hang onto the wall, a.k.a. wall-ride
-     *
      * This method has a few things making it work. If the player is touching a wall and either right or left is being held,
      * wallRiding is set to true, which is handled by wallRideCheck().
      * Within the input class, key down and key up help control when wallRiding is set to true or false.
-     *
-     * TODO: Fix bug that allows the player to continue to wallride despite not touching a wall
+     * TODO: Fix bug that allows the player to continue to wallRide despite not touching a wall
      *
      */
     public void wallRide()
     {
         if ((touchingLeftWall && rightMove) || (touchingRightWall && leftMove))
         {
-            System.out.println("wallride");
+            System.out.println("wallRide");
             wallRiding = true;
         } else
         {
@@ -708,12 +696,10 @@ public class Player
         }
     }
 
-    private float attackInterval = 0.2f;
     boolean attackUp = false;
     boolean attackDown = false;
     /**
      * Allows the player to attack. When the attack button is pressed, a box is placed in front of the player briefly.
-     *
      * This method works with attackRender()
      * TODO: Have the animation play separate from the attack
      * TODO: Think of better names then "attacking"
@@ -732,7 +718,8 @@ public class Player
         }
         attackLogic();
         // Jump to attackRender() //
-        System.out.println("Hitbox present");
+        System.out.println("HitBox present");
+        float attackInterval = 0.2f;
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
@@ -811,7 +798,6 @@ public class Player
 
     /**
      * Handles how the player character responds to getting hurt.
-     *
      * Currently, when the player is hurt they will bounce back. The direction of how far they get thrown back is hard coded,
      * and is dependent on which direction the player is facing
      * When the player is hit,
@@ -854,14 +840,11 @@ public class Player
 
     /**
      * Spaghetti code :^)
-     *
      * Updates the player each frame, which in this case is delta.
-     *
      * First thing that is checked is input, next bounding box and sprite is edited.
      * UPDATE: All code relating to collision was moved to World.java.
      * TODO: Refactor sprite so that it doesn't look horrible
      * TODO: Convert to switch block. This is gross
-     *
      * Afterwards, collision code is checked.
      *
      * @param delta

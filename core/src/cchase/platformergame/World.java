@@ -41,32 +41,23 @@ public class World {
     private static final float SCALE = 2f;
     private static final float FRICTION = 5f;
     private final OrthographicCamera camera;
-    private Viewport viewport;
     protected Player player;
     protected PlatformerGame game;
-    //public NonPlayableCharacter nonPlayableCharacter;
-    // I'm not sure if having "Collectables" be a linked list is a good idea.
-    // For now, it works. When creating a new level, each collectable will be added to this linked list.
+    // When creating a new level, each collectable will be added to this linked list.
     // Each item in the linked list has its coordinates
     protected LinkedList<Item> items;
     protected LinkedList<Enemy> enemies;
     protected LinkedList<NonPlayableCharacter> nonPlayableCharacters;
-    protected Item.SlotMachine slotMachine;
     private final TiledMap map;
     private MapProperties mapProperties;
-    private TmxMapLoader loader;
-    private OrthogonalTiledMapRenderer mapRenderer;
-    private MapLayer collisionLayer;
-    private MapLayer endGoalLayer;
-    private MapLayer playerSpawnPoint;
-    private MapObjects objects;
-    private MapObjects endGameObject;
-    private MapObjects playerSpawnPointObject;
+    private final OrthogonalTiledMapRenderer mapRenderer;
+    private final MapObjects objects;
+    private final MapObjects endGameObject;
     public static boolean debug = true;
-    private SpriteBatch spriteBatch;
-    private ShapeRenderer debugRenderer;
-    private BitmapFont debugFont;
-    private SpriteBatch debugBatch;
+    private final SpriteBatch spriteBatch;
+    private final ShapeRenderer debugRenderer;
+    private final BitmapFont debugFont;
+    private final SpriteBatch debugBatch;
     private boolean playerReachedEnd = false;
     public Music music;
     // TODO: Implement a proper debug tool.
@@ -81,7 +72,7 @@ public class World {
         this.game = game;
 
         // Map creation
-        loader = new TmxMapLoader();
+        TmxMapLoader loader = new TmxMapLoader();
         map = loader.load(mapName);
         mapRenderer = new OrthogonalTiledMapRenderer(map, 1);
         mapProperties = map.getProperties();
@@ -90,17 +81,17 @@ public class World {
         spriteBatch = new SpriteBatch();
 
         // Layers from the map that was spawned above.
-        collisionLayer = map.getLayers().get("collision");
-        endGoalLayer = map.getLayers().get("endgoal");
-        playerSpawnPoint = map.getLayers().get("playerSpawn");
+        MapLayer collisionLayer = map.getLayers().get("collision");
+        MapLayer endGoalLayer = map.getLayers().get("endgoal");
+        MapLayer playerSpawnPoint = map.getLayers().get("playerSpawn");
         objects = collisionLayer.getObjects();
         endGameObject = endGoalLayer.getObjects();
-        playerSpawnPointObject = playerSpawnPoint.getObjects();
+        MapObjects playerSpawnPointObject = playerSpawnPoint.getObjects();
 
         // Camera creation
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 480, 270);
-        viewport = new FitViewport(480,270,camera);
+        Viewport viewport = new FitViewport(480, 270, camera);
         viewport.apply();
         camera.update();
         mapRenderer.setView(camera);
@@ -122,10 +113,6 @@ public class World {
 
         // Enemy creation
         enemies = new LinkedList<>();
-        for (int i = 0; i < enemies.size(); i++)
-        {
-            enemies.get(i).setSCALE(SCALE);
-        }
 
         //NPC creation
         //nonPlayableCharacter = new NonPlayableCharacter(player.getPosition().x + 500, player.getPosition().y);
@@ -150,9 +137,9 @@ public class World {
 
     /**
      * WorldUpdate updates the World class with the player class from GameScreen. Removing this shouldn't cause a null
-     * exception but it does :/
+     * exception, but it does :/
      *
-     * @param player
+     * @param player Player
      */
     public void worldUpdate(Player player) {
         this.player = player;
@@ -556,7 +543,7 @@ public class World {
     }
 
     /**
-     * Applys gravity to an item
+     * Applies gravity to an item
      * @param delta
      * @param i Item
      */
@@ -752,7 +739,7 @@ public class World {
             }
             return false;
         } catch (Exception e) {
-            // Try catch is here to prevent null exceptions when a enemy is missing.
+            // Try catch is here to prevent null exceptions when an enemy is missing.
             return false;
         }
     }
@@ -774,7 +761,7 @@ public class World {
 
     public boolean isCollidingWithObject(Item item) {
         //item.setCollected(true);
-        //Add logic for when the player collects items (Maybe have a array of items within Player.java)
+        //Add logic for when the player collects items (Maybe have an array of items within Player.java)
         if (player.getBounds().overlaps(item.getBounds()))
         {
             item.setTouchingPlayer(true);
@@ -797,7 +784,7 @@ public class World {
         return -1;
     }
 
-    public int isAttackingPlayer(Enemy e)
+    public int isAttackingPlayer()
     {
         for (int i = 0; i < enemies.size(); i++)
         {
@@ -867,7 +854,7 @@ public class World {
 
     /**
      * Map renderer
-     * Important to note that where the item is located depeneds on what is in the front of the map and what is in the
+     * Important to note that where the item is located depends on what is in the front of the map and what is in the
      * back
      * For example:
      * @param delta
@@ -909,19 +896,19 @@ public class World {
                         }
                     } catch (Exception e)
                     {
-                        // Checks against the hitbox which at times will be null.
+                        // Checks against the hit-box which at times will be null.
                     }
 
                     try {
                         //Hurt Check
-                        int chosenEnemyHurt = isAttackingPlayer(enemies.get((i)));
+                        int chosenEnemyHurt = isAttackingPlayer();
                         if (chosenEnemyHurt >= 0 && chosenEnemyHurt == i) {
                             player.hurt(enemies.get(i));
                             System.out.println("Enemy: " + i + " is hurting player");
                         }
                     } catch (Exception e)
                     {
-
+                        System.out.println("Enemy not present");
                     }
 
                 } else {
@@ -972,7 +959,7 @@ public class World {
         //messageRenderItem(roulette);
 
         // NPC render
-        // When the NPC displays their UI, I need it to be in front of things such as items. Fow now this is a easy implementation
+        // When the NPC displays their UI, I need it to be in front of things such as items. Fow now this is an easy implementation
         boolean touchingNPC = false;
         for (int i = 0; i < nonPlayableCharacters.size(); i++) {
             nonPlayableCharacters.get(i).updateCamera(camera);
@@ -984,7 +971,7 @@ public class World {
             //System.out.println(player.nextMessage);
             //System.out.println(isCollidingWithNPC());
 
-            //isCollidingWithNPC(nonPlayableCharacters.get(0)); // WHYYYYYYYY? WHEN I SET THIS TO 0 IT WORKS FINE BUT WHEN ITS IN THE LOOP IT BREAKS
+            //isCollidingWithNPC(nonPlayableCharacters.get(0)); // WHYYYYYYYY? WHEN I SET THIS TO 0 IT WORKS FINE BUT WHEN IT'S IN THE LOOP IT BREAKS
             if (isCollidingWithNPC(nonPlayableCharacters.get(i)))
             {
                 touchingNPC = true;
