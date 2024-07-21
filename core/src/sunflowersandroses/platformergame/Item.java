@@ -17,7 +17,6 @@ import java.util.Random;
 
 /**
  * Item.java
- *
  * This class serves as a platform to be extended from to create collectable objects
  * TODO: Allow the player to collect objects
  */
@@ -105,7 +104,7 @@ public class Item
         }
     }
 
-    public Item(float x, float y, boolean allowedtoBeCollected)
+    public Item(float x, float y, boolean allowedToBeCollected)
     {
         position = new Vector2(x,y);
         velocity = new Vector2();
@@ -117,7 +116,7 @@ public class Item
         touchingRightWall = false;
         touchingWall = false;
 
-        this.allowedToBeCollected = allowedtoBeCollected;
+        this.allowedToBeCollected = allowedToBeCollected;
         collected = false;
 
         position.x = x;
@@ -185,7 +184,7 @@ public class Item
 
     /**
      * interact serves as a default way for items to interact with the player. This was ripped from NonPlayableCharacter.
-     * @param player
+     * @param player Player
      */
     public void interact(Player player)
     {

@@ -49,7 +49,6 @@ public class Enemy extends Player
     }
 
     private float hitStunDuration = 0;
-    private float hitStun = 0.6f;
     private float movement = 0;
     public void AIMovement (float delta)
     {
@@ -83,6 +82,7 @@ public class Enemy extends Player
         {
             hitStunDuration += delta;
         }
+        float hitStun = 0.6f;
         if (hitStunDuration >= hitStun)
         {
             hitStunDuration = 0;

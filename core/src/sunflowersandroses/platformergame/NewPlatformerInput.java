@@ -6,9 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 
 /**
  * NewPlatformerInput was created to replace PlatformerInput
- *
  * It uses InputProcessor, which allows for input polling.
- *
  * Note: When calling this, place it within show() or anything similar. Failure to do so results in input not functioning
  */
 public class NewPlatformerInput implements InputProcessor
@@ -220,13 +218,5 @@ public class NewPlatformerInput implements InputProcessor
     public boolean scrolled(float amountX, float amountY)
     {
         return false;
-    }
-
-    public Player getP() {
-        return p;
-    }
-
-    public void setP(Player p) {
-        this.p = p;
     }
 }
