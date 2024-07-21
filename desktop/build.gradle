@@ -2,7 +2,7 @@ sourceCompatibility = 11
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.main.resources.srcDirs = ["../assets"]
 
-project.ext.mainClassName = "cchase.platformergame.DesktopLauncher"
+project.ext.mainClassName = "sunflowersandroses.platformergame.DesktopLauncher"
 project.ext.assetsDir = new File("../assets")
 
 import org.gradle.internal.os.OperatingSystem
