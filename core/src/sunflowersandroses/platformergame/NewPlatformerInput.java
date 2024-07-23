@@ -67,16 +67,15 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.C:
                 System.out.println(p.isNpcInteraction());
+                System.out.println(p.isItemInteraction());
                 if (p.isNpcInteraction() || p.isItemInteraction())
                 {
-                    if (p.isDisplayMessage())
-                    {
-                        System.out.println("Set Next Message");
-                        p.setNextMessage(true);
-                    } else
-                    {
-                        System.out.println("Set Display Message");
-                        p.setDisplayMessage(true);
+                    if (!p.isMessageChoiceAvailable()) {
+                        if (p.isDisplayMessage()) {
+                            p.setNextMessage(true);
+                        } else {
+                            p.setDisplayMessage(true);
+                        }
                     }
                     //p.setNextMessage(true);
                     //p.setNextMessage(false);

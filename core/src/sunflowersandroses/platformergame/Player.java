@@ -430,17 +430,19 @@ public class Player
                 drawSprite("defending", position.x, position.y);
                 break;
             case PUNCHING:
-                //drawSprite("punching", position.x, position.y);
-                if (facingRight && !sprite.isFlipX()) {
-                    // Flip the sprite horizontally
-                    attackingFlippedFrame.setRegion(attackingAnimation.getKeyFrame(attackingElapsedTime,false));
-                    attackingFlippedFrame.flip(true, false);
-                    spriteBatch.draw(attackingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
-                } else
-                {
-                    attackingFlippedFrame.setRegion(attackingAnimation.getKeyFrame(attackingElapsedTime,false));
-                    attackingFlippedFrame.flip(false, false);
-                    spriteBatch.draw(attackingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
+                if (velocity.x >= 200 || velocity.x <= -200) { // Switch to have the appearance of a dash attack if its above 200 velocity
+                    drawSprite("attacking", position.x, position.y);
+                } else {
+                    if (facingRight && !sprite.isFlipX()) {
+                        // Flip the sprite horizontally
+                        attackingFlippedFrame.setRegion(attackingAnimation.getKeyFrame(attackingElapsedTime, false));
+                        attackingFlippedFrame.flip(true, false);
+                        spriteBatch.draw(attackingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
+                    } else {
+                        attackingFlippedFrame.setRegion(attackingAnimation.getKeyFrame(attackingElapsedTime, false));
+                        attackingFlippedFrame.flip(false, false);
+                        spriteBatch.draw(attackingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
+                    }
                 }
                 break;
             case STANCE:
@@ -777,9 +779,17 @@ public class Player
         e.setHealth(e.getHealth() - (5f * random.nextInt(1,3)));
         if (facingRight) {
             e.setVelocity(e.velocity.x + 150f, e.velocity.y + 150f);
+            if (velocity.x >= 20)
+            {
+                velocity.x -= 100f;
+            }
         } else
         {
             e.setVelocity(e.velocity.x - 150f, e.velocity.y + 150f);
+            if (velocity.x <= -20)
+            {
+                velocity.x += 100f;
+            }
         }
         attack = false;
     }
