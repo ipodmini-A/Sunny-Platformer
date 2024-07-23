@@ -932,6 +932,7 @@ public class World {
                 if (isCollidingWithObject(items.get(i))) {
                     if (!items.get(i).isCollected() && items.get(i).allowedToBeCollected) {
                         items.get(i).setCollected(true);
+                        items.get(i).collectedAction(player);
                         player.itemCollected(items.get(i));
                         items.remove(i);
                     }

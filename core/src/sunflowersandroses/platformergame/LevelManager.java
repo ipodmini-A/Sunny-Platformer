@@ -211,7 +211,7 @@ public class LevelManager {
 
     private void transitionToNextLevel() {
         LevelData currentLevelData = levelDataMap.get(currentLevelNumber);
-        if (currentLevelData != null && currentLevelData.nextLevel != -1 && (currentLevelNumber <= amountOfLevels)) {
+        if (currentLevelData != null && currentLevelData.nextLevel != -1 && (currentLevelNumber < amountOfLevels)) {
             loadLevel(player, game, currentLevelData.nextLevel);
         } else {
             // Handle end of game or loop back to the first level

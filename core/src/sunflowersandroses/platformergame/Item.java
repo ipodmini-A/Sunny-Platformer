@@ -47,6 +47,9 @@ public class Item
     protected String message;
     protected int id;
 
+    /**
+     * Slot Machine item. Utilizes the SlotsGame.java class to function. See that class for more information.
+     */
     public static class SlotMachine extends Item
     {
         Random random;
@@ -101,6 +104,45 @@ public class Item
                 p.setDisplayMessage(false);
                 GameScreen.game.setScreen(new SlotsScreen(GameScreen.game, p));
             }
+        }
+    }
+
+    public static class Coin extends Item
+    {
+        int coinMultiplier = 0;
+
+        /**
+         * Creates a new coin. A random roll decides what type of coin will be spawned.
+         * @param x X Position
+         * @param y Y Position
+         * @param id item ID
+         */
+        public Coin (float x, float y, int id)
+        {
+            super(x,y,id);
+            Random random = new Random();
+            int coinRoll = random.nextInt(30) + 1;
+            if (coinRoll <= 20)
+            {
+                texture = new Texture("sprites/Items/copperCoin.png"); // Kind of a placeholder
+                sprite = new Sprite(texture);
+                coinMultiplier = 1;
+            } else if (coinRoll <= 27)
+            {
+                texture = new Texture("sprites/Items/silverCoin.png"); // Kind of a placeholder
+                sprite = new Sprite(texture);
+                coinMultiplier = 5;
+            } else {
+                texture = new Texture("sprites/Items/goldCoin.png"); // Kind of a placeholder
+                sprite = new Sprite(texture);
+                coinMultiplier = 10;
+            }
+            allowedToBeCollected = true;
+        }
+
+        @Override
+        public void collectedAction(Player p) {
+            p.setMoney(p.getMoney() + coinMultiplier);
         }
     }
 
@@ -233,12 +275,19 @@ public class Item
         }
     }
 
+    /**
+     * Chooses an item to return based on the ID passed through.
+     * @param id Item ID
+     * @param x Item X location
+     * @param y Item Y Location
+     * @return Item selected
+     */
     public static Item itemSelector(int id, float x, float y)
     {
         switch (id) {
             case 0:
-                Item genericItem = new Item(x, y, id);
-                return genericItem;
+                Item coin = new Coin(x, y, id);
+                return coin;
             case 1:
                 Item slotMachine = new SlotMachine(x,y,id);
                 return slotMachine;
@@ -285,6 +334,11 @@ public class Item
             update(delta);
             spriteBatch.end();
         }
+    }
+
+    public void collectedAction(Player p)
+    {
+        // placeholder for future extended items
     }
 
     /**
@@ -415,6 +469,14 @@ public class Item
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
     }
 
     public void dispose()

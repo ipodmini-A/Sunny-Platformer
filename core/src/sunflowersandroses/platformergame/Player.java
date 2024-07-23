@@ -97,14 +97,18 @@ public class Player
     protected LinkedList<Item> collectedItems;
     protected Animation<TextureRegion> runningAnimation;
     protected Animation<TextureRegion> standingAnimation;
+    protected Animation<TextureRegion> attackingAnimation;
     protected float runningElapsedTime;
     protected float standingElapsedTime;
+    protected float attackingElapsedTime;
     protected float baseFrameDuration = 1/4f;
     protected float velocitySensitivity = 0.002f;
     protected float runningFrameDuration;
     protected float standingFrameDuration = 1/6f;
+    protected float attackingFrameDuration = 1f;
     protected TextureRegion runningFlippedFrame;
     protected TextureRegion standingFlippedFrame;
+    protected TextureRegion attackingFlippedFrame;
     protected boolean invincible;
     protected Random random;
 
@@ -164,6 +168,10 @@ public class Player
         standingAnimation = new Animation<>(1 / 6f, textureAtlas.findRegions("standing"));
         standingElapsedTime = 0f;
         standingFlippedFrame = new TextureRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
+
+        attackingAnimation = new Animation<>(1 / 3f, textureAtlas.findRegions("attackNeutral"));
+        attackingElapsedTime = 0f;
+        attackingFlippedFrame = new TextureRegion(attackingAnimation.getKeyFrame(attackingElapsedTime,true));
 
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
@@ -340,6 +348,10 @@ public class Player
         {
             standingElapsedTime = 0;
         }
+        if (attackingElapsedTime >= (attackingFrameDuration))
+        {
+            attackingElapsedTime = 0;
+        }
         //System.out.println();
         if (velocity.x < 0)
         {
@@ -418,7 +430,18 @@ public class Player
                 drawSprite("defending", position.x, position.y);
                 break;
             case PUNCHING:
-                drawSprite("punching", position.x, position.y);
+                //drawSprite("punching", position.x, position.y);
+                if (facingRight && !sprite.isFlipX()) {
+                    // Flip the sprite horizontally
+                    attackingFlippedFrame.setRegion(attackingAnimation.getKeyFrame(attackingElapsedTime,false));
+                    attackingFlippedFrame.flip(true, false);
+                    spriteBatch.draw(attackingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
+                } else
+                {
+                    attackingFlippedFrame.setRegion(attackingAnimation.getKeyFrame(attackingElapsedTime,false));
+                    attackingFlippedFrame.flip(false, false);
+                    spriteBatch.draw(attackingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
+                }
                 break;
             case STANCE:
                 drawSprite("stance", position.x, position.y);
@@ -696,6 +719,7 @@ public class Player
         }
     }
 
+    private float attackTimer = 0;
     boolean attackUp = false;
     boolean attackDown = false;
     /**
@@ -703,11 +727,14 @@ public class Player
      * This method works with attackRender()
      * TODO: Have the animation play separate from the attack
      * TODO: Think of better names then "attacking"
+     * :D
      */
     public void attack()
     {
         attack = true;
         spriteAttacking = true;
+        attackTimer = 0;
+        attackingElapsedTime += 1/3f; // This sucks but whatever. This just controls what frame is selected when attacking
         //attack = false;
         if (lookingUp)
         {
@@ -718,20 +745,27 @@ public class Player
         }
         attackLogic();
         // Jump to attackRender() //
-        System.out.println("HitBox present");
+    }
+
+    private void attackTimer()
+    {
+        if (spriteAttacking)
+        {
+            attackTimer += Gdx.graphics.getDeltaTime();
+        }
         float attackInterval = 0.2f;
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                // Code to execute after the delay
-                attackHitbox = null;
-                spriteAttacking = false;
-                System.out.println("HitBox removed");
-                attack = false;
-                attackUp = false;
-                attackDown = false;
-            }
-        }, attackInterval);
+        if (attackTimer >= attackInterval)
+        {
+            System.out.println("Entering if statement");
+            // Code to execute after the delay
+            attackTimer = 0;
+            attackHitbox = null;
+            System.out.println("HitBox removed");
+            spriteAttacking = false;
+            attack = false;
+            attackUp = false;
+            attackDown = false;
+        }
     }
 
     /**
@@ -756,6 +790,7 @@ public class Player
      */
     public void attackRender()
     {
+        attackTimer();
         try {
             if (attack) {
                 attackLogic();

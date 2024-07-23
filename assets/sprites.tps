@@ -173,6 +173,9 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">sprites/attackNeutral_0.png</key>
+            <key type="filename">sprites/attackNeutral_1.png</key>
+            <key type="filename">sprites/attackNeutral_2.png</key>
             <key type="filename">sprites/attacking.PNG</key>
             <key type="filename">sprites/defending.PNG</key>
             <key type="filename">sprites/falling.PNG</key>
@@ -234,6 +237,9 @@
                     <filename>sprites/standing_4.png</filename>
                     <filename>sprites/standing_5.png</filename>
                     <filename>sprites/standing_3.png</filename>
+                    <filename>sprites/attackNeutral_0.png</filename>
+                    <filename>sprites/attackNeutral_1.png</filename>
+                    <filename>sprites/attackNeutral_2.png</filename>
                 </array>
             </struct>
         </map>

@@ -54,7 +54,7 @@ public class GameScreen extends ScreenAdapter
     @Override
     public void show()
     {
-        //levelManager.show();
+        LevelManager.show();
         player.setDisableControls(false);
         if (firstSpawnCheck)
         {
