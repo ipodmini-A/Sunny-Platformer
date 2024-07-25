@@ -46,7 +46,7 @@ public class PlatformerGame extends Game {
 		// Set the initial screen to the TitleScreen.
 		setScreen(new TitleScreen(this));
 
-		String filePath = "dialogue/dialogue.csv";
+		String filePath = "dialogue/dialogue.json";
 		dialogueLines = loadDialogue(filePath);
 
 		for (DialogueLine line : dialogueLines) {

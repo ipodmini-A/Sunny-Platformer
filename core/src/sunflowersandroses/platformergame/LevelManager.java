@@ -1,17 +1,13 @@
 package sunflowersandroses.platformergame;
 
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import sunflowersandroses.platformergame.console.ConsoleCommands;
 import sunflowersandroses.platformergame.screens.EndScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -64,7 +60,7 @@ public class LevelManager {
         LevelData levelData = levelDataMap.get(levelNumber);
         if (levelData != null) {
             multiplexer = new InputMultiplexer();
-            newPlatformerInput = new NewPlatformerInput(this.player);
+            newPlatformerInput = new NewPlatformerInput(LevelManager.player);
             // For some reason, when I add newPlatformerInput to the multiplexer before the console commands, it causes the
             // console commands to break. Not sure why but if you want a functional console on a specific screen, add it
             // to the multiplexer before everything else to ensure it doesn't get overridden.
@@ -73,7 +69,7 @@ public class LevelManager {
             Gdx.input.setInputProcessor(multiplexer);
             System.out.println("New input created");
 
-            currentLevel = new World(this.player, this.game, levelData.mapPath);
+            currentLevel = new World(LevelManager.player, LevelManager.game, levelData.mapPath);
             currentLevel.loadEnemies(loadEnemies(levelData.enemyDataPath));
             currentLevel.loadNPCs(loadNPCs(levelData.npcDataPath));
             currentLevel.loadItems(loadItems(levelData.itemDataPath));
@@ -114,98 +110,74 @@ public class LevelManager {
 
     public static LinkedList<Enemy> loadEnemies(String filePath)
     {
-        LinkedList<Enemy> enemiesList = new LinkedList<>();
-        try (
-                FileReader reader = new FileReader(filePath);
-                CSVParser csvParser = CSVFormat.Builder.create()
-                        .setHeader("id","x", "y")
-                        .setSkipHeaderRecord(true)
-                        .build()
-                        .parse(reader)
-        ) {
-            for (CSVRecord csvRecord : csvParser) {
-                int id = Integer.parseInt(csvRecord.get("id"));
-                float xPosition = Integer.parseInt(csvRecord.get("x"));
-                float yPosition = Integer.parseInt(csvRecord.get("y"));
+        LinkedList<Enemy> enemyList = new LinkedList<>();
+        try {
+            JsonReader jsonReader = new JsonReader();
+            JsonValue jsonData = jsonReader.parse(Gdx.files.internal(filePath));
 
-                // Height yeilds the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
-                // tile is
-                int mapHeight = currentLevel.getMapProperties().get("height",Integer.class) * 32;
-                //System.out.println(mapHeight);
+            int mapHeight = currentLevel.getMapProperties().get("height", Integer.class) * 32;
+
+            for (JsonValue enemyData : jsonData.get("enemies")) {
+                int id = enemyData.getInt("id");
+                float xPosition = enemyData.getFloat("x");
+                float yPosition = enemyData.getFloat("y");
 
                 Enemy loadingEnemy = new Enemy(xPosition, (mapHeight - yPosition));
                 loadingEnemy.setId(id);
-                enemiesList.add(loadingEnemy);
+                enemyList.add(loadingEnemy);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e)
+        {
+            System.err.println("Could not find file " + filePath + ". Ignoring.");
         }
-
-        return enemiesList;
+        return enemyList;
     }
 
-    public static LinkedList<NonPlayableCharacter> loadNPCs(String filePath)
-    {
+    public static LinkedList<NonPlayableCharacter> loadNPCs(String filePath) {
         LinkedList<NonPlayableCharacter> NPCList = new LinkedList<>();
-        try (
-                FileReader reader = new FileReader(filePath);
-                CSVParser csvParser = CSVFormat.Builder.create()
-                        .setHeader("id","x", "y")
-                        .setSkipHeaderRecord(true)
-                        .build()
-                        .parse(reader)
-        ) {
-            for (CSVRecord csvRecord : csvParser) {
-                int id = Integer.parseInt(csvRecord.get("id"));
-                float xPosition = Integer.parseInt(csvRecord.get("x"));
-                float yPosition = Integer.parseInt(csvRecord.get("y"));
+        try {
+            JsonReader jsonReader = new JsonReader();
+            JsonValue jsonData = jsonReader.parse(Gdx.files.internal(filePath));
 
-                // Height yeilds the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
-                // tile is
-                int mapHeight = currentLevel.getMapProperties().get("height",Integer.class) * 32;
-                //System.out.println(mapHeight);
+            int mapHeight = currentLevel.getMapProperties().get("height", Integer.class) * 32;
+
+            for (JsonValue npcData : jsonData.get("npcs")) {
+                int id = npcData.getInt("id");
+                float xPosition = npcData.getFloat("x");
+                float yPosition = npcData.getFloat("y");
 
                 NonPlayableCharacter loadingNPC = new NonPlayableCharacter(xPosition, (mapHeight - yPosition));
-                loadingNPC.setMessageList(id);
+                loadingNPC.dialogue.setMessageListID(id);
                 NPCList.add(loadingNPC);
-
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e)
+        {
+            System.err.println("Could not find file " + filePath + ". Ignoring.");
         }
-
         return NPCList;
     }
 
     public static LinkedList<Item> loadItems(String filePath)
     {
         LinkedList<Item> itemList = new LinkedList<>();
-        try (
-                FileReader reader = new FileReader(filePath);
-                CSVParser csvParser = CSVFormat.Builder.create()
-                        .setHeader("id","x", "y")
-                        .setSkipHeaderRecord(true)
-                        .build()
-                        .parse(reader)
-        ) {
-            for (CSVRecord csvRecord : csvParser) {
-                int id = Integer.parseInt(csvRecord.get("id"));
-                float xPosition = Integer.parseInt(csvRecord.get("x"));
-                float yPosition = Integer.parseInt(csvRecord.get("y"));
+        try {
+            JsonReader jsonReader = new JsonReader();
+            JsonValue jsonData = jsonReader.parse(Gdx.files.internal(filePath));
 
-                // Height yeilds the actual tiles in the level, i.e. 50, and it is multiplied by 32 due to how wide each
-                // tile is
-                int mapHeight = currentLevel.getMapProperties().get("height",Integer.class) * 32;
-                //System.out.println(mapHeight);
+            int mapHeight = currentLevel.getMapProperties().get("height", Integer.class) * 32;
 
-                Item loadingItem = Item.itemSelector(id,xPosition,(mapHeight - yPosition));
+            for (JsonValue itemData : jsonData.get("items")) {
+                int id = itemData.getInt("id");
+                float xPosition = itemData.getFloat("x");
+                float yPosition = itemData.getFloat("y");
+
+                Item loadingItem = Item.itemSelector(id, xPosition, (mapHeight - yPosition));
                 itemList.add(loadingItem);
-
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e)
+        {
+            System.err.println("Could not find file " + filePath + ". Ignoring.");
         }
-
         return itemList;
     }
 
@@ -216,6 +188,7 @@ public class LevelManager {
         } else {
             // Handle end of game or loop back to the first level
             System.out.println("End of levels or undefined next level.");
+            currentLevel.setPlayerReachedEnd(false);
         }
     }
 

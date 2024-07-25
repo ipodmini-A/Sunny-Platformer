@@ -1,0 +1,207 @@
+{
+  "dialogue": [
+    {
+      "id": 0,
+      "messages": [
+        {
+          "message": "Hello!",
+          "emotion": "HAPPY",
+          "options": []
+        },
+        {
+          "message": "This is a test",
+          "emotion": "NEUTRAL",
+          "options": []
+        },
+        {
+          "message": "CSV Files are annoying, aren't they?",
+          "emotion": "NERVOUS",
+          "options": []
+        },
+        {
+          "message": "Personally, I would use a JSON file...",
+          "emotion": "NEUTRAL",
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "messages": [
+        {
+          "message": "I'm the second NPC added",
+          "emotion": "HAPPY",
+          "options": []
+        },
+        {
+          "message": "I'm just here to make sure that the linked list that was added is working properly",
+          "emotion": "NEUTRAL",
+          "options": [
+            {
+              "text": "Seriously?",
+              "nextId": 1001
+            },
+            {
+              "text": "...",
+              "nextId": 2001
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "messages": [
+        {
+          "message": "I'm the third NPC added",
+          "emotion": "NEUTRAL",
+          "options": []
+        },
+        {
+          "message": "Did you know that if you touch the slot machine and hit down, you'll play slots?",
+          "emotion": "NEUTRAL",
+          "options": []
+        },
+        {
+          "message": "{WAVE}Crazy huh?",
+          "emotion": "NERVOUS",
+          "options": []
+        },
+        {
+          "message": "The game is far from complete and there is already {WAVE}{RAINBOW}gambling.{ENDRAINBOW}{ENDWAVE}",
+          "emotion": "NEUTRAL",
+          "options": []
+        },
+        {
+          "message": "Guess it's kinda funny...",
+          "emotion": "NERVOUS",
+          "options": []
+        },
+        {
+          "message": "Personally I would've added blackjack.",
+          "emotion": "NEUTRAL",
+          "options": []
+        },
+        {
+          "message": "Ah don't worry about it",
+          "emotion": "NERVOUS",
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "messages": [
+        {
+          "message": "What a terrible thing...",
+          "emotion": "NERVOUS",
+          "options": [
+            {
+              "text": "What happened?",
+              "nextId": 1003
+            },
+            {
+              "text": "Uhh...",
+              "nextId": 2003
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "messages": [
+        {
+          "message": "{SICK}Uhgggg.... I am so tired.",
+          "emotion": "TIRED",
+          "options": []
+        },
+        {
+          "message": "It's okay though. A little coffee is all I need",
+          "emotion": "HAPPY",
+          "options": []
+        },
+        {
+          "message": "{WAVE}...",
+          "emotion": "NEUTRAL",
+          "options": []
+        },
+        {
+          "message": "{SICK}Coffee isn't in this game...",
+          "emotion": "TIRED",
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": 1001,
+      "messages": [
+        {
+          "message": "Yeah, Seriously!",
+          "emotion": "NERVOUS",
+          "options": []
+        },
+        {
+          "message": "Game development can be a real mess sometimes",
+          "emotion": "NERVOUS",
+          "options": []
+        },
+        {
+          "message": "You don't even wanna see how this simple message box was handled!",
+          "emotion": "NEUTRAL",
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": 2001,
+      "messages": [
+        {
+          "message": "Lets be real, I might be broken",
+          "emotion": "NERVOUS",
+          "options": []
+        },
+        {
+          "message": "Cya!",
+          "emotion": "HAPPY",
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": 1003,
+      "messages": [
+        {
+          "message": "Who knew dialogue can be so irritating?",
+          "emotion": "ANGRY",
+          "options": []
+        },
+        {
+          "message": "You think it would be something simple? Type in some words and then {RAINBOW}{JUMP}BAM!{ENDJUMP}{ENDRAINBOW}",
+          "emotion": "NEUTRAL",
+          "options": []
+        },
+        {
+          "message": "Fancy words show up!",
+          "emotion": "HAPPY",
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": 2003,
+      "messages": [
+        {
+          "message": "{SICK}You don't seem like you care...",
+          "emotion": "TIRED",
+          "options": []
+        },
+        {
+          "message": "{WAVE}Oh well...",
+          "emotion": "NEUTRAL",
+          "options": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "characters": [
+    {
+      "id": 0,
+      "name": "Default",
+      "textureAtlas": "sprites/Rose/roseUI.txt" ,
+      "emotions": [
+        {
+          "NEUTRAL": "",
+          "HAPPY": "",
+          "NERVOUS": "",
+          "ANGRY": "",
+          "TIRED": ""
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Rose",
+      "textureAtlas": "sprites/Rose/roseUI.txt",
+      "emotions": [
+        {
+          "NEUTRAL": "roseNeutral",
+          "HAPPY": "roseHappy",
+          "NERVOUS": "roseNervous",
+          "ANGRY": "roseAngry",
+          "TIRED": "roseTired"
+        }
+      ]
+    }
+  ]
+}

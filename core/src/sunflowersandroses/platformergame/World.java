@@ -801,7 +801,8 @@ public class World {
             p.setDisplayMessage(true);
         }
         if (p.isDisplayMessage()) {
-            p.Message(player);
+            //p.Message(player);
+            p.dialogue.Message(player,p);
             p.setDisplayMessage(false);
         }
     }
