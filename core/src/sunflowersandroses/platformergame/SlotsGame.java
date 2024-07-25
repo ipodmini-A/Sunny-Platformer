@@ -27,8 +27,10 @@ import java.util.Random;
 public class SlotsGame {
     private SpriteBatch spriteBatch;
     protected Texture texture;
+    protected Texture backgroundTexture;
     protected TextureAtlas textureAtlas;
     protected Sprite sprite;
+    protected Sprite backgroundSprite;
     final HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
     protected BitmapFont bitmapFont;
     Random random;
@@ -48,8 +50,10 @@ public class SlotsGame {
     {
         spriteBatch = new SpriteBatch();
         texture = new Texture("debugSquare.png");
+        backgroundTexture = new Texture("background.png");
         textureAtlas = new TextureAtlas("debugNumbers/debugNumbers.txt");
         sprite = new Sprite(texture);
+        backgroundSprite = new Sprite(backgroundTexture);
         bitmapFont = new BitmapFont();
         random = new Random();
         this.game = game;
@@ -60,6 +64,7 @@ public class SlotsGame {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         viewport = new FillViewport(1280,720);
+        backgroundSprite.setBounds(viewport.getScreenX(), viewport.getScreenY(), viewport.getWorldWidth(), viewport.getWorldHeight());
         stage = new Stage(viewport);
         //Gdx.input.setInputProcessor(stage);
 
@@ -377,6 +382,7 @@ public class SlotsGame {
                 100,
                 100);
         spriteBatch.begin();
+        backgroundSprite.draw(spriteBatch);
         bitmapFont.draw(spriteBatch,String.valueOf(player.getMoney()),Gdx.graphics.getWidth() - 50f,Gdx.graphics.getHeight() - 50f);
         //textraLabel.draw(spriteBatch,1);
         displaySlotNumbers(spriteBatch);

@@ -68,7 +68,7 @@ public class World {
         music.play();
         music.setVolume(0.0f);
 
-        // PlatformerGame context
+        // Game context
         this.game = game;
 
         // Map creation

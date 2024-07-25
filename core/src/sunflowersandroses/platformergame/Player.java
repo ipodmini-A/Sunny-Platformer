@@ -316,11 +316,8 @@ public class Player
         changeAnimationSpeed();
 
         update(delta);
-        renderMovement(spriteBatch);
-        //drawSprite("standing", position.x, position.y);
+        hurtCheck(delta, 0.05f);
         spriteBatch.end();
-        //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
-        //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
     }
 
     protected float xOffset = 5f;
@@ -841,14 +838,14 @@ public class Player
         }
     }
 
+    float invincibleTimer = 3f;
     /**
      * Handles how the player character responds to getting hurt.
      * Currently, when the player is hurt they will bounce back. The direction of how far they get thrown back is hard coded,
      * and is dependent on which direction the player is facing
      * When the player is hit,
-     * @param e
+     * @param e Enemy
      */
-    float invincibleTimer = 3f;
     public void hurt(Enemy e)
     {
         if (!invincible)
@@ -870,7 +867,35 @@ public class Player
                 }
             },invincibleTimer);
         }
+    }
 
+    float invincibleRender = 0;
+    boolean invincibleFlip = false;
+
+    /**
+     * Causes the player to blink when they are hurt.
+     * @param delta Game delta time
+     */
+    public void hurtCheck(float delta, float blinkRate)
+    {
+        if (invincible)
+        {
+            invincibleRender += delta;
+            if (invincibleRender >= blinkRate)
+            {
+                invincibleFlip = !invincibleFlip;
+                invincibleRender = 0;
+            }
+
+            if (invincibleFlip)
+            {
+                renderMovement(spriteBatch);
+            }
+
+        } else
+        {
+            renderMovement(spriteBatch);
+        }
     }
 
     public void itemCollected(Item item)
@@ -896,7 +921,6 @@ public class Player
      */
     public void update(float delta)
     {
-
         sprite.setBounds(
                 position.x,
                 position.y,
