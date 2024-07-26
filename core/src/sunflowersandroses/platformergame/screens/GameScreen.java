@@ -26,7 +26,6 @@ public class GameScreen extends ScreenAdapter
     float y = 1300f;
     private boolean firstSpawnCheck = false;
     public static InputMultiplexer multiplexer = new InputMultiplexer();
-    //private final NewPlatformerInput newPlatformerInput;
 
     public boolean playerWon = false;
 
@@ -105,6 +104,8 @@ public class GameScreen extends ScreenAdapter
         TODO: Put into a method
          */
 
+        // This code takes the player to a battle screen when they press I. I don't know if I am going to keep this.
+        /*
         if (Gdx.input.isKeyPressed(Input.Keys.I))
         {
             GameState.gameScreen = game.getScreen();
@@ -113,9 +114,11 @@ public class GameScreen extends ScreenAdapter
             System.out.println(GameState.lastRecordedPlayerX);
             GameState.lastRecordedPlayerY = player.getPosition().y;
             System.out.println(GameState.lastRecordedPlayerY);
-            //world.music.pause();
-            //game.setScreen(new BattleScreen(game,player,world.enemy));
+            world.music.pause();
+            game.setScreen(new BattleScreen(game,player,world.enemy));
         }
+
+         */
 
         //System.out.println(player.isTouchingWall());
         //System.out.println(player.isTouchingWall());

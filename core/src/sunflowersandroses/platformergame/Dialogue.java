@@ -1,7 +1,5 @@
 package sunflowersandroses.platformergame;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,14 +15,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import sunflowersandroses.platformergame.enums.Emotion;
-import org.apache.commons.csv.*;
 
 import static sunflowersandroses.platformergame.PlatformerGame.dialogueLines;
 

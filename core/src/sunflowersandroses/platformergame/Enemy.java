@@ -2,7 +2,10 @@ package sunflowersandroses.platformergame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+
+import java.util.LinkedList;
 
 /**
  * Enemy.java
@@ -14,9 +17,13 @@ public class Enemy extends Player
 {
     public boolean attacked;
     public int id;
+    LinkedList<Item> itemsToBeDropped;
+    public Rectangle attackBounds;
+    private Player playerReference;
     public Enemy(float x, float y)
     {
         super(x,y);
+        attackBounds = new Rectangle(position.x - 200 / 2f, position.y, 200f, 100f);
 
         textureAtlas = new TextureAtlas("enemysprites.txt");
         addSprites();
@@ -27,6 +34,8 @@ public class Enemy extends Player
         health = 100f;
         attackPoints = 10f;
         defensePoints = 3f;
+
+        lootDropPreLoad();
     }
 
     /**
@@ -59,34 +68,46 @@ public class Enemy extends Player
             facingRight = !facingRight;
             movement = 0;
         }
+        try {
+            if (attackBounds.overlaps(playerReference.bounds)) {
+                if (!attacked && !isTouchingLeftWall() && bounds.x < playerReference.bounds.x) {
+                    velocity.x = 150;
+                    //position.x += 1f;
+                } else if (!attacked && !isTouchingRightWall() && bounds.x > playerReference.bounds.x ) {
+                    velocity.x = -150f;
+                    //position.x -= 1f;
+                }
+            } else {
+                if (!attacked) {
+                    if (isTouchingRightWall()) {
+                        facingRight = !facingRight;
+                        position.x += 3;
+                    }
+                    if (isTouchingLeftWall()) {
+                        facingRight = !facingRight;
+                        position.x -= 3;
+                    }
+                    if (facingRight && !isTouchingLeftWall()) {
+                        velocity.x = 100f;
+                        //position.x += 1f;
+                    } else if (!facingRight && !isTouchingRightWall()) {
+                        velocity.x = -100f;
+                        //position.x -= 1f;
+                    }
+                }
+            }
 
-        if (!attacked) {
-            if (isTouchingRightWall()) {
-                facingRight = !facingRight;
-                position.x += 3;
+            if (attacked) {
+                hitStunDuration += delta;
             }
-            if (isTouchingLeftWall()) {
-                facingRight = !facingRight;
-                position.x -= 3;
+            float hitStun = 0.6f;
+            if (hitStunDuration >= hitStun) {
+                hitStunDuration = 0;
+                attacked = false;
             }
-            if (facingRight && !isTouchingLeftWall()) {
-                velocity.x = 100f;
-                //position.x += 1f;
-            } else if (!facingRight && !isTouchingRightWall()) {
-                velocity.x = -100f;
-                //position.x -= 1f;
-            }
-        }
-
-        if (attacked)
+        } catch (Exception e)
         {
-            hitStunDuration += delta;
-        }
-        float hitStun = 0.6f;
-        if (hitStunDuration >= hitStun)
-        {
-            hitStunDuration = 0;
-            attacked = false;
+            System.err.println("Player not found");
         }
 
     }
@@ -103,6 +124,8 @@ public class Enemy extends Player
         renderMovement(spriteBatch);
         //drawSprite("standing", position.x, position.y);
         spriteBatch.end();
+
+        attackBounds.setPosition(position.x - (200f / 2f) + WIDTH / 2f, position.y);
     }
 
     public void renderMovement(SpriteBatch spriteBatch)
@@ -230,6 +253,31 @@ public class Enemy extends Player
         spriteBatch.end();
         //System.out.println("Sprite X:" + sprite.getX() + " Sprite Y:" + sprite.getY());
         //System.out.println("Bounding X:" + bounds.getX() + " Bounding Y:" + bounds.getY());
+    }
+
+    public void playerUpdate(Player player)
+    {
+        playerReference = player;
+    }
+
+    private void lootDropPreLoad()
+    {
+        int amountOfItems = random.nextInt(4) + 1;
+        itemsToBeDropped = new LinkedList<>();
+        for (int i = 0; i < amountOfItems; i++)
+        {
+            itemsToBeDropped.add(Item.itemSelector(0,0,0));
+        }
+    }
+
+    public LinkedList<Item> lootDrop()
+    {
+        //Get the items in position to be dropped.
+        for (Item item : itemsToBeDropped) {
+            item.position.x = position.x + random.nextInt(-20, 20);
+            item.position.y = position.y + random.nextInt(50) + 10f;
+        }
+        return itemsToBeDropped;
     }
 
     //                      //

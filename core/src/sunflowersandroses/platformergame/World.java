@@ -5,7 +5,9 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
@@ -54,10 +56,12 @@ public class World {
     private final MapObjects objects;
     private final MapObjects endGameObject;
     public static boolean debug = true;
-    private final SpriteBatch spriteBatch;
+    private SpriteBatch spriteBatch;
     private final ShapeRenderer debugRenderer;
     private final BitmapFont debugFont;
     private final SpriteBatch debugBatch;
+    private Texture backgroundTexture;
+    private Sprite backgroundSprite;
     private boolean playerReachedEnd = false;
     public Music music;
     // TODO: Implement a proper debug tool.
@@ -95,6 +99,12 @@ public class World {
         viewport.apply();
         camera.update();
         mapRenderer.setView(camera);
+
+        // Background Creation
+        backgroundTexture = new Texture("background.png");
+        backgroundSprite = new Sprite(backgroundTexture);
+        backgroundSprite.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+        backgroundSprite.setPosition(0, 0); // Adjust as needed
 
         //TODO: Move playerSpawn here.
         //I LOVE JAVA I LOVE OOP I LOVE 500 GETS
@@ -862,13 +872,23 @@ public class World {
      */
     public void render(float delta)
     {
+        // Clear screen
+        Gdx.gl.glClearColor(37f/255f, 79f/255f, 126f/255f, 1.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         // Update the camera's view
         camera.update();
         mapRenderer.setView(camera);
         spriteBatch.setProjectionMatrix(camera.combined);
 
-        Gdx.gl.glClearColor(37f/255f, 79f/255f, 126f/255f, 1.0f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        // Set the background position to match the camera's bottom-left corner
+        backgroundSprite.setPosition(camera.position.x - camera.viewportWidth / 2,
+                camera.position.y - camera.viewportHeight / 2);
+
+        // Background
+        spriteBatch.begin();
+        backgroundSprite.draw(spriteBatch);
+        spriteBatch.end();
 
         // Set the camera's position to follow the player, considering half of the screen size
         camera.position.x = player.getPosition().x + player.getWidth() / SCALE;
@@ -885,6 +905,7 @@ public class World {
                     applyFriction(delta, enemies.get(i));
                     enemies.get(i).updateCamera(camera);
                     enemies.get(i).render(spriteBatch, delta);
+                    enemies.get(i).playerUpdate(player);
 
                         //Attack Check
                     try {
@@ -914,6 +935,7 @@ public class World {
 
                 } else {
                     // Enemy is removed from the world.
+                    loadItems(enemies.get(i).lootDrop());
                     enemies.remove(i);
                 }
             }
@@ -948,17 +970,6 @@ public class World {
         {
             System.out.println("Items not present");
         }
-        //System.out.println(collectables.size());
-
-        //checkCollisions(delta, roulette);
-        //applyGravity(delta, roulette);
-        //roulette.updateCamera(camera);
-        //roulette.render(spriteBatch, delta);
-        //isCollidingWithObject(roulette);
-        //roulette.interact(player);
-
-        //THIS SYSTEM SUCKS AAAAAAA
-        //messageRenderItem(roulette);
 
         // NPC render
         // When the NPC displays their UI, I need it to be in front of things such as items. Fow now this is an easy implementation
@@ -1040,9 +1051,11 @@ public class World {
         //Enemy Debug
         try
         {
-            debugRenderer.setColor(Color.CYAN);
             for (int i = 0; i < enemies.size(); i++) {
+                debugRenderer.setColor(Color.CYAN);
                 debugRenderer.rect(enemies.get(i).getPosition().x, enemies.get(i).getPosition().y, enemies.get(i).getBounds().getWidth(), enemies.get(i).getBounds().getHeight());
+                debugRenderer.setColor(Color.RED);
+                debugRenderer.rect(enemies.get(i).attackBounds.x,enemies.get(i).attackBounds.y, enemies.get(i).attackBounds.getWidth(), enemies.get(i).attackBounds.getHeight());
             }
         } catch (Exception e)
         {
@@ -1068,10 +1081,6 @@ public class World {
                 // Handle item removal
             }
         }
-
-        //Render Debug
-        //debugRenderer.setColor(Color.GREEN);
-        //debugRenderer.rect(roulette.getPosition().x, roulette.getPosition().y, roulette.getWidth(), roulette.getHeight());
 
         debugRenderer.setColor(Color.YELLOW);
         for (MapObject object : objects)
