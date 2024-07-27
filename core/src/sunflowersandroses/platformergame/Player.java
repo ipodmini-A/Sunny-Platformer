@@ -774,18 +774,21 @@ public class Player
     public void deployAttack(Enemy e)
     {
         e.setHealth(e.getHealth() - (5f * random.nextInt(1,3)));
-        if (facingRight) {
-            e.setVelocity(e.velocity.x + 150f, e.velocity.y + 150f);
-            if (velocity.x >= 20)
-            {
-                velocity.x -= 100f;
-            }
-        } else
+
+        if (lookingDown && !grounded)
         {
-            e.setVelocity(e.velocity.x - 150f, e.velocity.y + 150f);
-            if (velocity.x <= -20)
-            {
-                velocity.x += 100f;
+            velocity.y += 500f;
+        } else {
+            if (facingRight) {
+                e.setVelocity(e.velocity.x + 150f, e.velocity.y + 150f);
+                if (velocity.x >= 20) {
+                    velocity.x -= 100f;
+                }
+            } else {
+                e.setVelocity(e.velocity.x - 150f, e.velocity.y + 150f);
+                if (velocity.x <= -20) {
+                    velocity.x += 100f;
+                }
             }
         }
         attack = false;

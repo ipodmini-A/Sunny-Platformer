@@ -805,6 +805,17 @@ public class World {
         return -1;
     }
 
+    public void hurtCheck(int i)
+    {
+        int chosenEnemyHurt = isAttackingPlayer();
+        if (chosenEnemyHurt >= 0 && chosenEnemyHurt == i) {
+            if (!player.isAttack()) {
+                player.hurt(enemies.get(i));
+                System.out.println("Enemy: " + i + " is hurting player");
+            }
+        }
+    }
+
     private void messageRenderNPC(NonPlayableCharacter p)
     {
         if (player.isDisplayMessage()) {
@@ -867,7 +878,7 @@ public class World {
      * Map renderer
      * Important to note that where the item is located depends on what is in the front of the map and what is in the
      * back
-     * For example:
+     * This might need to be refactored. Enemy render has too many nested if statements
      * @param delta
      */
     public void render(float delta)
@@ -922,12 +933,7 @@ public class World {
                     }
 
                     try {
-                        //Hurt Check
-                        int chosenEnemyHurt = isAttackingPlayer();
-                        if (chosenEnemyHurt >= 0 && chosenEnemyHurt == i) {
-                            player.hurt(enemies.get(i));
-                            System.out.println("Enemy: " + i + " is hurting player");
-                        }
+                        hurtCheck(i);
                     } catch (Exception e)
                     {
                         System.out.println("Enemy not present");
