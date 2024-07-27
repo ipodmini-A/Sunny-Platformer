@@ -3,6 +3,7 @@ package sunflowersandroses.platformergame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import sunflowersandroses.platformergame.player.Player;
 
 /**
  * NewPlatformerInput was created to replace PlatformerInput
@@ -41,7 +42,7 @@ public class NewPlatformerInput implements InputProcessor
         switch (keycode)
         {
             case Input.Keys.Z: // Up controls
-                if (!p.isGrounded() && p.isTouchingWall() && !p.wallRiding) // Wall Jump input
+                if (!p.isGrounded() && p.isTouchingWall() && !p.isWallRiding()) // Wall Jump input
                 {
                     if (debug) {
                         System.out.println("Wall jump");
@@ -50,13 +51,13 @@ public class NewPlatformerInput implements InputProcessor
                 } else if (!p.isGrounded() && !p.isTouchingWall()) // Double Jump input
                 {
                     p.doubleJump();
-                } else if (p.wallRiding)
+                } else if (p.isWallRiding())
                 {
                     if (debug) {
                         System.out.println("Jumping off wall from sliding");
                     }
                     p.wallJump();
-                    p.wallRiding = false;
+                    p.setWallRiding(false);
                 }
                 else // Jump input
                 {
@@ -81,7 +82,7 @@ public class NewPlatformerInput implements InputProcessor
                     //p.setNextMessage(false);
                 }else
                 {
-                    p.attack();
+                    p.getPlayerAttack().attack();
                 }
                 break;
             case Input.Keys.M:
@@ -169,11 +170,11 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.LEFT:
                 p.setLeftMove(false);
-                p.wallRiding = false;
+                p.setWallRiding(false);
                 break;
             case Input.Keys.RIGHT:
                 p.setRightMove(false);
-                p.wallRiding = false;
+                p.setWallRiding(false);
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(false);

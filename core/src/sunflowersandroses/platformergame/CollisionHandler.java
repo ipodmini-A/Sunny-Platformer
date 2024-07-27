@@ -1,5 +1,7 @@
 package sunflowersandroses.platformergame;
 
+import sunflowersandroses.platformergame.player.Player;
+
 /**
  * Currently not in use.
  * This class will be used to handle collision. Currently Collision is being handled by the World class

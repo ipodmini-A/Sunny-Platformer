@@ -3,6 +3,8 @@ package sunflowersandroses.platformergame;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import sunflowersandroses.platformergame.console.ConsoleCommands;
+import sunflowersandroses.platformergame.items.Item;
+import sunflowersandroses.platformergame.player.Player;
 import sunflowersandroses.platformergame.screens.EndScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -128,7 +130,8 @@ public class LevelManager {
             }
         } catch (Exception e)
         {
-            System.err.println("Could not find file " + filePath + ". Ignoring.");
+            System.err.println(e.getMessage());
+            System.err.println("Problems reading file: " + filePath + " Check message above.");
         }
         return enemyList;
     }
@@ -152,7 +155,8 @@ public class LevelManager {
             }
         } catch (Exception e)
         {
-            System.err.println("Could not find file " + filePath + ". Ignoring.");
+            System.err.println(e.getMessage());
+            System.err.println("Problems reading file: " + filePath + " Check message above.");
         }
         return NPCList;
     }
@@ -176,7 +180,8 @@ public class LevelManager {
             }
         } catch (Exception e)
         {
-            System.err.println("Could not find file " + filePath + ". Ignoring.");
+            System.err.println(e.getMessage());
+            System.err.println("Problems reading file: " + filePath + " Check message above.");
         }
         return itemList;
     }

@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Timer;
+import sunflowersandroses.platformergame.player.Player;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -98,11 +99,11 @@ public class BattleNew
         {
             try
             {
-                if (attacker.status != Player.Status.DEAD)
+                if (attacker.getStatus() != Player.Status.DEAD)
                 {
                     if (typeOfAttack == (BattleNew.TypeOfAttack.ATTACK))
                     {
-                        if (defender.defending)
+                        if (defender.isDefending())
                         {
                             Timer.schedule(new Timer.Task()
                             {
@@ -110,8 +111,8 @@ public class BattleNew
                                 public void run()
                                 {
                                     // Code to execute after the delay
-                                    attacker.state = Player.State.ATTACKING;
-                                    defender.state = Player.State.DEFENDING;
+                                    attacker.setState(Player.State.ATTACKING);
+                                    defender.setState(Player.State.DEFENDING);
                                     System.out.println("Currently moving: " + attacker.getName());
                                     BattleCalculation.defenseDamageCalculation(attacker, defender);
                                     defender.setDefending(false);
@@ -127,14 +128,14 @@ public class BattleNew
                                 public void run()
                                 {
                                     // Code to execute after the delay
-                                    attacker.state = Player.State.ATTACKING;
+                                    attacker.setState(Player.State.ATTACKING);
                                     System.out.println("Currently moving: " + attacker.getName());
-                                    if (defender.status == Player.Status.DEAD)
+                                    if (defender.getStatus() == Player.Status.DEAD)
                                     {
                                         int indexOfNextEnemy = 0;
                                         for (int i = 0; i < enemy.length; i++)
                                         {
-                                            if (enemy[i].status != Player.Status.DEAD)
+                                            if (enemy[i].getStatus() != Player.Status.DEAD)
                                             {
                                                 indexOfNextEnemy = i;
                                             }
@@ -155,7 +156,7 @@ public class BattleNew
                             @Override
                             public void run()
                             {
-                                defender.state = Player.State.DEFENDING;
+                                defender.setState(Player.State.DEFENDING);
                                 //attacker.state = Player.State.ATTACKING;
                                 System.out.println("Currently moving: " + defender.getName());
                                 //BattleCalculation.defenseDamageCalculation(attacker,defender);
@@ -171,7 +172,7 @@ public class BattleNew
                     @Override
                     public void run()
                     {
-                        defender.state = Player.State.DEFENDING;
+                        defender.setState(Player.State.DEFENDING);
                         //attacker.state = Player.State.ATTACKING;
                         System.out.println("Currently moving: " + defender.getName());
                         //BattleCalculation.defenseDamageCalculation(attacker,defender);
@@ -435,7 +436,7 @@ public class BattleNew
         {
             if (!battleOccurring)
             {
-                player[i].state = Player.State.STANCE;
+                player[i].setState(Player.State.STANCE);
             }
         }
     }
@@ -449,7 +450,7 @@ public class BattleNew
         {
             if (!battleOccurring)
             {
-                enemy[i].state = Enemy.State.STANCE;
+                enemy[i].setState(Enemy.State.STANCE);
             }
         }
     }
@@ -506,7 +507,7 @@ public class BattleNew
     {
         for (int i = 0; i < enemy.length; i++)
         {
-            if (enemy[i].status != Enemy.Status.DEAD)
+            if (enemy[i].getStatus() != Enemy.Status.DEAD)
             {
                 int choice = rand.nextInt(2);
                 actions.add(new Action(enemy[i], player[choice], TypeOfAttack.ATTACK));
@@ -739,7 +740,7 @@ public class BattleNew
         }
         for (int i = 0; i < enemy.length; i++)
         {
-            if (!(enemy[i].status == Player.Status.DEAD))
+            if (!(enemy[i].getStatus() == Player.Status.DEAD))
             {
                 enemyStatusLabel[i].setText("Enemy HP: " + enemy[i].getHealth());
             }else

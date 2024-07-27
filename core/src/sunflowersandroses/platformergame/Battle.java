@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Timer;
+import sunflowersandroses.platformergame.player.Player;
 
 /**
  * Battle.java
@@ -200,24 +201,24 @@ public class Battle {
     {
         if (playerTurn && typeOfAttack == TypeOfAttack.ATTACK)
         {
-            player.state = Player.State.ATTACKING;
+            player.setState(Player.State.ATTACKING);
         } else if ((playerTurn || enemyTurn) && typeOfAttack == TypeOfAttack.DEFENSE)
         {
-            player.state = Player.State.DEFENDING;
+            player.setState(Player.State.DEFENDING);
         }else
         {
-            player.state = Player.State.STANCE;
+            player.setState(Player.State.STANCE);
         }
 
         if (enemyTurn && typeOfAttack == TypeOfAttack.ATTACK)
         {
-            enemy.state = Enemy.State.ATTACKING;
+            enemy.setState(Enemy.State.ATTACKING);
         } else if (enemyTurn && typeOfAttack == TypeOfAttack.DEFENSE)
         {
-            enemy.state = Enemy.State.ATTACKING;
+            enemy.setState(Enemy.State.ATTACKING);
         } else
         {
-            enemy.state = Enemy.State.STANCE;
+            enemy.setState(Enemy.State.STANCE);
         }
     }
 

@@ -21,6 +21,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import sunflowersandroses.platformergame.items.Item;
+import sunflowersandroses.platformergame.player.Player;
 
 import java.util.LinkedList;
 
@@ -63,14 +65,13 @@ public class World {
     private Texture backgroundTexture;
     private Sprite backgroundSprite;
     private boolean playerReachedEnd = false;
-    public Music music;
     // TODO: Implement a proper debug tool.
 
     public World(Player player, PlatformerGame game, String mapName) {
         // Sound creation
-        music = Gdx.audio.newMusic(Gdx.files.internal("sound/Tiny_Sheriff.mp3"));
-        music.play();
-        music.setVolume(0.0f);
+        //music = Gdx.audio.newMusic(Gdx.files.internal("sound/Tiny_Sheriff.mp3"));
+        //music.play();
+        //music.setVolume(0.0f);
 
         // Game context
         this.game = game;
@@ -786,8 +787,7 @@ public class World {
 
     public int isAttackingEnemy() {
         for (int i = 0; i < enemies.size(); i++) {
-            if (player.attackHitbox.overlaps(enemies.get(i).getBounds()))
-            {
+            if (player.getPlayerAttack().getAttackHitbox() != null && player.getPlayerAttack().getAttackHitbox().overlaps(enemies.get(i).getBounds())) {
                 return i;
             }
         }
@@ -798,7 +798,7 @@ public class World {
     {
         for (int i = 0; i < enemies.size(); i++)
         {
-            if (enemies.get(i).bounds.overlaps(player.getBounds())) {
+            if (enemies.get(i).getBounds().overlaps(player.getBounds())) {
                 return i;
             }
         }
@@ -809,7 +809,7 @@ public class World {
     {
         int chosenEnemyHurt = isAttackingPlayer();
         if (chosenEnemyHurt >= 0 && chosenEnemyHurt == i) {
-            if (!player.isAttack()) {
+            if (!player.getPlayerAttack().isAttack()) {
                 player.hurt(enemies.get(i));
                 System.out.println("Enemy: " + i + " is hurting player");
             }
@@ -919,18 +919,13 @@ public class World {
                     enemies.get(i).playerUpdate(player);
 
                         //Attack Check
-                    try {
                         int chosenEnemyAttack = isAttackingEnemy();
                         if (chosenEnemyAttack >= 0 && chosenEnemyAttack == i) {
-                            player.deployAttack(enemies.get(chosenEnemyAttack));
+                            player.getPlayerAttack().deployAttack(enemies.get(chosenEnemyAttack));
                             enemies.get(chosenEnemyAttack).setAttacked(true);
                             enemies.get(chosenEnemyAttack).setHitStunDuration(0);
                             System.out.println("Attacking " + i);
                         }
-                    } catch (Exception e)
-                    {
-                        // Checks against the hit-box which at times will be null.
-                    }
 
                     try {
                         hurtCheck(i);
@@ -959,7 +954,7 @@ public class World {
                 //collectables.get(i).interact(player);
                 messageRenderItem(items.get(i));
                 if (isCollidingWithObject(items.get(i))) {
-                    if (!items.get(i).isCollected() && items.get(i).allowedToBeCollected) {
+                    if (!items.get(i).isCollected() && items.get(i).isAllowedToBeCollected()) {
                         items.get(i).setCollected(true);
                         items.get(i).collectedAction(player);
                         player.itemCollected(items.get(i));
@@ -1029,8 +1024,8 @@ public class World {
             debugFont.draw(debugBatch, "Velocity: " + player.getVelocity(), camera.viewportWidth * .05f, camera.viewportHeight * .95f);
             debugFont.draw(debugBatch, "Position: " + player.getPosition(), camera.viewportWidth * .05f, camera.viewportHeight * .85f);
             debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), camera.viewportWidth * .05f, camera.viewportHeight * .75f);
-            debugFont.draw(debugBatch, "Facing Right: " + player.facingRight, camera.viewportWidth * .05f, camera.viewportHeight * .65f);
-            debugFont.draw(debugBatch, "Player Health: " + player.health, camera.viewportWidth * .05f, camera.viewportHeight * .55f);
+            debugFont.draw(debugBatch, "Facing Right: " + player.isFacingRight(), camera.viewportWidth * .05f, camera.viewportHeight * .65f);
+            debugFont.draw(debugBatch, "Player Health: " + player.getHealth(), camera.viewportWidth * .05f, camera.viewportHeight * .55f);
             //debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
             //debugFont.draw(debugBatch, "Jump Time (Not Actually):" + player.jumpTime, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
         } catch (Exception e)
@@ -1047,7 +1042,7 @@ public class World {
 
         debugRenderer.setColor(Color.LIME);
         try {
-            debugRenderer.rect(player.getAttackHitbox().x, player.getAttackHitbox().y, player.getAttackHitbox().getWidth(), player.getAttackHitbox().getHeight());
+            debugRenderer.rect(player.getPlayerAttack().getAttackHitbox().x, player.getPlayerAttack().getAttackHitbox().y, player.getPlayerAttack().getAttackHitbox().getWidth(), player.getPlayerAttack().getAttackHitbox().getHeight());
         } catch (Exception e)
         {
             // uhhh
@@ -1114,7 +1109,6 @@ public class World {
             collectable.dispose();
         }
         spriteBatch.dispose();
-        music.dispose();
     }
 
     //                      //

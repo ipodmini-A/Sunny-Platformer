@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import sunflowersandroses.platformergame.items.Item;
+import sunflowersandroses.platformergame.player.Player;
 
 import java.util.LinkedList;
 
@@ -69,11 +71,11 @@ public class Enemy extends Player
             movement = 0;
         }
         try {
-            if (attackBounds.overlaps(playerReference.bounds)) {
-                if (!attacked && !isTouchingLeftWall() && bounds.x < playerReference.bounds.x) {
+            if (attackBounds.overlaps(playerReference.getBounds())) {
+                if (!attacked && !isTouchingLeftWall() && bounds.x < playerReference.getBounds().x) {
                     velocity.x = 150;
                     //position.x += 1f;
-                } else if (!attacked && !isTouchingRightWall() && bounds.x > playerReference.bounds.x ) {
+                } else if (!attacked && !isTouchingRightWall() && bounds.x > playerReference.getBounds().x ) {
                     velocity.x = -150f;
                     //position.x -= 1f;
                 }
@@ -274,8 +276,8 @@ public class Enemy extends Player
     {
         //Get the items in position to be dropped.
         for (Item item : itemsToBeDropped) {
-            item.position.x = position.x + random.nextInt(-20, 20);
-            item.position.y = position.y + random.nextInt(50) + 10f;
+            item.getPosition().x = position.x + random.nextInt(-20, 20);
+            item.getPosition().y = position.y + random.nextInt(50) + 10f;
         }
         return itemsToBeDropped;
     }

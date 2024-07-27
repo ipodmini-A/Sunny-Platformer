@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
+import sunflowersandroses.platformergame.player.Player;
 
 import java.util.HashMap;
 import java.util.Random;

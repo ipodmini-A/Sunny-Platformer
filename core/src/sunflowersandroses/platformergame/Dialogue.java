@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import sunflowersandroses.platformergame.enums.Emotion;
+import sunflowersandroses.platformergame.player.Player;
 
 import static sunflowersandroses.platformergame.PlatformerGame.dialogueLines;
 
@@ -255,12 +256,12 @@ public class Dialogue {
         this.NPC = NPC;
         player.getVelocity().x = 0;
         if (player.getPosition().x >= NPC.getPosition().x) {
-            player.facingRight = false;
-            NPC.facingRight = true;
+            player.setFacingRight(false);
+            NPC.setFacingRight(true);
         } else
         {
-            player.facingRight = true;
-            NPC.facingRight = false;
+            player.setFacingRight(true);
+            NPC.setFacingRight(false);
         }
 
         if (NPC.isTouchingPlayer()) {

@@ -1,7 +1,7 @@
-package sunflowersandroses.platformergame;
+package sunflowersandroses.platformergame.items;
 
-import sunflowersandroses.platformergame.screens.GameScreen;
-import sunflowersandroses.platformergame.screens.SlotsScreen;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import sunflowersandroses.platformergame.player.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,11 +13,10 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.LinkedList;
-import java.util.Random;
 
 /**
  * Item.java
- * This class serves as a platform to be extended from to create collectable objects
+ * This class serves as a platform to be extended from to create collectable objects\
  * TODO: Allow the player to collect objects
  */
 public class Item
@@ -25,6 +24,7 @@ public class Item
     protected final float HEIGHT = 30f;
     protected final float WIDTH = 30f;
     protected SpriteBatch spriteBatch;
+    protected TextureAtlas textureAtlas;
     protected Texture texture;
     protected Sprite sprite;
     protected OrthographicCamera camera;
@@ -47,105 +47,6 @@ public class Item
     protected String message;
     protected int id;
 
-    /**
-     * Slot Machine item. Utilizes the SlotsGame.java class to function. See that class for more information.
-     */
-    public static class SlotMachine extends Item
-    {
-        Random random;
-        public SlotMachine(float x, float y, int id)
-        {
-            super(x,y,false);
-            this.id = id;
-            position = new Vector2(x,y);
-            velocity = new Vector2();
-            grounded = true;
-            bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
-            bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
-            touchingCeiling = false;
-            touchingLeftWall = false;
-            touchingRightWall = false;
-            touchingWall = false;
-
-            allowedToBeCollected = false;
-            // "collected" not being here might cause issues
-            allowedToBeInteractedWith = true;
-
-            random = new Random();
-
-            position.x = x;
-            position.y = y;
-
-            font = new BitmapFont();
-            shapeRenderer = new ShapeRenderer();
-
-            messageIndex = 0;
-            messageList = new LinkedList<String>();
-            messageList.add("Your random number is ");
-            messageList.add("Uhhhh ");
-
-            texture = new Texture("slot-machine.png");
-            sprite = new Sprite(texture);
-
-            camera = new OrthographicCamera();
-        }
-
-        boolean generatedNumber = false;
-        /**
-         * Takes the player to the slot screen to play slots
-         *
-         * TODO: Rework how the player interacts with both NPS and items.
-         * @param p
-         */
-        public void interact(Player p)
-        {
-            if (p.isItemInteraction()) {
-                p.setItemInteraction(false);
-                p.setDisplayMessage(false);
-                GameScreen.game.setScreen(new SlotsScreen(GameScreen.game, p));
-            }
-        }
-    }
-
-    public static class Coin extends Item
-    {
-        int coinMultiplier = 0;
-
-        /**
-         * Creates a new coin. A random roll decides what type of coin will be spawned.
-         * @param x X Position
-         * @param y Y Position
-         * @param id item ID
-         */
-        public Coin (float x, float y, int id)
-        {
-            super(x,y,id);
-            Random random = new Random();
-            int coinRoll = random.nextInt(30) + 1;
-            if (coinRoll <= 20)
-            {
-                texture = new Texture("sprites/Items/copperCoin.png"); // Kind of a placeholder
-                sprite = new Sprite(texture);
-                coinMultiplier = 1;
-            } else if (coinRoll <= 27)
-            {
-                texture = new Texture("sprites/Items/silverCoin.png"); // Kind of a placeholder
-                sprite = new Sprite(texture);
-                coinMultiplier = 5;
-            } else {
-                texture = new Texture("sprites/Items/goldCoin.png"); // Kind of a placeholder
-                sprite = new Sprite(texture);
-                coinMultiplier = 10;
-            }
-            allowedToBeCollected = true;
-        }
-
-        @Override
-        public void collectedAction(Player p) {
-            p.setMoney(p.getMoney() + coinMultiplier);
-        }
-    }
-
     public Item(float x, float y, boolean allowedToBeCollected)
     {
         position = new Vector2(x,y);
@@ -166,7 +67,6 @@ public class Item
 
         spriteBatch = new SpriteBatch();
         texture = new Texture("debugSquare.png");
-        sprite = new Sprite(texture);
 
         camera = new OrthographicCamera();
     }
@@ -195,6 +95,7 @@ public class Item
 
         camera = new OrthographicCamera();
     }
+
     public Item(float x, float y, int id)
     {
         this.id = id;
@@ -286,14 +187,13 @@ public class Item
     {
         switch (id) {
             case 0:
-                Item coin = new Coin(x, y, id);
-                return coin;
+                return new Coin(x, y, id);
             case 1:
-                Item slotMachine = new SlotMachine(x,y,id);
-                return slotMachine;
+                return new SlotMachine(x,y,id);
+            case 2:
+                return new Health(x,y,id);
             default:
-                Item defaultItem = new Item(x, y, id);
-                return defaultItem;
+                return new Item(x, y, id);
         }
     }
 

@@ -3,163 +3,177 @@ size: 2000, 2000
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-attacking
+attackDown
   rotate: false
   xy: 0, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
-attackNeutral
+attacking
   rotate: false
   xy: 400, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 0
+  index: -1
 attackNeutral
   rotate: false
   xy: 800, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 1
+  index: 0
 attackNeutral
   rotate: false
   xy: 1200, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 2
-defending
+  index: 1
+attackNeutral
   rotate: false
   xy: 1600, 0
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: -1
-falling
+  index: 2
+attackUp
   rotate: false
   xy: 0, 400
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
-jumping
+defending
   rotate: false
   xy: 400, 400
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
-lookingDown
+falling
   rotate: false
   xy: 800, 400
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
-lookingUp
+jumping
   rotate: false
   xy: 1200, 400
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
-punching
+lookingDown
   rotate: false
   xy: 1600, 400
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
-running
+lookingUp
   rotate: false
   xy: 0, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 0
-running
+  index: -1
+punching
   rotate: false
   xy: 400, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 1
+  index: -1
 running
   rotate: false
   xy: 800, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 2
+  index: 0
 running
   rotate: false
   xy: 1200, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 3
-stance
+  index: 1
+running
   rotate: false
   xy: 1600, 800
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: -1
-standing
+  index: 2
+running
   rotate: false
   xy: 0, 1200
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 0
-standing
+  index: 3
+stance
   rotate: false
   xy: 400, 1200
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 1
+  index: -1
 standing
   rotate: false
   xy: 800, 1200
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 2
+  index: 0
 standing
   rotate: false
   xy: 1200, 1200
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 3
+  index: 1
 standing
   rotate: false
   xy: 1600, 1200
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
-  index: 4
+  index: 2
 standing
   rotate: false
   xy: 0, 1600
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
+  index: 3
+standing
+  rotate: false
+  xy: 400, 1600
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: 4
+standing
+  rotate: false
+  xy: 800, 1600
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
   index: 5
 touchingWall
   rotate: false
-  xy: 400, 1600
+  xy: 1200, 1600
   size: 400, 400
   orig: 400, 400
   offset: 0, 0
   index: -1
 wallriding
   rotate: false
-  xy: 800, 1600
+  xy: 1600, 1600
   size: 400, 400
   orig: 400, 400
   offset: 0, 0

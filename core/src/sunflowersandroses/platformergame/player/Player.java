@@ -1,4 +1,4 @@
-package sunflowersandroses.platformergame;
+package sunflowersandroses.platformergame.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -8,6 +8,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+import sunflowersandroses.platformergame.Enemy;
+import sunflowersandroses.platformergame.PlatformerInput;
+import sunflowersandroses.platformergame.items.Item;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -40,7 +43,7 @@ public class Player
     protected float wisdom;
     protected float speed;
     protected int money;
-    final HashMap<String, Sprite> sprites = new HashMap<>();
+    protected final HashMap<String, Sprite> sprites = new HashMap<>();
 
     protected Texture texture;
     protected Sprite sprite;
@@ -50,6 +53,7 @@ public class Player
     protected Vector2 velocity;
     protected Rectangle bounds;
     protected Rectangle attackHitbox;
+    protected PlayerAttack playerAttack;
     protected boolean attackedAlready;
     private PlatformerInput platformerInput;
     protected boolean grounded;
@@ -67,19 +71,18 @@ public class Player
     private boolean rightMove;
     private boolean downMove;
     private boolean jump;
-    private boolean attack;
     private boolean displayMessage;
     private boolean nextMessage;
     private boolean npcInteraction;
     private boolean itemInteraction;
     private boolean messageChoiceAvailable = false;
 
-    enum State
+    public enum State
     {
         STANDING, WALKING, JUMPING, FALLING, WALL_RIDING, LOOKING_DOWN, LOOKING_UP,TOUCHING_WALL,
         ATTACKING, DEFENDING, PUNCHING, STANCE
     }
-    enum Status
+    public enum Status
     {
         DEAD
     }
@@ -90,7 +93,6 @@ public class Player
     protected boolean wallRiding = false;
     protected boolean lookingUp;
     protected boolean lookingDown;
-    protected boolean spriteAttacking;
     protected boolean defending;
     protected boolean allowedToDash;
     protected boolean dashing;
@@ -100,12 +102,10 @@ public class Player
     protected Animation<TextureRegion> attackingAnimation;
     protected float runningElapsedTime;
     protected float standingElapsedTime;
-    protected float attackingElapsedTime;
     protected float baseFrameDuration = 1/4f;
     protected float velocitySensitivity = 0.002f;
     protected float runningFrameDuration;
     protected float standingFrameDuration = 1/6f;
-    protected float attackingFrameDuration = 1f;
     protected TextureRegion runningFlippedFrame;
     protected TextureRegion standingFlippedFrame;
     protected TextureRegion attackingFlippedFrame;
@@ -135,7 +135,6 @@ public class Player
         doubleJumped = false;
         lookingUp = false;
         lookingDown = false;
-        spriteAttacking = false;
         attackedAlready = false;
         defending = false;
         flying = false;
@@ -150,6 +149,8 @@ public class Player
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
+
+        playerAttack = new PlayerAttack(this);
 
         collectedItems = new LinkedList<>();
 
@@ -170,7 +171,7 @@ public class Player
         standingFlippedFrame = new TextureRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
 
         attackingAnimation = new Animation<>(1 / 3f, textureAtlas.findRegions("attackNeutral"));
-        attackingElapsedTime = 0f;
+        float attackingElapsedTime = 0f;
         attackingFlippedFrame = new TextureRegion(attackingAnimation.getKeyFrame(attackingElapsedTime,true));
 
         platformerInput = new PlatformerInput(this);
@@ -206,7 +207,6 @@ public class Player
         doubleJumped = false;
         lookingUp = false;
         lookingDown = false;
-        spriteAttacking = false;
         attackedAlready = false;
         defending = false;
         flying = false;
@@ -221,6 +221,8 @@ public class Player
         bounds = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
         bounds.setSize(WIDTH, HEIGHT); // Update the bounds size
         state = State.STANDING;
+
+        playerAttack = new PlayerAttack(this);
 
         collectedItems = new LinkedList<>();
 
@@ -240,6 +242,10 @@ public class Player
         standingElapsedTime = 0f;
         standingFlippedFrame = new TextureRegion(standingAnimation.getKeyFrame(standingElapsedTime,true));
 
+        attackingAnimation = new Animation<>(1 / 3f, textureAtlas.findRegions("attackNeutral"));
+        float attackingElapsedTime = 0f;
+        attackingFlippedFrame = new TextureRegion(attackingAnimation.getKeyFrame(attackingElapsedTime,true));
+
         platformerInput = new PlatformerInput(this);
         Gdx.input.setInputProcessor(platformerInput);
 
@@ -248,7 +254,7 @@ public class Player
         System.out.println("Width: " + sprite.getWidth() + " Height: " + sprite.getHeight());
     }
 
-    float dt = (1/60f);
+    protected float dt = (1/60f);
     /**
      * Controls the basic movement of the player. The original input() has been taken over by this method.
      * How fast the player can move is controlled by MAX_VELOCITY
@@ -345,10 +351,6 @@ public class Player
         {
             standingElapsedTime = 0;
         }
-        if (attackingElapsedTime >= (attackingFrameDuration))
-        {
-            attackingElapsedTime = 0;
-        }
         //System.out.println();
         if (velocity.x < 0)
         {
@@ -427,20 +429,7 @@ public class Player
                 drawSprite("defending", position.x, position.y);
                 break;
             case PUNCHING:
-                if (velocity.x >= 200 || velocity.x <= -200) { // Switch to have the appearance of a dash attack if its above 200 velocity
-                    drawSprite("attacking", position.x, position.y);
-                } else {
-                    if (facingRight && !sprite.isFlipX()) {
-                        // Flip the sprite horizontally
-                        attackingFlippedFrame.setRegion(attackingAnimation.getKeyFrame(attackingElapsedTime, false));
-                        attackingFlippedFrame.flip(true, false);
-                        spriteBatch.draw(attackingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
-                    } else {
-                        attackingFlippedFrame.setRegion(attackingAnimation.getKeyFrame(attackingElapsedTime, false));
-                        attackingFlippedFrame.flip(false, false);
-                        spriteBatch.draw(attackingFlippedFrame, position.x - (WIDTH / 2f) - xOffset, position.y - yOffset, SPRITE_WIDTH, SPRITE_HEIGHT);
-                    }
-                }
+                playerAttack.attackRenderMovement(this);
                 break;
             case STANCE:
                 drawSprite("stance", position.x, position.y);
@@ -718,129 +707,6 @@ public class Player
         }
     }
 
-    private float attackTimer = 0;
-    boolean attackUp = false;
-    boolean attackDown = false;
-    /**
-     * Allows the player to attack. When the attack button is pressed, a box is placed in front of the player briefly.
-     * This method works with attackRender()
-     * TODO: Have the animation play separate from the attack
-     * TODO: Think of better names then "attacking"
-     * :D
-     */
-    public void attack()
-    {
-        attack = true;
-        spriteAttacking = true;
-        attackTimer = 0;
-        attackingElapsedTime += 1/3f; // This sucks but whatever. This just controls what frame is selected when attacking
-        //attack = false;
-        if (lookingUp)
-        {
-            attackUp = true;
-        } else if (lookingDown)
-        {
-            attackDown = true;
-        }
-        attackLogic();
-        // Jump to attackRender() //
-    }
-
-    private void attackTimer()
-    {
-        if (spriteAttacking)
-        {
-            attackTimer += Gdx.graphics.getDeltaTime();
-        }
-        float attackInterval = 0.2f;
-        if (attackTimer >= attackInterval)
-        {
-            System.out.println("Entering if statement");
-            // Code to execute after the delay
-            attackTimer = 0;
-            attackHitbox = null;
-            System.out.println("HitBox removed");
-            spriteAttacking = false;
-            attack = false;
-            attackUp = false;
-            attackDown = false;
-        }
-    }
-
-    /**
-     * deployAttack deals damage to the enemy and then sets attack to "false" to stop the player from dealing damage
-     * @param e Enemy
-     */
-    public void deployAttack(Enemy e)
-    {
-        e.setHealth(e.getHealth() - (5f * random.nextInt(1,3)));
-
-        if (lookingDown && !grounded)
-        {
-            velocity.y += 500f;
-        } else {
-            if (facingRight) {
-                e.setVelocity(e.velocity.x + 150f, e.velocity.y + 150f);
-                if (velocity.x >= 20) {
-                    velocity.x -= 100f;
-                }
-            } else {
-                e.setVelocity(e.velocity.x - 150f, e.velocity.y + 150f);
-                if (velocity.x <= -20) {
-                    velocity.x += 100f;
-                }
-            }
-        }
-        attack = false;
-    }
-
-    /**
-     * Renders the hitbox for attack.
-     * This is more for debugging purposes and this method will soon include something such as an attack image
-     */
-    public void attackRender()
-    {
-        attackTimer();
-        try {
-            if (attack) {
-                attackLogic();
-            } else
-            {
-                attackHitbox = null;
-            }
-        } catch (Exception e)
-        {
-            // what
-        }
-    }
-
-    /**
-     * AttackLogic is a method that condenses the code within attack() and attackRender()
-     * Both methods had the same exact code. This is to simplify the code.
-     * attack and attackRender cannot be combined, as they both serve different functions. attack() is linked to the
-     * actual key press, which can only be done once. attackRender is linked to the render method. This is so that it
-     * constantly shows where the hitbox is as long as the hitbox is active.
-     * I suppose there could be a way to fuse the methods depending on what is passed into the method, but for now
-     * this works.
-     */
-    public void attackLogic()
-    {
-        if (attackUp)
-        {
-            attackHitbox = new Rectangle(position.x + (WIDTH / 5f), position.y + HEIGHT, 25f, 25f);
-        } else if (attackDown)
-        {
-            attackHitbox = new Rectangle(position.x + (WIDTH / 5f),position.y - 25f, 25f, 25f);
-        } else
-        {
-            if (facingRight) {
-                attackHitbox = new Rectangle(position.x + WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
-            } else {
-                attackHitbox = new Rectangle(position.x - WIDTH, position.y + (HEIGHT / 3f), 25f, 25f);
-            }
-        }
-    }
-
     float invincibleTimer = 3f;
     /**
      * Handles how the player character responds to getting hurt.
@@ -958,18 +824,9 @@ public class Player
             state = State.WALL_RIDING;
         }
 
-        if (spriteAttacking)
-        {
-            state = State.PUNCHING;
-        }
-
-        if (dashing)
-        {
-            state = State.ATTACKING;
-        }
-
+        playerAttack.attackUpdate(this);
         //hitbox render test
-        attackRender();
+        //attackRender();
 
     }
 
@@ -1346,14 +1203,6 @@ public class Player
         return rightMove;
     }
 
-    public boolean isSpriteAttacking() {
-        return spriteAttacking;
-    }
-
-    public void setSpriteAttacking(boolean spriteAttacking) {
-        this.spriteAttacking = spriteAttacking;
-    }
-
     public boolean isDefending() {
         return defending;
     }
@@ -1398,22 +1247,6 @@ public class Player
         this.collectedItems = collectedItems;
     }
 
-    public Rectangle getAttackHitbox() {
-        return attackHitbox;
-    }
-
-    public void setAttackHitbox(Rectangle attackHitbox) {
-        this.attackHitbox = attackHitbox;
-    }
-
-    public boolean isAttack() {
-        return attack;
-    }
-
-    public void setAttack(boolean attack) {
-        this.attack = attack;
-    }
-
     public float getRunningFrameDuration() {
         return runningFrameDuration;
     }
@@ -1436,6 +1269,34 @@ public class Player
 
     public void setMessageChoiceAvailable(boolean messageChoiceAvailable) {
         this.messageChoiceAvailable = messageChoiceAvailable;
+    }
+
+    public HashMap<String, Sprite> getSprites() {
+        return sprites;
+    }
+
+    public boolean isFacingRight() {
+        return facingRight;
+    }
+
+    public void setFacingRight(boolean facingRight) {
+        this.facingRight = facingRight;
+    }
+
+    public boolean isWallRiding() {
+        return wallRiding;
+    }
+
+    public void setWallRiding(boolean wallRiding) {
+        this.wallRiding = wallRiding;
+    }
+
+    public PlayerAttack getPlayerAttack() {
+        return playerAttack;
+    }
+
+    public void setPlayerAttack(PlayerAttack playerAttack) {
+        this.playerAttack = playerAttack;
     }
 
     public void dispose()

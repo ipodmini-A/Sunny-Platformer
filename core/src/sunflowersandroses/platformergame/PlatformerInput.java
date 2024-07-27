@@ -3,6 +3,7 @@ package sunflowersandroses.platformergame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import sunflowersandroses.platformergame.player.Player;
 
 /**
  * PlatformerInput handles the input for the player. Currently, in the process of being deprecated.

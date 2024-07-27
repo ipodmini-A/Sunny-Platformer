@@ -1,7 +1,7 @@
 package sunflowersandroses.platformergame.screens;
 
 import sunflowersandroses.platformergame.PlatformerGame;
-import sunflowersandroses.platformergame.Player;
+import sunflowersandroses.platformergame.player.Player;
 import sunflowersandroses.platformergame.SlotsGame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;

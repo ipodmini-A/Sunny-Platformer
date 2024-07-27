@@ -3,7 +3,7 @@ package sunflowersandroses.platformergame.screens;
 import sunflowersandroses.platformergame.GameState;
 import sunflowersandroses.platformergame.NewPlatformerInput;
 import sunflowersandroses.platformergame.PlatformerGame;
-import sunflowersandroses.platformergame.Player;
+import sunflowersandroses.platformergame.player.Player;
 import sunflowersandroses.platformergame.console.ConsoleCommands;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;

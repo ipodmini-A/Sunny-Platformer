@@ -1,5 +1,7 @@
 package sunflowersandroses.platformergame;
 
+import sunflowersandroses.platformergame.player.Player;
+
 import java.util.Random;
 
 public class BattleCalculation

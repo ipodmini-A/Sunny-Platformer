@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import sunflowersandroses.platformergame.player.Player;
 
 /**
  * BattleOld is the old UI system for the game. I still see some benefit to having this form of UI exist, so until

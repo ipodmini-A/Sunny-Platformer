@@ -2,12 +2,11 @@ package sunflowersandroses.platformergame.screens;
 
 import sunflowersandroses.platformergame.*;
 import sunflowersandroses.platformergame.console.ConsoleCommands;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import sunflowersandroses.platformergame.player.Player;
 
 /**
  * GameScreen is the main platformer screen of the game.
