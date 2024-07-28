@@ -131,7 +131,7 @@ public class Item
      */
     public void interact(Player player)
     {
-        if (messageList != null && player.isItemInteraction()) {
+        if (messageList != null && player.isInteraction()) {
             System.out.println("AA");
             p = player;
             if (touchingPlayer) {

@@ -1,0 +1,59 @@
+{
+    "activeFile": "test1.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "cave_tileset.tsx": {
+            "scaleInDock": 1
+        },
+        "test1.tmx": {
+            "expandedObjectLayers": [
+                6
+            ],
+            "scale": 5.5,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 48.00000000000003,
+                "y": 976
+            }
+        },
+        "test2.tmx": {
+            "expandedObjectLayers": [
+                5
+            ],
+            "scale": 2,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1232,
+                "y": 496
+            }
+        },
+        "tileFiles/Chest Animation.tsx": {
+            "scaleInDock": 1
+        },
+        "tileFiles/FX Flame.tsx": {
+            "scaleInDock": 1
+        },
+        "tileFiles/FX Torch Flame.tsx": {
+            "scaleInDock": 1
+        },
+        "tileFiles/Tileset Ground.tsx": {
+            "scaleInDock": 1
+        },
+        "tileFiles/Village Props.tsx": {
+            "scaleInDock": 1
+        }
+    },
+    "last.objectTemplatePath": "C:/Users/Jupiter/Documents/Code/Java/platformerGame/assets/levels/mapTemplates",
+    "openFiles": [
+        "test1.tmx",
+        "test2.tmx"
+    ],
+    "project": "sunflowerPlatformer.tiled-project",
+    "property.type": "int",
+    "recentFiles": [
+        "test2.tmx",
+        "test1.tmx"
+    ]
+}

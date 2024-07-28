@@ -1,7 +1,6 @@
 package sunflowersandroses.platformergame;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -57,6 +56,11 @@ public class World {
     private final OrthogonalTiledMapRenderer mapRenderer;
     private final MapObjects objects;
     private final MapObjects endGameObject;
+    protected LinkedList<MapObject> loadingZones;
+    protected MapLayer collisionLayer;
+    protected MapLayer endGoalLayer;
+    protected MapLayer playerSpawnPoint;
+    protected MapLayer loadingZoneLayer;
     public static boolean debug = true;
     private SpriteBatch spriteBatch;
     private final ShapeRenderer debugRenderer;
@@ -83,11 +87,24 @@ public class World {
         spriteBatch = new SpriteBatch();
 
         // Layers from the map that was spawned above.
-        MapLayer collisionLayer = map.getLayers().get("collision");
-        MapLayer endGoalLayer = map.getLayers().get("endgoal");
-        MapLayer playerSpawnPoint = map.getLayers().get("playerSpawn");
+        collisionLayer = map.getLayers().get("collision");
+        endGoalLayer = map.getLayers().get("endgoal");
+        playerSpawnPoint = map.getLayers().get("playerSpawn");
         objects = collisionLayer.getObjects();
         endGameObject = endGoalLayer.getObjects();
+
+        try {
+            loadingZones = new LinkedList<>();
+            loadingZoneLayer = map.getLayers().get("loadingZones");
+            for (int i = 0; i < loadingZoneLayer.getObjects().getCount(); i++) {
+                loadingZones.add(loadingZoneLayer.getObjects().get(i));
+            }
+        } catch (Exception e)
+        {
+            System.err.println(e.getMessage());
+            System.err.println("Loading Zones not present.");
+        }
+
         MapObjects playerSpawnPointObject = playerSpawnPoint.getObjects();
 
         // Camera creation
@@ -756,30 +773,26 @@ public class World {
         //npcLocation.set(npcLocation.x - 10f, npcLocation.y, npcLocation.getWidth() + 10f, npcLocation.getHeight());
         if (player.getBounds().overlaps(n.getInteractionBound())) {
             n.setTouchingPlayer(true);
-            player.setNpcInteraction(true);
-           //System.out.println(player.isNpcInteraction());
+            player.setInteraction(true);
             return true;
         } else
         {
             n.setTouchingPlayer(false);
-            //player.setNpcInteraction(false);
         }
         return false;
     }
 
     public boolean isCollidingWithObject(Item item) {
         //item.setCollected(true);
-        //Add logic for when the player collects items (Maybe have an array of items within Player.java)
-        if (player.getBounds().overlaps(item.getBounds()))
-        {
+        if (player.getBounds().overlaps(item.getBounds())) {
             item.setTouchingPlayer(true);
-            player.setItemInteraction(true);
+            player.setInteraction(true);
             return true;
+        } else
+        {
+            item.setTouchingPlayer(false);
         }
-        item.setTouchingPlayer(false);
-        player.setItemInteraction(false);
         return false;
-        //item.setCollected(false);
     }
 
     public int isAttackingEnemy() {
@@ -813,26 +826,27 @@ public class World {
         }
     }
 
-    private void messageRenderNPC(NonPlayableCharacter p)
+    private void messageRenderNPC(NonPlayableCharacter nonPlayableCharacter)
     {
         if (player.isDisplayMessage()) {
-            p.setDisplayMessage(true);
+            nonPlayableCharacter.setDisplayMessage(true);
         }
-        if (p.isDisplayMessage()) {
+        if (nonPlayableCharacter.isDisplayMessage()) {
             //p.Message(player);
-            p.dialogue.Message(player,p);
-            p.setDisplayMessage(false);
+            nonPlayableCharacter.dialogue.Message(player,nonPlayableCharacter);
+            nonPlayableCharacter.setDisplayMessage(false);
         }
     }
 
     private void messageRenderItem(Item i)
     {
-        if (i.getBounds().overlaps(player.getBounds()) && player.isDisplayMessage())
+        if (player.isDisplayMessage())
         {
             i.setDisplayMessage(true);
         }
         if (i.isDisplayMessage())
         {
+            System.out.println("AA");
             i.interact(player);
             i.setDisplayMessage(false);
             //roulette.interact(game, player);
@@ -943,7 +957,7 @@ public class World {
         }
 
         // Item render
-        boolean touchingItem = false;
+        boolean touching = false;
         try {
             for (int i = 0; i < items.size(); i++) {
 
@@ -952,7 +966,7 @@ public class World {
                 items.get(i).updateCamera(camera);
                 items.get(i).render(spriteBatch, delta);
                 //collectables.get(i).interact(player);
-                messageRenderItem(items.get(i));
+                //messageRenderItem(items.get(i));
                 if (isCollidingWithObject(items.get(i))) {
                     if (!items.get(i).isCollected() && items.get(i).isAllowedToBeCollected()) {
                         items.get(i).setCollected(true);
@@ -960,12 +974,12 @@ public class World {
                         player.itemCollected(items.get(i));
                         items.remove(i);
                     }
-                    touchingItem = true;
+                    touching = true;
                     messageRenderItem(items.get(i));
                 }
             }
-            if (!touchingItem) {
-                player.setItemInteraction(false);
+            if (!touching) {
+                player.setInteraction(false);
             }
         } catch (Exception e)
         {
@@ -974,7 +988,6 @@ public class World {
 
         // NPC render
         // When the NPC displays their UI, I need it to be in front of things such as items. Fow now this is an easy implementation
-        boolean touchingNPC = false;
         for (int i = 0; i < nonPlayableCharacters.size(); i++) {
             nonPlayableCharacters.get(i).updateCamera(camera);
             checkCollisions(delta, nonPlayableCharacters.get(i));
@@ -988,13 +1001,13 @@ public class World {
             //isCollidingWithNPC(nonPlayableCharacters.get(0)); // WHYYYYYYYY? WHEN I SET THIS TO 0 IT WORKS FINE BUT WHEN IT'S IN THE LOOP IT BREAKS
             if (isCollidingWithNPC(nonPlayableCharacters.get(i)))
             {
-                touchingNPC = true;
+                touching = true;
                 messageRenderNPC(nonPlayableCharacters.get(i));
             }
         }
-        if (!touchingNPC)
+        if (!touching)
         {
-            player.setNpcInteraction(false);
+            player.setInteraction(false);
         }
 
         // Player render
@@ -1133,5 +1146,11 @@ public class World {
         this.mapProperties = mapProperties;
     }
 
+    public LinkedList<MapObject> getLoadingZones() {
+        return loadingZones;
+    }
 
+    public void setLoadingZones(LinkedList<MapObject> loadingZones) {
+        this.loadingZones = loadingZones;
+    }
 }

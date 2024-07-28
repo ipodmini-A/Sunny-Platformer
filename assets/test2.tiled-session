@@ -3,21 +3,50 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "levels/test2.tmx",
     "expandedProjectPaths": [
+        "enemiesData",
+        ".",
+        "levels"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "cave_tileset.tsx": {
             "scaleInDock": 1
         },
+        "levels/cave_tileset.tsx": {
+            "scaleInDock": 1
+        },
         "levels/test1.tmx": {
             "scale": 0.524875,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 801.143129316504,
-                "y": 800.1905215527507
+                "x": 3271.2550607287453,
+                "y": 1577.5184567754227
             }
+        },
+        "levels/test2.tmx": {
+            "scale": 0.812546875,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1598.6769994038805,
+                "y": 321.2122377555142
+            }
+        },
+        "levels/tileFiles/Chest Animation.tsx": {
+            "scaleInDock": 1
+        },
+        "levels/tileFiles/FX Flame.tsx": {
+            "scaleInDock": 1
+        },
+        "levels/tileFiles/FX Torch Flame.tsx": {
+            "scaleInDock": 1
+        },
+        "levels/tileFiles/Tileset Ground.tsx": {
+            "scaleInDock": 1
+        },
+        "levels/tileFiles/Village Props.tsx": {
+            "scaleInDock": 1
         },
         "test1.tmx": {
             "scale": 0.6269,
@@ -60,9 +89,13 @@
     "map.lastUsedFormat": "tmx",
     "map.width": 2000,
     "openFiles": [
+        "levels/test1.tmx",
+        "levels/test2.tmx"
     ],
     "project": "test2.tiled-project",
     "recentFiles": [
+        "levels/test1.tmx",
+        "levels/test2.tmx",
         "test1.tmx",
         "test2.tmx"
     ]

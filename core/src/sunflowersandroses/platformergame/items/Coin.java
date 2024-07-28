@@ -47,7 +47,7 @@ public class Coin extends Item {
 
     @Override
     public void collectedAction(Player p) {
-        sound.play(1.0f);
+        sound.play(.5f, 1.4f,0f);
         p.setMoney(p.getMoney() + coinMultiplier);
     }
 }

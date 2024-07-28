@@ -67,9 +67,8 @@ public class NewPlatformerInput implements InputProcessor
                 }
                 break;
             case Input.Keys.C:
-                System.out.println(p.isNpcInteraction());
-                System.out.println(p.isItemInteraction());
-                if (p.isNpcInteraction() || p.isItemInteraction())
+                System.out.println(p.isInteraction());
+                if (p.isInteraction())
                 {
                     if (!p.isMessageChoiceAvailable()) {
                         if (p.isDisplayMessage()) {
@@ -89,12 +88,12 @@ public class NewPlatformerInput implements InputProcessor
                 p.setMenuPressed(true);
                 break;
             case Input.Keys.V:
-                if (p.isDisplayMessage())
-                {
-                    p.setNextMessage(true);
-                } else
-                {
-                    p.setDisplayMessage(true);
+                if (!p.isMessageChoiceAvailable()) {
+                    if (p.isDisplayMessage()) {
+                        p.setNextMessage(true);
+                    } else {
+                        p.setDisplayMessage(true);
+                    }
                 }
                 break;
             case Input.Keys.UP:
@@ -125,8 +124,7 @@ public class NewPlatformerInput implements InputProcessor
                 break;
             case Input.Keys.DOWN:
                 p.setDownMove(true);
-                System.out.println(p.isItemInteraction());
-                if (p.isNpcInteraction() || p.isItemInteraction())
+                if (p.isInteraction())
                 {
                     if (!p.isMessageChoiceAvailable()) {
                         if (p.isDisplayMessage()) {

@@ -67,10 +67,10 @@ public class SlotMachine extends Item {
      * @param p
      */
     public void interact(Player p) {
-        if (p.isItemInteraction()) {
-            p.setItemInteraction(false);
+
+            p.setInteraction(false);
             p.setDisplayMessage(false);
             GameScreen.game.setScreen(new SlotsScreen(GameScreen.game, p));
-        }
+
     }
 }

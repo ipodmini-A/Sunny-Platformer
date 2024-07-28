@@ -268,7 +268,7 @@ public class Dialogue {
             if (messageIndex >= messageList.size()) {
                 // All messages have been displayed
                 player.setDisableControls(false);
-                NPC.setNpcInteraction(false);
+                NPC.setInteraction(false);
                 resetDialogue();
             } else {
                 player.setDisableControls(true);
@@ -351,7 +351,7 @@ public class Dialogue {
         } else {
             // Player is not touching the NPC
             resetDialogue();
-            player.setNpcInteraction(false);
+            player.setInteraction(false);
             player.setDisableControls(false);
         }
     }

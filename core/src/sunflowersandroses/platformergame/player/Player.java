@@ -73,8 +73,7 @@ public class Player
     private boolean jump;
     private boolean displayMessage;
     private boolean nextMessage;
-    private boolean npcInteraction;
-    private boolean itemInteraction;
+    private boolean interaction;
     private boolean messageChoiceAvailable = false;
 
     public enum State
@@ -141,8 +140,7 @@ public class Player
         dashing = false;
         invincible = false;
         allowedToDash = true;
-        npcInteraction = false;
-        itemInteraction = false;
+        interaction = false;
         displayMessage = false;
         nextMessage = false;
         disableControls = false;
@@ -213,8 +211,7 @@ public class Player
         dashing = false;
         invincible = false;
         allowedToDash = true;
-        npcInteraction = false;
-        itemInteraction = false;
+        interaction = false;
         displayMessage = false;
         nextMessage = false;
         disableControls = false;
@@ -1136,21 +1133,12 @@ public class Player
         this.speed = speed;
     }
 
-    public boolean isNpcInteraction() {
-        return npcInteraction;
+    public boolean isInteraction() {
+        return interaction;
     }
 
-    public void setNpcInteraction(boolean npcInteraction) {
-        this.npcInteraction = npcInteraction;
-    }
-
-    public boolean isItemInteraction () {
-        return itemInteraction;
-    }
-
-    public void setItemInteraction (boolean itemInteraction)
-    {
-        this.itemInteraction = itemInteraction;
+    public void setInteraction(boolean interaction) {
+        this.interaction = interaction;
     }
 
     public boolean isDownMove()

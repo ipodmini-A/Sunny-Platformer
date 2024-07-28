@@ -1,5 +1,7 @@
 package sunflowersandroses.platformergame;
 
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import sunflowersandroses.platformergame.console.ConsoleCommands;
@@ -225,6 +227,31 @@ public class LevelManager {
             }
         }
         gameOverCheck();
+        loadNewZone();
+    }
+
+    public void loadNewZone()
+    {
+        if (!currentLevel.loadingZones.isEmpty())
+        {
+            for (int i = 0; i < currentLevel.loadingZones.size(); i++)
+            {
+                RectangleMapObject rectObject = (RectangleMapObject) currentLevel.loadingZones.get(i);
+                Rectangle rect = rectObject.getRectangle();
+
+                if (player.getBounds().overlaps(rect))
+                {
+                    player.setInteraction(true);
+                    if (player.isInteraction() && player.isDisplayMessage()) {
+                        player.setInteraction(false);
+                        player.setDisplayMessage(false);
+                        loadLevel((Integer) currentLevel.loadingZones.get(i).getProperties().get("loadTo"));
+                    }
+                }
+            }
+        }
+
+
     }
 
     public void gameOverCheck()

@@ -46,7 +46,6 @@ public class NonPlayableCharacter extends Player {
     public NonPlayableCharacter(float x, float y) {
         super(x, y); // NonPlayableCharacter inherits everything from Player.java at first. Things such as sprites.
         loadCharacterData(1);
-        textureAtlas = new TextureAtlas("npcsprites.txt");
         addSprites();
         font = new BitmapFont();
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -244,7 +243,8 @@ public class NonPlayableCharacter extends Player {
             if (character.getInt("id") == characterId) {
                 name = character.getString("name");
                 JsonValue emotions = character.get("emotions").get(0);
-                dialogueTextureAtlas = new TextureAtlas(character.getString("textureAtlas"));
+                dialogueTextureAtlas = new TextureAtlas(character.getString("dialogueTextureAtlas"));
+                textureAtlas = new TextureAtlas(character.getString("spriteTextureAtlas"));
 
                 emotionSprites = new HashMap<>();
                 for (JsonValue emotion : emotions) {
