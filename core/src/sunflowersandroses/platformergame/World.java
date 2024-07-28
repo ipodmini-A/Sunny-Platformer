@@ -69,9 +69,6 @@ public class World {
 
     public World(Player player, PlatformerGame game, String mapName) {
         // Sound creation
-        //music = Gdx.audio.newMusic(Gdx.files.internal("sound/Tiny_Sheriff.mp3"));
-        //music.play();
-        //music.setVolume(0.0f);
 
         // Game context
         this.game = game;
@@ -865,7 +862,10 @@ public class World {
 
     public void loadItems(LinkedList<Item> i)
     {
-        items = i;
+        for (int j = 0; j < i.size(); j++)
+        {
+            items.add(i.get(j));
+        }
     }
 
     public void loadItem(Item i)
@@ -1026,6 +1026,7 @@ public class World {
             debugFont.draw(debugBatch, "Items Collected: " + player.getCollectedItems().size(), camera.viewportWidth * .05f, camera.viewportHeight * .75f);
             debugFont.draw(debugBatch, "Facing Right: " + player.isFacingRight(), camera.viewportWidth * .05f, camera.viewportHeight * .65f);
             debugFont.draw(debugBatch, "Player Health: " + player.getHealth(), camera.viewportWidth * .05f, camera.viewportHeight * .55f);
+            debugFont.draw(debugBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), camera.viewportWidth * .05f, camera.viewportHeight * .45f);
             //debugFont.draw(debugBatch, "Enemy Health: " + enemy.health, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .45f);
             //debugFont.draw(debugBatch, "Jump Time (Not Actually):" + player.jumpTime, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .35f);
         } catch (Exception e)

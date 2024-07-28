@@ -2,6 +2,7 @@ package sunflowersandroses.platformergame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -46,6 +47,9 @@ public class SlotsGame {
     protected PlatformerGame game;
     protected Screen saveScreen;
     protected Player player;
+    private Sound soundDing;
+    private Sound leverPull;
+    private Sound slotWin;
 
     public SlotsGame(final PlatformerGame game, Player p)
     {
@@ -118,6 +122,10 @@ public class SlotsGame {
         cashInjection.setX(Gdx.graphics.getWidth() - cashInjection.getWidth());
         cashInjection.setVisible(false);
         stage.addActor(cashInjection);
+
+        soundDing = Gdx.audio.newSound(Gdx.files.internal("sounds/spin.wav"));
+        leverPull = Gdx.audio.newSound(Gdx.files.internal("sounds/leverPull.wav"));
+        slotWin = Gdx.audio.newSound(Gdx.files.internal("sounds/slotWin.wav"));
         //gameTable.add(back).padRight(Gdx.graphics.getWidth()/2f);
     }
 
@@ -136,6 +144,12 @@ public class SlotsGame {
      */
     public void spin()
     {
+        if (currentSpin == 3)
+        {
+            leverPull.play(1.0f, 1.2f,0);
+        } else {
+            soundDing.play(1.0f, (currentSpin / 5f) + 1.5f, 0);
+        }
         System.out.println(currentSpin);
         if (player.getMoney() > 0 || currentSpin <= 2) {
             if (currentSpin == 0 && firstRun)
@@ -159,12 +173,14 @@ public class SlotsGame {
                 jackpotLabel.setFontScale(2f * (viewport.getScreenWidth() / viewport.getWorldWidth()));
                 jackpotLabel.setVisible(true);
                 if ((intNumber0 == intNumber1) && (intNumber1 == intNumber2)) {
+                    slotWin.play();
                     jackpotLabel.setText("{JUMP}{RAINBOW}JACKPOT!!!{ENDRAINBOW}");
                     jackpotLabel.setAlignment(Align.center);
                     jackpotLabel.setFontScale(5f * (viewport.getScreenWidth() / viewport.getWorldWidth()));
                     jackpotLabel.restart();
                     player.setMoney(player.getMoney() * jackpotMultiplier);
                 } else if ((intNumber0 == intNumber1) || (intNumber1 == intNumber2)) {
+                    slotWin.play();
                     jackpotLabel.setText("{WAVE}{GRADIENT=RED;BLUE;}Small Win!");
                     jackpotLabel.restart();
                     player.setMoney(player.getMoney() + 20);

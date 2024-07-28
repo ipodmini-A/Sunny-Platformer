@@ -22,13 +22,15 @@ public class PlayerAttack
     protected boolean attackUp = false;
     protected boolean attackDown = false;
 
-    private Sound sound;
+    private final Sound hitSound0;
+    private Sound hitSound1;
 
     public PlayerAttack(Player p)
     {
         player = p;
         random = new Random();
-        sound = Gdx.audio.newSound(Gdx.files.internal("sounds/punch0.wav"));
+        hitSound0 = Gdx.audio.newSound(Gdx.files.internal("sounds/punch0.wav"));
+        hitSound1 = Gdx.audio.newSound(Gdx.files.internal("sounds/punch1.wav"));
     }
     /**
      * Allows the player to attack. When the attack button is pressed, a box is placed in front of the player briefly.
@@ -84,7 +86,7 @@ public class PlayerAttack
      */
     public void deployAttack(Enemy e)
     {
-        sound.play(1.0f);
+        deployAttackSound();
 
         if (player.lookingDown && !player.isGrounded())
         {
@@ -104,6 +106,18 @@ public class PlayerAttack
         }
         e.setHealth(e.getHealth() - (player.getAttackPoints() * random.nextInt(1,3)));
         attack = false;
+    }
+
+    public void deployAttackSound()
+    {
+        int soundToChoose = random.nextInt(2);
+        if (soundToChoose == 0)
+        {
+            hitSound0.play(1.0f);
+        }else
+        {
+            hitSound1.play(1.0f);
+        }
     }
 
     /**
@@ -181,7 +195,7 @@ public class PlayerAttack
                 if (attackUp)
                 {
                     player.drawSprite("attackUp", player.position.x, player.position.y);
-                } else if (attackDown)
+                } else if (attackDown && !player.grounded)
                 {
                     player.drawSprite("attackDown", player.position.x, player.position.y);
                 } else {
