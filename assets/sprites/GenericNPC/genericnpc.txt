@@ -1,4 +1,4 @@
-npcsprites.png
+genericnpc.png
 size: 400, 400
 format: RGBA8888
 filter: Linear,Linear

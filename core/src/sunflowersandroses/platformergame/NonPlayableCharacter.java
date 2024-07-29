@@ -43,9 +43,9 @@ public class NonPlayableCharacter extends Player {
     public Dialogue dialogue;
     private HashMap<String, String> emotionSprites;
 
-    public NonPlayableCharacter(float x, float y) {
+    public NonPlayableCharacter(float x, float y, int characterID) {
         super(x, y); // NonPlayableCharacter inherits everything from Player.java at first. Things such as sprites.
-        loadCharacterData(1);
+        loadCharacterData(characterID);
         addSprites();
         font = new BitmapFont();
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -223,15 +223,20 @@ public class NonPlayableCharacter extends Player {
 
     private void addSprites() {
         Array<TextureAtlas.AtlasRegion> regions = textureAtlas.getRegions();
-        Array<TextureAtlas.AtlasRegion> overworldRegions = dialogueTextureAtlas.getRegions();
-
         for (TextureAtlas.AtlasRegion region : regions) {
             Sprite sprite = textureAtlas.createSprite(region.name);
             sprites.put(region.name, sprite);
         }
-        for (TextureAtlas.AtlasRegion region : overworldRegions) {
-            Sprite overworldSprite = dialogueTextureAtlas.createSprite(region.name);
-            overworldSprites.put(region.name, overworldSprite);
+
+        try {
+            Array<TextureAtlas.AtlasRegion> overworldRegions = dialogueTextureAtlas.getRegions();
+            for (TextureAtlas.AtlasRegion region : overworldRegions) {
+                Sprite overworldSprite = dialogueTextureAtlas.createSprite(region.name);
+                overworldSprites.put(region.name, overworldSprite);
+            }
+        } catch (Exception e)
+        {
+            System.err.println(e.getMessage());
         }
     }
 
@@ -243,7 +248,13 @@ public class NonPlayableCharacter extends Player {
             if (character.getInt("id") == characterId) {
                 name = character.getString("name");
                 JsonValue emotions = character.get("emotions").get(0);
-                dialogueTextureAtlas = new TextureAtlas(character.getString("dialogueTextureAtlas"));
+                try {
+                    dialogueTextureAtlas = new TextureAtlas(character.getString("dialogueTextureAtlas"));
+                } catch (Exception e)
+                {
+                    System.err.println(e.getMessage());
+                    System.err.println("Dialogue Texture Atlas not present.");
+                }
                 textureAtlas = new TextureAtlas(character.getString("spriteTextureAtlas"));
 
                 emotionSprites = new HashMap<>();

@@ -71,7 +71,6 @@ public class LevelManager {
             multiplexer.addProcessor(ConsoleCommands.getConsole().getInputProcessor());
             multiplexer.addProcessor(newPlatformerInput);
             Gdx.input.setInputProcessor(multiplexer);
-            System.out.println("New input created");
 
             currentLevel = new World(LevelManager.player, LevelManager.game, levelData.mapPath);
             currentLevel.loadEnemies(loadEnemies(levelData.enemyDataPath));
@@ -100,7 +99,6 @@ public class LevelManager {
             multiplexer.addProcessor(ConsoleCommands.getConsole().getInputProcessor());
             multiplexer.addProcessor(newPlatformerInput);
             Gdx.input.setInputProcessor(multiplexer);
-            System.out.println("New input created");
 
             currentLevel = new World(player, game, levelData.mapPath);
             currentLevel.loadEnemies(loadEnemies(levelData.enemyDataPath));
@@ -147,12 +145,14 @@ public class LevelManager {
             int mapHeight = currentLevel.getMapProperties().get("height", Integer.class) * 32;
 
             for (JsonValue npcData : jsonData.get("npcs")) {
-                int id = npcData.getInt("id");
+                int messageID = npcData.getInt("messageID");
+                int characterID = npcData.getInt("characterID");
+
                 float xPosition = npcData.getFloat("x");
                 float yPosition = npcData.getFloat("y");
 
-                NonPlayableCharacter loadingNPC = new NonPlayableCharacter(xPosition, (mapHeight - yPosition));
-                loadingNPC.dialogue.setMessageListID(id);
+                NonPlayableCharacter loadingNPC = new NonPlayableCharacter(xPosition, (mapHeight - yPosition), characterID);
+                loadingNPC.dialogue.setMessageListID(messageID);
                 NPCList.add(loadingNPC);
             }
         } catch (Exception e)

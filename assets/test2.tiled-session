@@ -14,39 +14,21 @@
         "cave_tileset.tsx": {
             "scaleInDock": 1
         },
-        "levels/cave_tileset.tsx": {
-            "scaleInDock": 1
-        },
         "levels/test1.tmx": {
             "scale": 0.524875,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 3271.2550607287453,
-                "y": 1577.5184567754227
+                "x": 801.143129316504,
+                "y": 800.1905215527507
             }
         },
         "levels/test2.tmx": {
-            "scale": 0.812546875,
+            "scale": 1.0111,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1598.6769994038805,
-                "y": 321.2122377555142
+                "x": 1195.2329146474135,
+                "y": 390.1691227376125
             }
-        },
-        "levels/tileFiles/Chest Animation.tsx": {
-            "scaleInDock": 1
-        },
-        "levels/tileFiles/FX Flame.tsx": {
-            "scaleInDock": 1
-        },
-        "levels/tileFiles/FX Torch Flame.tsx": {
-            "scaleInDock": 1
-        },
-        "levels/tileFiles/Tileset Ground.tsx": {
-            "scaleInDock": 1
-        },
-        "levels/tileFiles/Village Props.tsx": {
-            "scaleInDock": 1
         },
         "test1.tmx": {
             "scale": 0.6269,

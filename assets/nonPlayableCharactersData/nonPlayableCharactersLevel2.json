@@ -1,12 +1,14 @@
 {
   "npcs": [
     {
-      "id": 3,
+      "characterID": 0,
+      "messageID": 3,
       "x": 1245,
       "y": 420
     },
     {
-      "id": 4,
+      "characterID": 1,
+      "messageID": 4,
       "x": 480,
       "y": 420
     }

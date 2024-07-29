@@ -3,8 +3,8 @@
     {
       "id": 0,
       "name": "Default",
-      "spriteTextureAtlas": "sprites.txt",
-      "textureAtlas": "sprites/Rose/roseUI.txt" ,
+      "spriteTextureAtlas": "sprites/GenericNPC/genericnpc.txt",
+      "dialogueTextureAtlas": "",
       "emotions": [
         {
           "NEUTRAL": "",
@@ -18,7 +18,7 @@
     {
       "id": 1,
       "name": "Rose",
-      "spriteTextureAtlas": "npcsprites.txt",
+      "spriteTextureAtlas": "sprites/Rose/rosenpcsprites.txt",
       "dialogueTextureAtlas": "sprites/Rose/roseUI.txt",
       "emotions": [
         {
