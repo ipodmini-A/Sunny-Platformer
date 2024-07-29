@@ -1,7 +1,8 @@
 {
-    "activeFile": "test1.tmx",
+    "activeFile": "test2.tmx",
     "expandedProjectPaths": [
-        "."
+        ".",
+        "mapTemplates"
     ],
     "fileStates": {
         "cave_tileset.tsx": {
@@ -25,8 +26,8 @@
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1232,
-                "y": 496
+                "x": 994,
+                "y": 445.75
             }
         },
         "tileFiles/Chest Animation.tsx": {
@@ -53,7 +54,7 @@
     "project": "sunflowerPlatformer.tiled-project",
     "property.type": "int",
     "recentFiles": [
-        "test2.tmx",
-        "test1.tmx"
+        "test1.tmx",
+        "test2.tmx"
     ]
 }
