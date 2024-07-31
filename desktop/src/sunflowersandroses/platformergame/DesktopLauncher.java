@@ -12,7 +12,7 @@ public class DesktopLauncher {
 		config.setWindowedMode(1280,720);
 		config.setForegroundFPS(60); // TODO: Fix bug that causes the game to run as fast as the FPS allows
 		config.setTitle("Sunflowers and Roses Game");
-		config.setResizable(false);
+		config.setResizable(true);
 		config.useVsync(false); // Disabling VSync fixed an issue where the game would lag if music wasn't present
 		// Don't ask me what that means please.
 		new Lwjgl3Application(new PlatformerGame(), config);
